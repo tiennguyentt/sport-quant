@@ -54,7 +54,7 @@ html,body,[class*="css"]{ font-family:'ppNeueMontreal','kensmark',sans-serif; }
   color:var(--ink);
 }
 #MainMenu,header[data-testid="stHeader"],footer{ display:none!important; }
-[data-testid="stAppViewContainer"]>.main .block-container{ padding:.9rem 1.4rem 5rem; max-width:1240px; }
+[data-testid="stAppViewContainer"]>.main .block-container{ padding:.35rem 1.4rem 5rem; max-width:1240px; }
 .num{ font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums; }
 .pos{ color:var(--pos); } .neg{ color:var(--neg); }
 /* sidebar = DKING left rail */
@@ -100,7 +100,7 @@ html,body,[class*="css"]{ font-family:'ppNeueMontreal','kensmark',sans-serif; }
 img.dk-ph{ object-fit:contain; padding:3px; background:#0e130b; }
 img.dk-cir{ object-fit:contain; background:#0e130b; padding:1px; }
 .dk-teamrow .t{ font-family:'kensmark';font-weight:800;font-size:16px;letter-spacing:-.01em;text-transform:uppercase; }
-.dk-teamrow .s{ font-family:'kensmark';font-weight:800;font-size:26px;color:var(--lime);line-height:1; }
+.dk-teamrow .s{ font-family:'kensmark';font-weight:800;font-size:34px;color:var(--lime);line-height:1; }
 .dk-prog{ height:3px;background:#1a2113;border-radius:2px;overflow:hidden;margin:6px 0 12px; }
 .dk-prog>i{ display:block;height:100%;background:var(--lime); }
 .dk-meta{ display:flex;justify-content:space-between;align-items:flex-end; }
