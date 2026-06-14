@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import streamlit as st
 
+import fonts_data  # SIRE fonts (Kensmark + PP Neue Montreal) embedded as data URIs
+
 # ---- palette (DKING) -------------------------------------------------------
 BG      = "#0A0D0A"
 PANEL   = "#11150F"
@@ -26,13 +28,13 @@ ACCENT  = "#A6E84B"
 def inject_css() -> None:
     html = """
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#0A0D0A; --panel:#11150F; --panel2:#161B12; --line:#222A1C;
   --ink:#F2F4EF; --muted:#8A938A; --dim:#5A6356; --lime:#A6E84B; --pos:#A6E84B; --neg:#FF5B6B; --accent:#A6E84B;
 }
-html,body,[class*="css"]{ font-family:'Archivo',sans-serif; }
+html,body,[class*="css"]{ font-family:'ppNeueMontreal','kensmark',sans-serif; }
 .stApp{
   background:#080B07;
   background-image:
@@ -62,14 +64,14 @@ html,body,[class*="css"]{ font-family:'Archivo',sans-serif; }
 .dk-rail{ background:rgba(17,21,15,.82); border:1px solid var(--line); border-radius:18px; padding:16px 15px; backdrop-filter:blur(3px); }
 .dk-brand{ display:flex; align-items:center; gap:10px; margin-bottom:16px; }
 .dk-mark{ width:34px;height:34px;border-radius:9px;border:1px solid #2c3a22;background:#0d120b;display:grid;place-items:center;color:var(--lime);font-size:15px; }
-.dk-brand b{ font-family:'Archivo';font-weight:800;font-size:17px;letter-spacing:-.01em; display:block;line-height:1; }
+.dk-brand b{ font-family:'kensmark';font-weight:800;font-size:17px;letter-spacing:-.01em; display:block;line-height:1; }
 .dk-brand span{ font-family:'IBM Plex Mono';font-size:10px;color:var(--dim);letter-spacing:.12em; }
 .dk-row{ display:flex;justify-content:space-between;align-items:center;font-size:12px;margin:12px 2px 8px; }
 .dk-row .k{ color:var(--muted);font-weight:600; } .dk-row .v{ font-family:'IBM Plex Mono';color:var(--muted);font-size:11px; }
 .dk-bal{ position:relative; overflow:hidden; background:#0e130b; border:1px solid #2c3a22; border-radius:13px; padding:13px 14px; }
 .dk-bal::after{ content:""; position:absolute; top:0; right:0; border-width:0 30px 30px 0; border-style:solid; border-color:transparent var(--lime) transparent transparent; }
 .dk-bal .l{ font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.02em; }
-.dk-bal .v{ font-family:'Archivo';font-weight:800;font-size:24px;color:var(--lime);letter-spacing:-.01em;margin-top:3px; }
+.dk-bal .v{ font-family:'kensmark';font-weight:800;font-size:24px;color:var(--lime);letter-spacing:-.01em;margin-top:3px; }
 .dk-foot{ font-size:12px;color:var(--dim);line-height:2.1;margin-top:14px; }
 .dk-foot .on{ color:var(--lime); }
 /* top live-score ticker */
@@ -79,13 +81,13 @@ html,body,[class*="css"]{ font-family:'Archivo',sans-serif; }
 .dk-twrap{ flex:1; min-width:0; overflow:hidden; }
 .dk-track{ display:flex; gap:34px; white-space:nowrap; animation:dktk 40s linear infinite; width:max-content; }
 .dk-mi{ display:flex; align-items:center; gap:9px; }
-.dk-cir{ width:22px;height:22px;border-radius:50%;background:#1a2113;border:1px solid #2c3a22;flex:none;display:grid;place-items:center;font-family:'Archivo';font-weight:700;font-size:10px;color:#7c8a66; }
-.dk-mi .nm{ font-family:'Archivo';font-weight:700;font-size:13px;color:var(--ink);text-transform:uppercase;letter-spacing:.01em; }
-.dk-mi .sc{ font-family:'Archivo';font-weight:800;font-size:14px;color:var(--lime); }
+.dk-cir{ width:22px;height:22px;border-radius:50%;background:#1a2113;border:1px solid #2c3a22;flex:none;display:grid;place-items:center;font-family:'kensmark';font-weight:700;font-size:10px;color:#7c8a66; }
+.dk-mi .nm{ font-family:'kensmark';font-weight:700;font-size:13px;color:var(--ink);text-transform:uppercase;letter-spacing:.01em; }
+.dk-mi .sc{ font-family:'kensmark';font-weight:800;font-size:14px;color:var(--lime); }
 .dk-mi .mn{ font-family:'IBM Plex Mono';font-size:10px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:1px 7px; }
 @keyframes dktk{ from{transform:translateX(0);} to{transform:translateX(-50%);} }
 /* hero line */
-.dk-hero{ font-family:'Archivo';font-weight:800;font-size:30px;line-height:1.15;letter-spacing:-.02em;max-width:620px;margin:6px 0 4px; }
+.dk-hero{ font-family:'kensmark';font-weight:800;font-size:30px;line-height:1.15;letter-spacing:-.02em;max-width:620px;margin:6px 0 4px; }
 .dk-hero .g{ color:var(--lime); }
 .dk-sub{ color:var(--muted);font-size:14px;margin:0 0 16px;max-width:620px; }
 /* DKING match card */
@@ -94,39 +96,39 @@ html,body,[class*="css"]{ font-family:'Archivo',sans-serif; }
 .dk-card .lg{ font-family:'IBM Plex Mono';font-size:10px;color:var(--dim);letter-spacing:.12em;text-transform:uppercase; }
 .dk-teamrow{ display:flex;justify-content:space-between;align-items:center;margin:11px 0; }
 .dk-tm{ display:flex;align-items:center;gap:11px; }
-.dk-ph{ width:32px;height:32px;border-radius:8px;background:#222a18;border:1px solid #394a28;flex:none;display:grid;place-items:center;font-family:'Archivo';font-weight:800;font-size:14px;color:#9aab73; }
+.dk-ph{ width:32px;height:32px;border-radius:8px;background:#222a18;border:1px solid #394a28;flex:none;display:grid;place-items:center;font-family:'kensmark';font-weight:800;font-size:14px;color:#9aab73; }
 img.dk-ph{ object-fit:contain; padding:3px; background:#0e130b; }
 img.dk-cir{ object-fit:contain; background:#0e130b; padding:1px; }
-.dk-teamrow .t{ font-family:'Archivo';font-weight:800;font-size:16px;letter-spacing:-.01em;text-transform:uppercase; }
-.dk-teamrow .s{ font-family:'Archivo';font-weight:800;font-size:26px;color:var(--lime);line-height:1; }
+.dk-teamrow .t{ font-family:'kensmark';font-weight:800;font-size:16px;letter-spacing:-.01em;text-transform:uppercase; }
+.dk-teamrow .s{ font-family:'kensmark';font-weight:800;font-size:26px;color:var(--lime);line-height:1; }
 .dk-prog{ height:3px;background:#1a2113;border-radius:2px;overflow:hidden;margin:6px 0 12px; }
 .dk-prog>i{ display:block;height:100%;background:var(--lime); }
 .dk-meta{ display:flex;justify-content:space-between;align-items:flex-end; }
 .dk-meta .m{ font-family:'IBM Plex Mono';font-size:10px;color:var(--muted);line-height:1.9;letter-spacing:.02em; }
 .dk-meta .m b{ color:var(--dim);font-weight:500; }
 .dk-meta .m .dot{ display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--lime);margin-right:7px;vertical-align:middle; }
-.dk-edge{ color:var(--lime);font-weight:700;font-family:'Archivo'; }
+.dk-edge{ color:var(--lime);font-weight:700;font-family:'kensmark'; }
 /* chat panel */
 .dk-chat{ position:relative; overflow:hidden; background:rgba(13,16,11,.55); border:1px solid var(--line); border-radius:18px; padding:20px 22px; min-height:120px; }
 .dk-chat::after{ content:""; position:absolute; top:0; right:0; border-width:0 40px 40px 0; border-style:solid; border-color:transparent var(--lime) transparent transparent; opacity:.85; }
 .dk-arr{ position:absolute; top:50%; transform:translateY(-50%); width:30px;height:30px;border-radius:50%;background:#0d120b;border:1px solid var(--line);display:grid;place-items:center;color:var(--muted);font-size:17px;z-index:2; }
 .dk-arr.l{ left:-14px; } .dk-arr.r{ right:-14px; }
 .dk-msg{ display:flex; gap:13px; margin:18px 0; align-items:flex-start; }
-.dk-av{ width:34px;height:34px;border-radius:10px;flex:none;display:grid;place-items:center;font-size:15px;font-family:'Archivo';font-weight:800; }
+.dk-av{ width:34px;height:34px;border-radius:10px;flex:none;display:grid;place-items:center;font-size:15px;font-family:'kensmark';font-weight:800; }
 .dk-av.a{ background:#0d120b;border:1px solid #2c3a22;color:var(--lime); }
 .dk-av.u{ background:linear-gradient(135deg,#A6E84B,#5f8f1f);color:#0A0D0A; }
-.dk-txt{ font-family:'Archivo';font-weight:400;font-size:15px;line-height:1.6;color:#E8EBE4;max-width:680px;padding-top:5px; }
+.dk-txt{ font-family:'kensmark';font-weight:400;font-size:15px;line-height:1.6;color:#E8EBE4;max-width:680px;padding-top:5px; }
 .dk-txt .rec{ font-family:'IBM Plex Mono';font-size:12.5px;margin-top:11px;color:var(--muted); }
 .dk-txt .rec b{ color:var(--ink); } .dk-txt .rec .pos{ color:var(--lime); }
 .dk-time{ font-family:'IBM Plex Mono';font-size:10.5px;color:var(--dim);margin:2px 0 0 47px; }
-.dk-verdict{ font-family:'Archivo';font-weight:900;font-size:13px;letter-spacing:.06em;padding:6px 13px;border-radius:8px;display:inline-block;margin-top:11px; }
+.dk-verdict{ font-family:'kensmark';font-weight:900;font-size:13px;letter-spacing:.06em;padding:6px 13px;border-radius:8px;display:inline-block;margin-top:11px; }
 .dk-verdict.ok{ background:rgba(166,232,75,.12);color:var(--lime);border:1px solid #3a521f; }
 .dk-verdict.no{ background:rgba(255,91,107,.1);color:var(--neg);border:1px solid #4a1d24; }
 .dk-code{ font-family:'IBM Plex Mono';font-size:11px;color:#FF8A95;border:1px solid #4a1d24;border-radius:6px;padding:2px 8px;margin:0 4px 4px 0;display:inline-block; }
 /* generic cards / kpis (Performance + Calibration) */
 .sq-card{ background:rgba(17,21,15,.7); border:1px solid var(--line); border-radius:15px; padding:18px; backdrop-filter:blur(2px); }
 .sq-card .cap{ font-size:13px;color:var(--muted);font-weight:600;margin-bottom:14px; }
-.sq-h{ font-family:'Archivo';font-weight:800;font-size:28px;letter-spacing:-.02em;margin:2px 0; }
+.sq-h{ font-family:'kensmark';font-weight:800;font-size:28px;letter-spacing:-.02em;margin:2px 0; }
 .sq-kick{ font-family:'IBM Plex Mono';font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim); }
 .sq-kgrid{ display:grid; gap:1px; background:var(--line); border:1px solid var(--line); border-radius:12px; overflow:hidden; }
 .sq-kgrid.c4{ grid-template-columns:repeat(4,1fr); } .sq-kgrid.c3{ grid-template-columns:repeat(3,1fr); }
@@ -141,25 +143,25 @@ img.dk-cir{ object-fit:contain; background:#0e130b; padding:1px; }
 .sq-bar{ display:inline-block;height:4px;border-radius:2px;vertical-align:middle;margin-left:8px; }
 .sq-sig{ position:relative;overflow:hidden;background:#0e130b; border:1px solid #2c3a22; border-radius:13px; padding:15px 16px; }
 .sq-sig::after{ content:"";position:absolute;top:0;right:0;border-width:0 26px 26px 0;border-style:solid;border-color:transparent var(--lime) transparent transparent; }
-.sq-sig .hd{ font-family:'Archivo';font-weight:800;font-size:13px;color:var(--lime); }
+.sq-sig .hd{ font-family:'kensmark';font-weight:800;font-size:13px;color:var(--lime); }
 .sq-sig .sub{ font-family:'IBM Plex Mono';font-size:10px;color:var(--dim);letter-spacing:.1em;margin-bottom:10px; }
 .sq-sig .row{ display:flex;justify-content:space-between;font-size:13px;padding:3px 0; }
 .sq-sig .row .k{ color:var(--muted); } .sq-sig .row .v{ font-family:'IBM Plex Mono'; }
-.sq-verdict{ font-family:'Archivo';font-weight:900;font-size:14px;letter-spacing:.05em;padding:7px 14px;border-radius:8px;display:inline-block; }
+.sq-verdict{ font-family:'kensmark';font-weight:900;font-size:14px;letter-spacing:.05em;padding:7px 14px;border-radius:8px;display:inline-block; }
 .sq-verdict.ok{ background:rgba(166,232,75,.12);color:var(--lime);border:1px solid #3a521f; }
 .sq-verdict.no{ background:rgba(255,91,107,.1);color:var(--neg);border:1px solid #4a1d24; }
 .sq-foot{ font-size:11px;color:var(--dim);margin-top:8px; }
 /* Streamlit widget restyle: green Ask buttons + chat input */
-.stButton>button{ background:var(--lime); color:#0A0D0A; border:none; border-radius:9px; font-family:'Archivo'; font-weight:700; font-size:12px; padding:8px 0; letter-spacing:.02em; transition:.15s; }
+.stButton>button{ background:var(--lime); color:#0A0D0A; border:none; border-radius:9px; font-family:'kensmark'; font-weight:700; font-size:12px; padding:8px 0; letter-spacing:.02em; transition:.15s; }
 .stButton>button:hover{ background:#B7F564; color:#0A0D0A; transform:translateY(-1px); }
 .stButton>button:focus{ box-shadow:none;color:#0A0D0A; }
 [data-testid="stChatInput"]{ background:rgba(17,21,15,.85); border:1px solid var(--line); border-radius:14px; }
-[data-testid="stChatInput"] textarea{ font-family:'Archivo'; color:var(--ink); }
+[data-testid="stChatInput"] textarea{ font-family:'kensmark'; color:var(--ink); }
 [data-testid="stChatInput"] button{ background:var(--lime)!important; color:#0A0D0A!important; border-radius:9px; }
 [data-testid="stSidebar"] .stRadio label{ font-size:13px; }
 /* landing top header */
 .dk-head{ display:flex; align-items:center; gap:11px; padding:2px 0 2px; }
-.dk-head b{ font-family:'Archivo';font-weight:800;font-size:17px;letter-spacing:-.01em; }
+.dk-head b{ font-family:'kensmark';font-weight:800;font-size:17px;letter-spacing:-.01em; }
 .dk-hmark{ width:28px;height:28px;border-radius:7px;border:1px solid #2c3a22;background:#0d120b;display:grid;place-items:center;color:var(--lime);font-size:13px; }
 .dk-clock{ font-family:'IBM Plex Mono';font-size:13px;color:var(--muted);margin-left:2px; }
 .dk-dots{ display:inline-flex;gap:5px;margin-left:4px; }
@@ -193,6 +195,8 @@ hr{ border-color:var(--line); }
     # Streamlit/markdown ends an HTML block at the first blank line — which would dump
     # the rest of the CSS as visible text. Strip blank lines so the <style> stays intact.
     html = "\n".join(line for line in html.splitlines() if line.strip())
+    # embed the real SIRE fonts (Kensmark + PP Neue Montreal) right after <style>
+    html = html.replace("<style>", "<style>" + fonts_data.FONT_CSS, 1)
     st.markdown(html, unsafe_allow_html=True)
 
 

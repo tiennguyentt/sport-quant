@@ -24,7 +24,15 @@ st.set_page_config(page_title="sport-quant terminal", layout="wide",
                    initial_sidebar_state="collapsed")
 theme.inject_css()
 
-# Make the OpenRouter key (Streamlit secret) visible to llm.py via env.
+# Make the OpenRouter key visible to llm.py via env: prefer a local .env, then
+# Streamlit secrets (for Streamlit Cloud, set OPENROUTER_API_KEY in app secrets).
+_envf = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
+if os.path.exists(_envf):
+    for _line in open(_envf):
+        _line = _line.strip()
+        if _line.startswith("OPENROUTER_API_KEY") and "=" in _line:
+            os.environ.setdefault("OPENROUTER_API_KEY",
+                                  _line.split("=", 1)[1].strip().strip('"').strip("'"))
 try:
     _k = st.secrets.get("OPENROUTER_API_KEY")
     if _k:
