@@ -36,6 +36,7 @@ body{ font-family:'ppNeueMontreal','kensmark',sans-serif; color:var(--ink); min-
 .nav{ display:flex;gap:4px;margin:0 auto; }
 .nav a{ font-size:13px;color:var(--muted);padding:5px 14px;border-radius:8px;cursor:pointer; }
 .nav a.on,.nav a:hover{ color:var(--ink);background:#161b12; }
+.menu{ font-family:'IBM Plex Mono';font-size:12px;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 13px; }
 .status{ font-family:'IBM Plex Mono';font-size:12px;color:var(--muted); } .status .on{ color:var(--lime); }
 
 /* ticker */
@@ -111,8 +112,8 @@ img.ph{ padding:3px;background:#0e130b; }
   <div class="head">
     <div class="hmark">◆</div><b>sport-quant</b>
     <span class="clock" id="clock"></span><span class="dots"><i></i><i></i><i></i></span>
-    <nav class="nav"><a class="on">Terminal</a><a>Performance</a><a>Calibration</a></nav>
-    <span class="status">engine&nbsp;<span class="on">●</span></span>
+    <span style="flex:1"></span><span class="menu">Menu&nbsp;⋯</span>
+    <span class="status" style="margin-left:14px">engine&nbsp;<span class="on">●</span></span>
   </div>
   <div class="tick"><span class="lab">LIVE SCORE TRACKER</span><div class="track" id="ticker"></div></div>
 
