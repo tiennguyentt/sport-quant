@@ -87,7 +87,7 @@ html,body,[class*="css"]{ font-family:'ppNeueMontreal','kensmark',sans-serif; }
 .dk-mi .mn{ font-family:'IBM Plex Mono';font-size:10px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:1px 7px; }
 @keyframes dktk{ from{transform:translateX(0);} to{transform:translateX(-50%);} }
 /* hero line */
-.dk-hero{ font-family:'kensmark';font-weight:800;font-size:30px;line-height:1.15;letter-spacing:-.02em;max-width:620px;margin:6px 0 4px; }
+.dk-hero{ font-family:'ppNeueMontreal',sans-serif;font-weight:700;font-size:30px;line-height:1.15;letter-spacing:-.02em;max-width:620px;margin:6px 0 4px; }
 .dk-hero .g{ color:var(--lime); }
 .dk-sub{ color:var(--muted);font-size:14px;margin:0 0 16px;max-width:620px; }
 /* DKING match card */
