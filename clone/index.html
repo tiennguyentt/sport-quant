@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>sport-quant terminal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{ --bg:#080b07; --panel:#11150f; --line:#222a1c; --ink:#f2f4ef; --muted:#8a938a; --dim:#5a6356; --lime:#a6e84b; --neg:#ff5b6b; }
+*{ box-sizing:border-box; margin:0; padding:0; }
+body{ font-family:'Archivo',sans-serif; color:var(--ink); min-height:100vh; padding:16px 22px 40px;
+  background:#080b07;
+  background-image:
+    radial-gradient(900px 520px at 50% 4%, rgba(166,232,75,.07), transparent 60%),
+    radial-gradient(1.5px 1.5px at 12% 22%, rgba(166,232,75,.55), transparent),
+    radial-gradient(1.5px 1.5px at 78% 18%, rgba(166,232,75,.30), transparent),
+    radial-gradient(1px 1px at 34% 64%, rgba(166,232,75,.45), transparent),
+    radial-gradient(1px 1px at 62% 78%, rgba(255,255,255,.20), transparent),
+    radial-gradient(1.5px 1.5px at 88% 52%, rgba(166,232,75,.40), transparent),
+    radial-gradient(1px 1px at 8% 76%, rgba(166,232,75,.30), transparent),
+    radial-gradient(2px 2px at 46% 36%, rgba(166,232,75,.30), transparent),
+    radial-gradient(1px 1px at 24% 88%, rgba(166,232,75,.35), transparent);
+  animation:drift 60s ease-in-out infinite alternate; }
+@keyframes drift{ to{ background-position:0 0,8px 12px,-10px 8px,6px -8px,-8px 10px,10px 6px,-6px -10px,4px 8px,-8px -6px; } }
+.num{ font-family:'IBM Plex Mono',monospace; }
+
+/* header */
+.head{ display:flex; align-items:center; gap:12px; padding:2px 2px 12px; }
+.hmark{ width:30px;height:30px;border-radius:8px;border:1px solid #2c3a22;background:#0d120b;display:grid;place-items:center;color:var(--lime);box-shadow:0 0 12px rgba(166,232,75,.2); }
+.head b{ font-family:'Archivo';font-weight:800;font-size:18px; }
+.clock{ font-family:'IBM Plex Mono';font-size:13px;color:var(--muted); }
+.dots{ display:inline-flex;gap:5px; } .dots i{ width:7px;height:7px;border-radius:50%;background:var(--lime);animation:blink 1.2s infinite; }
+.dots i:nth-child(2){ animation-delay:.2s; } .dots i:nth-child(3){ animation-delay:.4s; }
+@keyframes blink{ 0%,100%{opacity:.3} 50%{opacity:1} }
+.nav{ display:flex;gap:4px;margin:0 auto; }
+.nav a{ font-size:13px;color:var(--muted);padding:5px 14px;border-radius:8px;cursor:pointer; }
+.nav a.on,.nav a:hover{ color:var(--ink);background:#161b12; }
+.status{ font-family:'IBM Plex Mono';font-size:12px;color:var(--muted); } .status .on{ color:var(--lime); }
+
+/* ticker */
+.tick{ display:flex;align-items:center;gap:16px;background:rgba(10,13,10,.7);border:1px solid var(--line);border-radius:12px;padding:9px 15px;overflow:hidden; }
+.tick .lab{ font-family:'IBM Plex Mono';font-size:11px;font-weight:600;color:var(--lime);letter-spacing:.08em;white-space:nowrap;flex:none;display:flex;align-items:center;gap:7px; }
+.tick .lab::before{ content:"";width:7px;height:7px;border-radius:50%;background:var(--lime);box-shadow:0 0 8px var(--lime); }
+.tick .track{ display:flex;gap:30px;white-space:nowrap;overflow:hidden; }
+.mi{ display:flex;align-items:center;gap:9px; }
+.mi img,.mi .cir{ width:22px;height:22px;border-radius:50%;background:#0e130b;object-fit:contain;display:inline-grid;place-items:center;font-size:10px;color:#7c8a66;border:1px solid #2c3a22; }
+.mi .nm{ font-family:'Archivo';font-weight:700;font-size:13px;text-transform:uppercase; }
+.mi .sc{ font-family:'Archivo';font-weight:800;font-size:14px;color:var(--lime); }
+.mi .mn{ font-family:'IBM Plex Mono';font-size:10px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:1px 7px; }
+
+/* hero + filter */
+.toprow{ display:flex;align-items:flex-start;justify-content:space-between;margin:18px 0 4px;gap:20px; }
+.hero{ font-family:'Archivo';font-weight:800;font-size:30px;line-height:1.16;letter-spacing:-.02em;max-width:640px; }
+.hero .g{ color:var(--lime);text-shadow:0 0 22px rgba(166,232,75,.45); }
+.filter{ font-family:'IBM Plex Mono';font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:9px;padding:9px 14px;white-space:nowrap;flex:none; }
+.sub{ color:var(--muted);font-size:14px;margin-bottom:16px; }
+
+/* cards grid */
+.cards{ display:grid;grid-template-columns:repeat(3,1fr);gap:14px; }
+.card{ position:relative;overflow:hidden;background:rgba(17,21,15,.7);border:1px solid var(--line);border-radius:15px;padding:16px;transition:.15s; }
+.card::after{ content:"";position:absolute;top:0;right:0;border-width:0 30px 30px 0;border-style:solid;border-color:transparent var(--lime) transparent transparent;filter:drop-shadow(-3px 3px 5px rgba(166,232,75,.45)); }
+.card:hover{ border-color:#3a521f;transform:translateY(-2px); }
+.card .lg{ font-family:'IBM Plex Mono';font-size:10px;color:var(--dim);letter-spacing:.12em;text-transform:uppercase; }
+.trow{ display:flex;justify-content:space-between;align-items:center;margin:11px 0; }
+.tm{ display:flex;align-items:center;gap:11px; }
+.ph{ width:32px;height:32px;border-radius:8px;background:#222a18;border:1px solid #394a28;display:grid;place-items:center;font-family:'Archivo';font-weight:800;font-size:14px;color:#9aab73;object-fit:contain; }
+img.ph{ padding:3px;background:#0e130b; }
+.trow .t{ font-family:'Archivo';font-weight:800;font-size:15px;text-transform:uppercase; }
+.trow .s{ font-family:'Archivo';font-weight:800;font-size:26px;color:var(--lime);line-height:1; }
+.prog{ height:3px;background:#1a2113;border-radius:2px;overflow:hidden;margin:6px 0 12px; } .prog i{ display:block;height:100%;background:var(--lime); }
+.meta{ display:flex;justify-content:space-between;align-items:flex-end; }
+.meta .m{ font-family:'IBM Plex Mono';font-size:10px;color:var(--muted);line-height:1.9; }
+.meta .edge{ color:var(--lime);font-weight:700;font-family:'Archivo'; }
+.ask{ width:100%;margin-top:14px;background:var(--lime);color:#0a0d0a;border:none;border-radius:9px;font-family:'Archivo';font-weight:700;font-size:12px;padding:9px;cursor:pointer;box-shadow:0 0 16px rgba(166,232,75,.3); }
+.ask:hover{ box-shadow:0 0 22px rgba(166,232,75,.5); }
+.scrub{ display:flex;gap:3px;justify-content:center;align-items:center;height:24px;margin:18px 0 0; }
+.scrub i{ width:2px;background:var(--dim);border-radius:1px; } .scrub i:nth-child(even){ height:13px } .scrub i:nth-child(odd){ height:8px } .scrub i:nth-child(7n){ height:20px;background:var(--lime);opacity:.7 }
+
+/* chat */
+.wrap{ display:flex;gap:18px;margin-top:16px; }
+.rail{ width:280px;flex:none; }
+.rail-in{ background:rgba(17,21,15,.85);border:1px solid var(--line);border-radius:20px;padding:18px 16px;display:flex;flex-direction:column;min-height:420px; }
+.brand{ display:flex;align-items:center;gap:11px;margin-bottom:18px; } .brand .hmark{ width:38px;height:38px;border-radius:11px;font-size:17px; }
+.brand b{ font-family:'Archivo';font-weight:800;font-size:18px;display:block;line-height:1; } .brand span{ font-family:'IBM Plex Mono';font-size:10px;color:var(--dim);letter-spacing:.12em; }
+.brow{ display:flex;justify-content:space-between;margin:14px 2px 10px;font-size:12px;color:var(--muted); } .brow .v{ font-family:'IBM Plex Mono';font-size:11px; }
+.bal{ position:relative;overflow:hidden;background:#0e130b;border:1px solid #2c3a22;border-radius:14px;padding:14px 15px; }
+.bal::after{ content:"";position:absolute;top:0;right:0;border-width:0 32px 32px 0;border-style:solid;border-color:transparent var(--lime) transparent transparent;filter:drop-shadow(-3px 3px 5px rgba(166,232,75,.45)); }
+.bal .l{ font-size:11px;color:var(--muted); } .bal .v{ font-family:'Archivo';font-weight:800;font-size:25px;color:var(--lime);margin-top:4px; }
+.reset{ margin-top:14px;background:transparent;border:1px solid var(--line);border-radius:10px;color:var(--ink);font-family:'Archivo';font-weight:600;font-size:13px;padding:9px;cursor:pointer; } .reset:hover{ color:var(--lime);border-color:#3a521f; }
+.rfoot{ margin-top:auto;font-size:12px;color:var(--dim);line-height:2.1;padding-top:18px; } .rfoot .on{ color:var(--lime); }
+.chat{ position:relative;flex:1;background:rgba(13,16,11,.55);border:1px solid var(--line);border-radius:22px;padding:22px 26px;overflow:hidden;display:flex;flex-direction:column;min-height:420px; }
+.chat::after{ content:"";position:absolute;top:0;right:0;border-width:0 44px 44px 0;border-style:solid;border-color:transparent var(--lime) transparent transparent;filter:drop-shadow(-4px 4px 6px rgba(166,232,75,.45)); }
+.msg{ display:flex;gap:14px;margin:16px 0 2px;align-items:flex-start; }
+.av{ width:36px;height:36px;border-radius:11px;flex:none;display:grid;place-items:center;font-family:'Archivo';font-weight:800;font-size:15px; }
+.av.u{ background:linear-gradient(135deg,#a6e84b,#5f8f1f);color:#0a0d0a; } .av.a{ background:#0d120b;border:1px solid #2c3a22;color:var(--lime);box-shadow:0 0 12px rgba(166,232,75,.18); }
+.ctxt{ font-size:15px;line-height:1.62;color:#e8ebe4;max-width:660px;padding-top:6px; }
+.time{ font-family:'IBM Plex Mono';font-size:10.5px;color:var(--dim);margin:3px 0 0 50px; }
+.rec{ font-family:'IBM Plex Mono';font-size:12.5px;margin-top:11px;color:var(--muted); } .rec b{ color:var(--ink); } .rec .pos{ color:var(--lime); }
+.verdict{ font-family:'Archivo';font-weight:900;font-size:13px;letter-spacing:.06em;padding:6px 13px;border-radius:8px;display:inline-block;margin-top:11px; }
+.verdict.ok{ background:rgba(166,232,75,.12);color:var(--lime);border:1px solid #3a521f;box-shadow:0 0 16px rgba(166,232,75,.22); }
+.verdict.no{ background:rgba(255,91,107,.1);color:var(--neg);border:1px solid #4a1d24; }
+.code{ font-family:'IBM Plex Mono';font-size:11px;color:#ff8a95;border:1px solid #4a1d24;border-radius:6px;padding:2px 8px;margin:9px 4px 0 0;display:inline-block; }
+.input{ margin-top:auto;display:flex;align-items:center;gap:12px;background:rgba(17,21,15,.85);border:1px solid var(--line);border-radius:14px;padding:13px 16px; }
+.input input{ flex:1;background:none;border:none;outline:none;color:var(--ink);font-family:'Archivo';font-size:14px; }
+.send{ width:40px;height:34px;border-radius:9px;background:var(--lime);color:#0a0d0a;border:none;cursor:pointer;box-shadow:0 0 16px rgba(166,232,75,.35); }
+.hidden{ display:none!important; }
+</style>
+</head>
+<body>
+  <div class="head">
+    <div class="hmark">◆</div><b>sport-quant</b>
+    <span class="clock" id="clock"></span><span class="dots"><i></i><i></i><i></i></span>
+    <nav class="nav"><a class="on">Terminal</a><a>Performance</a><a>Calibration</a></nav>
+    <span class="status">engine&nbsp;<span class="on">●</span></span>
+  </div>
+  <div class="tick"><span class="lab">LIVE SCORE TRACKER</span><div class="track" id="ticker"></div></div>
+
+  <!-- LANDING -->
+  <section id="landing">
+    <div class="toprow">
+      <div>
+        <div class="hero">Introducing the <span class="g">terminal</span>. It's all about Positive EV.
+          Connect to the desk, then ask for predictions. Create your market or your bet!</div>
+      </div>
+      <div class="filter">⬡ All Leagues ▾</div>
+    </div>
+    <p class="sub">A real model streams the analysis; a deterministic policy approves or refuses the bet. No free-form prompt-gaming.</p>
+    <div class="cards" id="cards"></div>
+    <div class="scrub" id="scrub"></div>
+  </section>
+
+  <!-- CHAT -->
+  <section id="chatview" class="wrap hidden">
+    <div class="rail"><div class="rail-in">
+      <div class="brand"><div class="hmark">◆</div><div><b>sport-quant</b><span>V0.1 · GOVERNED</span></div></div>
+      <div class="brow"><span>Session</span><span class="v">0xQUANT…paper</span></div>
+      <div class="bal"><div class="l">Paper Bankroll</div><div class="v">100,000.00</div></div>
+      <button class="reset" onclick="goHome()">↺ New session</button>
+      <div class="rfoot">▢ Documentation<br>⚙ Settings<br><span class="on">● engine connected</span></div>
+    </div></div>
+    <div class="chat"><div id="thread"></div>
+      <div class="input"><input id="msg" placeholder="Ask about a match, or a team name" onkeydown="if(event.key==='Enter')askText()">
+        <button class="send" onclick="askText()">➤</button></div>
+    </div>
+  </section>
+
+<script>
+let FIX = [];
+const VSEP = "<<<VERDICT>>>";
+const clock = () => document.getElementById('clock').textContent =
+  new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+clock(); setInterval(clock, 30000);
+
+function badge(nm,url){ return url ? `<img class="ph" src="${url}">` : `<span class="ph">${(nm||'?')[0]}</span>`; }
+function tbadge(nm,url){ return url ? `<img class="cir" src="${url}">` : `<span class="cir">${(nm||'?')[0]}</span>`; }
+
+async function load(){
+  const d = await (await fetch('/api/board')).json();
+  FIX = d.fixtures;
+  document.getElementById('ticker').innerHTML = (d.scores||[]).concat(d.scores||[]).map(s=>
+    `<span class="mi">${tbadge(s.home,s.home_badge)}<span class="nm">${s.home}</span><span class="sc">${s.hs}</span>`+
+    `<span style="color:#5a6356">/</span><span class="sc">${s.as_}</span><span class="nm">${s.away}</span>`+
+    `${tbadge(s.away,s.away_badge)}<span class="mn">${s.min}</span></span>`).join('');
+  document.getElementById('cards').innerHTML = FIX.map(card).join('');
+  document.getElementById('scrub').innerHTML = Array(72).fill('<i></i>').join('');
+}
+function card(f){
+  const [home,away] = f.event.split(' vs ');
+  const e = Math.max(0,(f.model_p - 1/f.odds))*100;
+  return `<div class="card"><div class="lg">${f.category}</div>
+    <div class="trow"><span class="tm">${badge(home,f.home_badge)}<span class="t">${home}</span></span><span class="s">${Math.round(f.model_p*100)}</span></div>
+    <div class="trow"><span class="tm">${badge(away,f.away_badge)}<span class="t">${away}</span></span><span class="s">${Math.round((1-f.model_p)*100)}</span></div>
+    <div class="prog"><i style="width:${Math.min(100,e*9)}%"></i></div>
+    <div class="meta"><div class="m">● START: ${f.start}<br>VENUE: ${f.venue}<br>MODEL: ${Math.round(f.confidence*100)}% conf</div><div class="edge">+${e.toFixed(1)}% EV</div></div>
+    <button class="ask" onclick="ask(${JSON.stringify(f.event)})">Ask the model</button></div>`;
+}
+function esc(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+function goHome(){ document.getElementById('landing').classList.remove('hidden'); document.getElementById('chatview').classList.add('hidden'); document.getElementById('thread').innerHTML=''; }
+function askText(){ const v=document.getElementById('msg').value.trim(); if(!v) return;
+  let m = FIX.find(f=>v.toLowerCase().split(' ').some(w=>w&&f.event.toLowerCase().includes(w))); if(!m) m=FIX[0]; ask(m.event); }
+
+async function ask(ev){
+  document.getElementById('landing').classList.add('hidden');
+  document.getElementById('chatview').classList.remove('hidden');
+  const thread = document.getElementById('thread');
+  thread.innerHTML += `<div class="msg"><div class="av u">◧</div><div class="ctxt">Ok give me the details of what I should bet on ${esc(ev)}.</div></div><div class="time">⧉ now</div>`;
+  thread.innerHTML += `<div class="msg"><div class="av a">◆</div><div class="ctxt" id="live"></div></div>`;
+  const live = document.getElementById('live');
+  const res = await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event:ev})});
+  const reader = res.body.getReader(); const dec = new TextDecoder(); let buf='';
+  while(true){ const {done,value}=await reader.read(); if(done) break;
+    buf += dec.decode(value,{stream:true});
+    const i = buf.indexOf(VSEP);
+    live.textContent = i>=0 ? buf.slice(0,i) : buf;
+  }
+  const i = buf.indexOf(VSEP);
+  const v = JSON.parse(buf.slice(i+VSEP.length));
+  live.textContent = buf.slice(0,i);
+  let html;
+  if(v.passed){ html = `<div class="rec"><b>${esc(v.selection)}</b> · stake <b class="pos">$${Math.round(v.stake).toLocaleString()}</b> · edge <b class="pos">+${(v.edge*100).toFixed(1)}%</b> · odds ${v.odds.toFixed(2)} · conf ${Math.round(v.confidence*100)}% · sources ${v.sources.join(', ')}</div><div class="verdict ok">APPROVED · GATE PASSED</div>`; }
+  else { html = `<div class="rec">No bet surfaced — the model proposed, the risk desk refused.</div><div class="verdict no">REJECTED · GATE BLOCKED</div><div>${v.reasons.map(r=>`<span class="code">${r}</span>`).join('')}</div>`; }
+  live.insertAdjacentHTML('beforeend', html);
+}
+load();
+</script>
+</body>
+</html>
