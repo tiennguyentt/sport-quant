@@ -34,17 +34,21 @@ def inject_css() -> None:
 }
 html,body,[class*="css"]{ font-family:'Archivo',sans-serif; }
 .stApp{
-  background:#0A0D0A;
+  background:#080B07;
   background-image:
-    radial-gradient(1200px 700px at 50% -10%, rgba(166,232,75,.05), transparent 60%),
-    radial-gradient(1px 1px at 12% 22%, rgba(166,232,75,.40), transparent),
-    radial-gradient(1px 1px at 78% 18%, rgba(255,255,255,.18), transparent),
-    radial-gradient(1px 1px at 34% 64%, rgba(166,232,75,.28), transparent),
-    radial-gradient(1px 1px at 62% 78%, rgba(255,255,255,.14), transparent),
-    radial-gradient(1px 1px at 88% 52%, rgba(166,232,75,.22), transparent),
-    radial-gradient(1px 1px at 8% 76%, rgba(255,255,255,.12), transparent),
-    radial-gradient(2px 2px at 46% 36%, rgba(166,232,75,.18), transparent),
-    radial-gradient(1px 1px at 24% 88%, rgba(166,232,75,.20), transparent);
+    radial-gradient(900px 520px at 50% 4%, rgba(166,232,75,.07), transparent 60%),
+    radial-gradient(1.5px 1.5px at 12% 22%, rgba(166,232,75,.55), transparent),
+    radial-gradient(1.5px 1.5px at 78% 18%, rgba(166,232,75,.30), transparent),
+    radial-gradient(1px 1px at 34% 64%, rgba(166,232,75,.45), transparent),
+    radial-gradient(1px 1px at 62% 78%, rgba(255,255,255,.20), transparent),
+    radial-gradient(1.5px 1.5px at 88% 52%, rgba(166,232,75,.40), transparent),
+    radial-gradient(1px 1px at 8% 76%, rgba(166,232,75,.30), transparent),
+    radial-gradient(2px 2px at 46% 36%, rgba(166,232,75,.30), transparent),
+    radial-gradient(1px 1px at 24% 88%, rgba(166,232,75,.35), transparent),
+    radial-gradient(1px 1px at 92% 82%, rgba(166,232,75,.28), transparent),
+    radial-gradient(1px 1px at 54% 14%, rgba(255,255,255,.16), transparent),
+    radial-gradient(1.5px 1.5px at 70% 40%, rgba(166,232,75,.30), transparent);
+  background-attachment:fixed;
   color:var(--ink);
 }
 #MainMenu,header[data-testid="stHeader"],footer{ display:none!important; }
@@ -75,7 +79,7 @@ html,body,[class*="css"]{ font-family:'Archivo',sans-serif; }
 .dk-twrap{ flex:1; min-width:0; overflow:hidden; }
 .dk-track{ display:flex; gap:34px; white-space:nowrap; animation:dktk 40s linear infinite; width:max-content; }
 .dk-mi{ display:flex; align-items:center; gap:9px; }
-.dk-cir{ width:20px;height:20px;border-radius:50%;background:#1a2113;border:1px solid #2c3a22;flex:none; }
+.dk-cir{ width:22px;height:22px;border-radius:50%;background:#1a2113;border:1px solid #2c3a22;flex:none;display:grid;place-items:center;font-family:'Archivo';font-weight:700;font-size:10px;color:#7c8a66; }
 .dk-mi .nm{ font-family:'Archivo';font-weight:700;font-size:13px;color:var(--ink);text-transform:uppercase;letter-spacing:.01em; }
 .dk-mi .sc{ font-family:'Archivo';font-weight:800;font-size:14px;color:var(--lime); }
 .dk-mi .mn{ font-family:'IBM Plex Mono';font-size:10px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:1px 7px; }
@@ -88,15 +92,18 @@ html,body,[class*="css"]{ font-family:'Archivo',sans-serif; }
 .dk-card{ position:relative; overflow:hidden; background:rgba(17,21,15,.7); border:1px solid var(--line); border-radius:15px; padding:16px 16px 14px; height:100%; backdrop-filter:blur(2px); }
 .dk-card::after{ content:""; position:absolute; top:0; right:0; border-width:0 30px 30px 0; border-style:solid; border-color:transparent var(--lime) transparent transparent; }
 .dk-card .lg{ font-family:'IBM Plex Mono';font-size:10px;color:var(--dim);letter-spacing:.12em;text-transform:uppercase; }
-.dk-teamrow{ display:flex;justify-content:space-between;align-items:center;margin:9px 0; }
-.dk-teamrow .t{ font-family:'Archivo';font-weight:800;font-size:16px;letter-spacing:-.01em; }
-.dk-teamrow .s{ font-family:'Archivo';font-weight:800;font-size:18px;color:var(--lime); }
-.dk-prog{ height:3px;background:#1a2113;border-radius:2px;overflow:hidden;margin:4px 0 11px; }
+.dk-teamrow{ display:flex;justify-content:space-between;align-items:center;margin:11px 0; }
+.dk-tm{ display:flex;align-items:center;gap:11px; }
+.dk-ph{ width:32px;height:32px;border-radius:8px;background:#222a18;border:1px solid #394a28;flex:none;display:grid;place-items:center;font-family:'Archivo';font-weight:800;font-size:14px;color:#9aab73; }
+.dk-teamrow .t{ font-family:'Archivo';font-weight:800;font-size:16px;letter-spacing:-.01em;text-transform:uppercase; }
+.dk-teamrow .s{ font-family:'Archivo';font-weight:800;font-size:26px;color:var(--lime);line-height:1; }
+.dk-prog{ height:3px;background:#1a2113;border-radius:2px;overflow:hidden;margin:6px 0 12px; }
 .dk-prog>i{ display:block;height:100%;background:var(--lime); }
 .dk-meta{ display:flex;justify-content:space-between;align-items:flex-end; }
-.dk-meta .m{ font-family:'IBM Plex Mono';font-size:10.5px;color:var(--muted);line-height:1.7; }
+.dk-meta .m{ font-family:'IBM Plex Mono';font-size:10px;color:var(--muted);line-height:1.9;letter-spacing:.02em; }
 .dk-meta .m b{ color:var(--dim);font-weight:500; }
-.dk-edge{ color:var(--lime);font-weight:600; }
+.dk-meta .m .dot{ display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--lime);margin-right:7px;vertical-align:middle; }
+.dk-edge{ color:var(--lime);font-weight:700;font-family:'Archivo'; }
 /* chat panel */
 .dk-chat{ position:relative; overflow:hidden; background:rgba(13,16,11,.55); border:1px solid var(--line); border-radius:18px; padding:20px 22px; min-height:120px; }
 .dk-chat::after{ content:""; position:absolute; top:0; right:0; border-width:0 40px 40px 0; border-style:solid; border-color:transparent var(--lime) transparent transparent; opacity:.85; }
@@ -178,26 +185,34 @@ def rail(brand: str, bankroll: str) -> str:
 # ---- live ticker -----------------------------------------------------------
 def ticker(scores: list[dict]) -> str:
     def item(s):
-        return (f'<span class="dk-mi"><span class="dk-cir"></span>'
+        return (f'<span class="dk-mi"><span class="dk-cir">{s["home"][:1]}</span>'
                 f'<span class="nm">{s["home"]}</span><span class="sc">{s["hs"]}</span>'
                 f'<span style="color:#5A6356">/</span><span class="sc">{s["as_"]}</span>'
-                f'<span class="nm">{s["away"]}</span><span class="dk-cir"></span>'
+                f'<span class="nm">{s["away"]}</span><span class="dk-cir">{s["away"][:1]}</span>'
                 f'<span class="mn">{s["min"]}\'</span></span>')
     items = "".join(item(s) for s in scores)
     return (f'<div class="dk-tick"><span class="lab">LIVE SCORE TRACKER</span>'
             f'<div class="dk-twrap"><div class="dk-track">{items}{items}</div></div></div>')
 
 
-# ---- DKING match card ------------------------------------------------------
+# ---- match card (DKING-style: logo + team + big score, stacked meta) -------
+def _badge(name: str) -> str:
+    # team monogram badge standing in for a crest (no external logo fetch)
+    return f'<span class="dk-ph">{name[:1].upper()}</span>'
+
+
 def match_card(f: dict, edge_pct: float) -> str:
     home, _, away = f["event"].partition(" vs ")
     fill = min(100, max(8, edge_pct * 9))
     return (
         f'<div class="dk-card"><div class="lg">{f["category"]}</div>'
-        f'<div class="dk-teamrow"><span class="t">{home}</span><span class="s">{f["model_p"]*100:.0f}</span></div>'
-        f'<div class="dk-teamrow"><span class="t">{away}</span><span class="s">{(1-f["model_p"])*100:.0f}</span></div>'
+        f'<div class="dk-teamrow"><span class="dk-tm">{_badge(home)}<span class="t">{home}</span></span>'
+        f'<span class="s">{f["model_p"]*100:.0f}</span></div>'
+        f'<div class="dk-teamrow"><span class="dk-tm">{_badge(away)}<span class="t">{away}</span></span>'
+        f'<span class="s">{(1-f["model_p"])*100:.0f}</span></div>'
         f'<div class="dk-prog"><i style="width:{fill:.0f}%"></i></div>'
-        f'<div class="dk-meta"><div class="m"><b>START</b> {f["start"]}<br><b>VENUE</b> {f["venue"]}</div>'
+        f'<div class="dk-meta"><div class="m"><span class="dot"></span><b>START:</b> {f["start"]}<br>'
+        f'<b>VENUE:</b> {f["venue"]}<br><b>MODEL:</b> {f["confidence"]*100:.0f}% conf</div>'
         f'<div class="dk-edge">+{edge_pct:.1f}% EV</div></div></div>'
     )
 

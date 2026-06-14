@@ -75,8 +75,8 @@ with rail_col:
 with main:
     if page == "Terminal":
         st.markdown('<div class="dk-hero">Introducing the <span class="g">terminal</span>. '
-                    'It\'s all about Positive EV.<br>Ask for a prediction — the gate decides what you see.</div>',
-                    unsafe_allow_html=True)
+                    'It\'s all about Positive EV. Connect to the desk, then ask for predictions. '
+                    'Create your market or your bet!</div>', unsafe_allow_html=True)
         st.markdown('<p class="dk-sub">The model proposes a sized bet; a deterministic policy approves '
                     'or refuses it. No free-form prompt-gaming.</p>', unsafe_allow_html=True)
 
