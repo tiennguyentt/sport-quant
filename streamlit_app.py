@@ -1,8 +1,8 @@
-"""sport-quant — a governed sports-prediction terminal (de-crypto'd SIRE rebuild).
+"""sport-quant — a governed sports-prediction terminal (de-crypto'd SIRE / DKING rebuild).
 
-The Terminal is the front door (the interaction layer): live scores, pick a match, ask,
-and the engine answers with a Kelly-sized recommendation — but every answer is routed
-through a deterministic gate. Models advise, code governs.
+The Terminal is the front door (the interaction layer): live scores, pick a match, ask, and
+the engine answers with a Kelly-sized recommendation — every answer routed through a
+deterministic gate. Models advise, code governs.
 """
 from __future__ import annotations
 
@@ -15,22 +15,13 @@ import scoring
 
 BRAND = "sport-quant"
 
-st.set_page_config(page_title="sport-quant terminal", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="sport-quant terminal", layout="wide",
+                   initial_sidebar_state="collapsed")
 theme.inject_css()
 
 RUN = recorded_run()
 FIX = fixtures()
 STATE = PortfolioState()
-
-# ---- nav (left rail, de-crypto'd version of the aLink sidebar) -------------
-with st.sidebar:
-    st.markdown(theme.rail(BRAND, "100,000.00"), unsafe_allow_html=True)
-    page = st.radio("nav", ["Terminal", "Performance", "Calibration"], label_visibility="collapsed")
-    st.markdown('<div class="dk-foot">▢ Documentation<br>⚙ Settings<br>'
-                '<span class="on">● engine connected</span></div>', unsafe_allow_html=True)
-
-# live score ticker (top, like the reference terminal)
-st.markdown(theme.ticker(LIVE_SCORES), unsafe_allow_html=True)
 
 
 def _decide(f: dict) -> dict:
@@ -65,82 +56,56 @@ def _ask(event_name: str) -> None:
     if d is None:
         return
     thread = st.session_state.setdefault("thread", [])
-    thread.append(("u", f'What should I do on {event_name}?'))
+    thread.append(("u", f'Ok give me the details of what I should bet on {event_name}.'))
     thread.append(("a", _response_html(d)))
 
 
-# ===========================================================================
-if page == "Terminal":
-    st.markdown('<div class="dk-hero">Introducing the <span class="g">terminal</span>. '
-                'It\'s all about Positive EV.<br>Ask for a prediction — the gate decides what you see.</div>',
-                unsafe_allow_html=True)
-    st.markdown('<p class="dk-sub">The model proposes a sized bet; a deterministic policy approves or '
-                'refuses it. No free-form prompt-gaming.</p>', unsafe_allow_html=True)
+# ---- full-width live ticker (top) -----------------------------------------
+st.markdown(theme.ticker(LIVE_SCORES), unsafe_allow_html=True)
 
-    # +EV scanner — DKING-style match cards you can ask about
-    cards = FIX[:8]
-    for row_start in range(0, len(cards), 4):
-        cols = st.columns(4, gap="small")
-        for col, f in zip(cols, cards[row_start:row_start + 4]):
-            with col:
-                e = max(0.0, edge(f["model_p"], f["odds"])) * 100
-                st.markdown(theme.match_card(f, e), unsafe_allow_html=True)
-                if st.button("Ask DKING", key=f'ask_{f["event"]}', use_container_width=True):
-                    _ask(f["event"])
-                    st.rerun()
+# ---- two columns: DKING rail | main ---------------------------------------
+rail_col, main = st.columns([0.23, 0.77], gap="medium")
 
-    # chat thread inside the green-cornered panel
-    thread = st.session_state.get("thread", [])
-    if thread:
-        st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
-        bubbles = "".join(
-            theme.user_msg(body) if role == "u" else theme.engine_msg(body)
-            for role, body in thread
-        )
-        st.markdown(f'<div class="dk-chat">{bubbles}</div>', unsafe_allow_html=True)
+with rail_col:
+    st.markdown(theme.rail(BRAND, "100,000.00"), unsafe_allow_html=True)
+    page = st.radio("nav", ["Terminal", "Performance", "Calibration"], label_visibility="collapsed")
+    st.markdown('<div class="dk-foot">▢ Documentation<br>⚙ Settings<br>'
+                '<span class="on">● engine connected</span></div>', unsafe_allow_html=True)
 
-    prompt = st.chat_input("Ask about a match, e.g. “best edge tonight?” or “Bayern vs Werder Bremen”")
-    if prompt:
-        # route free text to the closest fixture; else answer with the top edge
-        match = next((f for f in FIX if f["event"].lower() in prompt.lower()
-                      or prompt.lower() in f["event"].lower()), None)
-        if match is None:
-            ranked = sorted(FIX, key=lambda f: edge(f["model_p"], f["odds"]), reverse=True)
-            match = ranked[0]
-        _ask(match["event"])
-        st.rerun()
+with main:
+    if page == "Terminal":
+        st.markdown('<div class="dk-hero">Introducing the <span class="g">terminal</span>. '
+                    'It\'s all about Positive EV.<br>Ask for a prediction — the gate decides what you see.</div>',
+                    unsafe_allow_html=True)
+        st.markdown('<p class="dk-sub">The model proposes a sized bet; a deterministic policy approves '
+                    'or refuses it. No free-form prompt-gaming.</p>', unsafe_allow_html=True)
 
-# ===========================================================================
-elif page == "Performance":
-    k = RUN["kpis"]
-    st.markdown('<div class="sq-kick">engine performance · paper portfolio</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sq-h">Performance</div>', unsafe_allow_html=True)
+        cards = FIX[:8]
+        for row_start in range(0, len(cards), 2):
+            cols = st.columns(2, gap="small")
+            for col, f in zip(cols, cards[row_start:row_start + 2]):
+                with col:
+                    e = max(0.0, edge(f["model_p"], f["odds"])) * 100
+                    st.markdown(theme.match_card(f, e), unsafe_allow_html=True)
+                    if st.button("Ask the desk", key=f'ask_{f["event"]}', use_container_width=True):
+                        _ask(f["event"])
+                        st.rerun()
 
-    left, right = st.columns([0.34, 0.66], gap="medium")
-    with left:
+        thread = st.session_state.get("thread", [])
+        if thread:
+            st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
+            bubbles = "".join(
+                theme.user_msg(body) if role == "u" else theme.engine_msg(body)
+                for role, body in thread
+            )
+            st.markdown(f'<div class="dk-chat">{bubbles}</div>', unsafe_allow_html=True)
+
+    elif page == "Performance":
+        k = RUN["kpis"]
+        st.markdown('<div class="sq-kick">engine performance · paper portfolio</div>', unsafe_allow_html=True)
+        st.markdown('<div class="sq-h">Performance</div>', unsafe_allow_html=True)
         st.markdown(
-            '<div class="sq-card"><div class="cap">Your paper book</div>'
-            + theme.kpi_grid([
-                theme.kpi("Open P&amp;L", f'<span class="pos">+$280</span>'),
-                theme.kpi("Positions", '6'),
-                theme.kpi("Bankroll", '$100,000'),
-            ], cols=3)
-            + '</div>', unsafe_allow_html=True)
-        # live signal card (telegram-style), de-crypto'd
-        sig = next(f for f in FIX if f["event"].startswith("Dota2"))
-        st.markdown(
-            f'<div class="sq-sig" style="margin-top:14px"><div class="hd">▚ SIGNAL DETECTED</div>'
-            f'<div class="sub">GATE PASSED // SURFACED</div>'
-            f'<div class="row"><span class="k">Sport</span><span class="v">{sig["category"]}</span></div>'
-            f'<div class="row"><span class="k">Event</span><span class="v">Xtreme Gaming vs MOUZ</span></div>'
-            f'<div class="row"><span class="k">Bet</span><span class="v">{sig["selection"]}</span></div>'
-            f'<div class="row"><span class="k">Odds</span><span class="v">{sig["odds"]:.2f}</span></div>'
-            f'<div class="row"><span class="k">Confidence</span><span class="v">{sig["confidence"]*100:.0f}%</span></div>'
-            f'</div>', unsafe_allow_html=True)
-
-    with right:
-        st.markdown(
-            '<div class="sq-card"><div class="cap">Engine performance</div>'
+            '<div class="sq-card" style="margin-top:8px"><div class="cap">Engine performance</div>'
             + theme.kpi_grid([
                 theme.kpi("Net P&amp;L", f'<span class="{theme.cls(k["pnl"])}">{theme.money(k["pnl"], sign=True)}</span>'),
                 theme.kpi("Total Gains", f'<span class="pos">{theme.money(k["total_gains"], sign=True)}</span>'),
@@ -152,17 +117,15 @@ elif page == "Performance":
                 theme.kpi("Deployed", theme.money(k["deployed"])),
                 theme.kpi("Pending", theme.money(k["pending"])),
                 theme.kpi("Settled Bets", str(k["n_bets"])),
-            ], cols=3)
-            + '</div>', unsafe_allow_html=True)
+            ], cols=3) + '</div>', unsafe_allow_html=True)
 
         rows = ""
-        for s in RUN["settled"][:9]:
+        for s in RUN["settled"][:10]:
             pnl = s["realized_pnl"]
             w = min(60, abs(pnl) / 60)
             bar = (f'<span class="sq-bar" style="width:{w}px;background:'
                    f'{theme.POS if pnl>0 else theme.NEG}"></span>')
-            rows += (f'<tr><td class="sq-ev">{s["event"]}</td>'
-                     f'<td><span class="sq-cat">{s["category"]}</span></td>'
+            rows += (f'<tr><td>{s["event"]}</td><td><span class="sq-cat">{s["category"]}</span></td>'
                      f'<td>{s["stake"]:,.2f}</td>'
                      f'<td class="{theme.cls(pnl)}">{theme.money(pnl, sign=True)}{bar}</td></tr>')
         st.markdown(
@@ -171,63 +134,65 @@ elif page == "Performance":
             f'<th>Realized P&amp;L ($)</th></tr></thead><tbody>{rows}</tbody></table></div>',
             unsafe_allow_html=True)
 
-# ===========================================================================
-elif page == "Calibration":
-    import numpy as np
-    settled = RUN["settled"]
-    p = np.array([s["model_p"] for s in settled])
-    o = np.array([s["outcome"] for s in settled])
-    pnls = np.array([s["pnl"] for s in settled])
-    stakes = np.array([s["stake"] for s in settled])
-    clvs = np.array([scoring.clv(s["odds"], s["odds_close"]) for s in settled])
+    elif page == "Calibration":
+        import numpy as np
+        settled = RUN["settled"]
+        p = np.array([s["model_p"] for s in settled])
+        o = np.array([s["outcome"] for s in settled])
+        pnls = np.array([s["pnl"] for s in settled])
+        stakes = np.array([s["stake"] for s in settled])
+        clvs = np.array([scoring.clv(s["odds"], s["odds_close"]) for s in settled])
 
-    bs = scoring.brier(p, o)
-    bs_base = scoring.brier(np.full_like(p, o.mean()), o)
-    ll = scoring.log_loss(p, o)
-    ece_v = scoring.ece(p, o, bins=6)
-    roi = scoring.roi_with_ci(pnls, stakes)
-    vd = scoring.verdict(bs, bs_base, float(clvs.mean()), roi["lo"])
+        bs = scoring.brier(p, o)
+        bs_base = scoring.brier(np.full_like(p, o.mean()), o)
+        ll = scoring.log_loss(p, o)
+        ece_v = scoring.ece(p, o, bins=6)
+        roi = scoring.roi_with_ci(pnls, stakes)
+        vd = scoring.verdict(bs, bs_base, float(clvs.mean()), roi["lo"])
 
-    st.markdown('<div class="sq-kick">calibration lab · is the model actually accurate?</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sq-h">Calibration & edge</div>', unsafe_allow_html=True)
-    st.markdown('<p style="color:var(--muted);font-size:14px;margin:2px 0 16px">Win rate alone is the '
-                'wrong lens. We measure calibration (Brier/ECE), market edge (CLV), and significant ROI.</p>',
-                unsafe_allow_html=True)
+        st.markdown('<div class="sq-kick">calibration lab · is the model actually accurate?</div>', unsafe_allow_html=True)
+        st.markdown('<div class="sq-h">Calibration &amp; edge</div>', unsafe_allow_html=True)
+        st.markdown(theme.kpi_grid([
+            theme.kpi("Brier", f'{bs:.3f}<span style="font-size:12px;color:var(--dim)"> / base {bs_base:.3f}</span>'),
+            theme.kpi("Log loss", f'{ll:.3f}'),
+            theme.kpi("ECE", f'{ece_v:.3f}'),
+            theme.kpi("Mean CLV", f'<span class="{theme.cls(clvs.mean())}">{clvs.mean()*100:+.1f}%</span>'),
+        ], cols=4), unsafe_allow_html=True)
 
-    st.markdown(theme.kpi_grid([
-        theme.kpi("Brier", f'{bs:.3f}<span style="font-size:12px;color:var(--dim)"> / base {bs_base:.3f}</span>'),
-        theme.kpi("Log loss", f'{ll:.3f}'),
-        theme.kpi("ECE", f'{ece_v:.3f}'),
-        theme.kpi("Mean CLV", f'<span class="{theme.cls(clvs.mean())}">{clvs.mean()*100:+.1f}%</span>'),
-    ], cols=4), unsafe_allow_html=True)
+        chips = []
+        for label, ok in [("calibrated", vd["calibrated"]), ("beats market (CLV)", vd["beats_market"]),
+                          ("profitable (ROI>0)", vd["profitable"])]:
+            c = theme.POS if ok else theme.NEG
+            chips.append(f'<span class="sq-cat" style="border-color:{c};color:{c}">'
+                         f'{"✓" if ok else "✗"} {label}</span>')
+        final = "EDGE IS REAL" if vd["edge_is_real"] else "EDGE NOT YET PROVEN"
+        fcls = "ok" if vd["edge_is_real"] else "no"
+        st.markdown(
+            f'<div class="sq-card" style="margin-top:12px"><div class="cap">Verdict — measured, not asserted</div>'
+            f'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">{"".join(chips)}</div>'
+            f'<span class="sq-verdict {fcls}">{final}</span>'
+            f'<div class="sq-foot" style="margin-top:10px">ROI {roi["roi"]*100:+.1f}% '
+            f'(95% CI {roi["lo"]*100:+.1f}% … {roi["hi"]*100:+.1f}%) · n={len(settled)} bets</div></div>',
+            unsafe_allow_html=True)
 
-    st.markdown('<div style="height:12px"></div>', unsafe_allow_html=True)
-    roi_lo = roi["lo"] * 100
-    chips = []
-    for label, ok in [("calibrated", vd["calibrated"]), ("beats market (CLV)", vd["beats_market"]),
-                      ("profitable (ROI>0)", vd["profitable"])]:
-        c = theme.POS if ok else theme.NEG
-        chips.append(f'<span class="sq-cat" style="border-color:{c};color:{c}">'
-                     f'{"✓" if ok else "✗"} {label}</span>')
-    final = "EDGE IS REAL" if vd["edge_is_real"] else "EDGE NOT YET PROVEN"
-    fcls = "ok" if vd["edge_is_real"] else "no"
-    st.markdown(
-        f'<div class="sq-card"><div class="cap">Verdict — measured, not asserted</div>'
-        f'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">{"".join(chips)}</div>'
-        f'<span class="sq-verdict {fcls}">{final}</span>'
-        f'<div class="sq-foot" style="margin-top:10px">ROI {roi["roi"]*100:+.1f}% '
-        f'(95% CI {roi_lo:+.1f}% … {roi["hi"]*100:+.1f}%) · n={len(settled)} bets · '
-        f'method: Brier/log-loss/ECE + CLV + normal-approx ROI CI</div></div>',
-        unsafe_allow_html=True)
+        rb = scoring.reliability_bins(p, o, bins=6)
+        bars = ""
+        for conf, acc, n in rb:
+            bars += (f'<div style="display:flex;align-items:center;gap:10px;margin:6px 0;font-family:IBM Plex Mono;font-size:12px">'
+                     f'<span style="width:64px;color:var(--muted)">p≈{conf:.2f}</span>'
+                     f'<div style="flex:1;background:#181d14;border-radius:4px;height:14px">'
+                     f'<div style="width:{acc*100:.0f}%;height:100%;background:var(--lime);border-radius:4px;opacity:.85"></div></div>'
+                     f'<span style="width:88px;text-align:right">obs {acc*100:.0f}% · n={n}</span></div>')
+        st.markdown(f'<div class="sq-card" style="margin-top:14px"><div class="cap">Reliability — '
+                    f'predicted vs observed</div>{bars}</div>', unsafe_allow_html=True)
 
-    # reliability bins
-    rb = scoring.reliability_bins(p, o, bins=6)
-    bars = ""
-    for conf, acc, n in rb:
-        bars += (f'<div style="display:flex;align-items:center;gap:10px;margin:6px 0;font-family:IBM Plex Mono;font-size:12px">'
-                 f'<span style="width:64px;color:var(--muted)">p≈{conf:.2f}</span>'
-                 f'<div style="flex:1;background:#1A1E23;border-radius:4px;height:14px;position:relative">'
-                 f'<div style="width:{acc*100:.0f}%;height:100%;background:var(--accent);border-radius:4px;opacity:.85"></div></div>'
-                 f'<span style="width:88px;text-align:right">obs {acc*100:.0f}% · n={n}</span></div>')
-    st.markdown(f'<div class="sq-card" style="margin-top:14px"><div class="cap">Reliability — '
-                f'predicted vs observed</div>{bars}</div>', unsafe_allow_html=True)
+# ---- bottom-pinned chat input (Terminal only) -----------------------------
+if page == "Terminal":
+    prompt = st.chat_input("Ask about a match, e.g. “best edge tonight?” or “Bayern vs Werder Bremen”")
+    if prompt:
+        match = next((f for f in FIX if f["event"].lower() in prompt.lower()
+                      or prompt.lower() in f["event"].lower()), None)
+        if match is None:
+            match = max(FIX, key=lambda f: edge(f["model_p"], f["odds"]))
+        _ask(match["event"])
+        st.rerun()

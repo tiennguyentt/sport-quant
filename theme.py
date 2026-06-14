@@ -72,7 +72,8 @@ html,body,[class*="css"]{ font-family:'Archivo',sans-serif; }
 .dk-tick{ display:flex; align-items:center; gap:16px; background:rgba(10,13,10,.7); border:1px solid var(--line); border-radius:12px; padding:8px 14px; overflow:hidden; margin-bottom:16px; }
 .dk-tick .lab{ font-family:'IBM Plex Mono';font-size:11px;font-weight:600;color:var(--lime);letter-spacing:.08em;white-space:nowrap;flex:none;display:flex;align-items:center;gap:6px; }
 .dk-tick .lab::before{ content:"";width:7px;height:7px;border-radius:50%;background:var(--lime);box-shadow:0 0 8px var(--lime); }
-.dk-track{ display:flex; gap:34px; white-space:nowrap; animation:dktk 40s linear infinite; }
+.dk-twrap{ flex:1; min-width:0; overflow:hidden; }
+.dk-track{ display:flex; gap:34px; white-space:nowrap; animation:dktk 40s linear infinite; width:max-content; }
 .dk-mi{ display:flex; align-items:center; gap:9px; }
 .dk-cir{ width:20px;height:20px;border-radius:50%;background:#1a2113;border:1px solid #2c3a22;flex:none; }
 .dk-mi .nm{ font-family:'Archivo';font-weight:700;font-size:13px;color:var(--ink);text-transform:uppercase;letter-spacing:.01em; }
@@ -184,7 +185,7 @@ def ticker(scores: list[dict]) -> str:
                 f'<span class="mn">{s["min"]}\'</span></span>')
     items = "".join(item(s) for s in scores)
     return (f'<div class="dk-tick"><span class="lab">LIVE SCORE TRACKER</span>'
-            f'<div class="dk-track">{items}{items}</div></div>')
+            f'<div class="dk-twrap"><div class="dk-track">{items}{items}</div></div></div>')
 
 
 # ---- DKING match card ------------------------------------------------------
