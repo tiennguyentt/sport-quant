@@ -117,7 +117,7 @@ img.dk-cir{ object-fit:contain; background:#0e130b; padding:1px; }
 .dk-av{ width:34px;height:34px;border-radius:10px;flex:none;display:grid;place-items:center;font-size:15px;font-family:'kensmark';font-weight:800; }
 .dk-av.a{ background:#0d120b;border:1px solid #2c3a22;color:var(--lime); }
 .dk-av.u{ background:linear-gradient(135deg,#A6E84B,#5f8f1f);color:#0A0D0A; }
-.dk-txt{ font-family:'kensmark';font-weight:400;font-size:15px;line-height:1.6;color:#E8EBE4;max-width:680px;padding-top:5px; }
+.dk-txt{ font-family:'ppNeueMontreal',sans-serif;font-weight:400;font-size:15px;line-height:1.6;color:#E8EBE4;max-width:680px;padding-top:5px; }
 .dk-txt .rec{ font-family:'IBM Plex Mono';font-size:12.5px;margin-top:11px;color:var(--muted); }
 .dk-txt .rec b{ color:var(--ink); } .dk-txt .rec .pos{ color:var(--lime); }
 .dk-time{ font-family:'IBM Plex Mono';font-size:10.5px;color:var(--dim);margin:2px 0 0 47px; }
