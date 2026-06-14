@@ -23,8 +23,7 @@ WARN    = "#E7B24B"   # amber
 
 
 def inject_css() -> None:
-    st.markdown(
-        """
+    html = """
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -145,9 +144,11 @@ html,body,[class*="css"]{ font-family:'IBM Plex Sans',sans-serif; }
 .sq-reasons{ margin-top:11px;border-top:1px solid #1A1E23;padding-top:9px; }
 hr{ border-color:var(--line); }
 </style>
-        """,
-        unsafe_allow_html=True,
-    )
+"""
+    # Streamlit/markdown ends an HTML block at the first blank line — which would dump
+    # the rest of the CSS as visible text. Strip blank lines so the <style> stays intact.
+    html = "\n".join(line for line in html.splitlines() if line.strip())
+    st.markdown(html, unsafe_allow_html=True)
 
 
 def money(v: float, *, sign: bool = False, dollar: bool = True) -> str:
