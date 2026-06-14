@@ -12,17 +12,17 @@ import streamlit as st
 import fonts_data  # SIRE fonts (Kensmark + PP Neue Montreal) embedded as data URIs
 
 # ---- palette (DKING) -------------------------------------------------------
-BG      = "#0A0D0A"
+BG      = "#060607"
 PANEL   = "#11150F"
 PANEL2  = "#161B12"
 LINE    = "#222A1C"
 INK     = "#F2F4EF"
 MUTED   = "#8A938A"
 DIM     = "#5A6356"
-LIME    = "#A6E84B"   # the DKING green
-POS     = "#A6E84B"
+LIME    = "#92CE53"   # the DKING green
+POS     = "#92CE53"
 NEG     = "#FF5B6B"
-ACCENT  = "#A6E84B"
+ACCENT  = "#92CE53"
 
 
 def inject_css() -> None:
@@ -31,25 +31,25 @@ def inject_css() -> None:
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0A0D0A; --panel:#11150F; --panel2:#161B12; --line:#222A1C;
-  --ink:#F2F4EF; --muted:#8A938A; --dim:#5A6356; --lime:#A6E84B; --pos:#A6E84B; --neg:#FF5B6B; --accent:#A6E84B;
+  --bg:#060607; --panel:#11150F; --panel2:#161B12; --line:#222A1C;
+  --ink:#F2F4EF; --muted:#8A938A; --dim:#5A6356; --lime:#92CE53; --pos:#92CE53; --neg:#FF5B6B; --accent:#92CE53;
 }
 html,body,[class*="css"]{ font-family:'ppNeueMontreal','kensmark',sans-serif; }
 .stApp{
-  background:#080B07;
+  background:#060607;
   background-image:
-    radial-gradient(900px 520px at 50% 4%, rgba(166,232,75,.07), transparent 60%),
-    radial-gradient(1.5px 1.5px at 12% 22%, rgba(166,232,75,.55), transparent),
-    radial-gradient(1.5px 1.5px at 78% 18%, rgba(166,232,75,.30), transparent),
-    radial-gradient(1px 1px at 34% 64%, rgba(166,232,75,.45), transparent),
+    radial-gradient(900px 520px at 50% 4%, rgba(146,206,83,.07), transparent 60%),
+    radial-gradient(1.5px 1.5px at 12% 22%, rgba(146,206,83,.55), transparent),
+    radial-gradient(1.5px 1.5px at 78% 18%, rgba(146,206,83,.30), transparent),
+    radial-gradient(1px 1px at 34% 64%, rgba(146,206,83,.45), transparent),
     radial-gradient(1px 1px at 62% 78%, rgba(255,255,255,.20), transparent),
-    radial-gradient(1.5px 1.5px at 88% 52%, rgba(166,232,75,.40), transparent),
-    radial-gradient(1px 1px at 8% 76%, rgba(166,232,75,.30), transparent),
-    radial-gradient(2px 2px at 46% 36%, rgba(166,232,75,.30), transparent),
-    radial-gradient(1px 1px at 24% 88%, rgba(166,232,75,.35), transparent),
-    radial-gradient(1px 1px at 92% 82%, rgba(166,232,75,.28), transparent),
+    radial-gradient(1.5px 1.5px at 88% 52%, rgba(146,206,83,.40), transparent),
+    radial-gradient(1px 1px at 8% 76%, rgba(146,206,83,.30), transparent),
+    radial-gradient(2px 2px at 46% 36%, rgba(146,206,83,.30), transparent),
+    radial-gradient(1px 1px at 24% 88%, rgba(146,206,83,.35), transparent),
+    radial-gradient(1px 1px at 92% 82%, rgba(146,206,83,.28), transparent),
     radial-gradient(1px 1px at 54% 14%, rgba(255,255,255,.16), transparent),
-    radial-gradient(1.5px 1.5px at 70% 40%, rgba(166,232,75,.30), transparent);
+    radial-gradient(1.5px 1.5px at 70% 40%, rgba(146,206,83,.30), transparent);
   background-attachment:fixed;
   color:var(--ink);
 }
@@ -116,13 +116,13 @@ img.dk-cir{ object-fit:contain; background:#0e130b; padding:1px; }
 .dk-msg{ display:flex; gap:13px; margin:18px 0; align-items:flex-start; }
 .dk-av{ width:34px;height:34px;border-radius:10px;flex:none;display:grid;place-items:center;font-size:15px;font-family:'kensmark';font-weight:800; }
 .dk-av.a{ background:#0d120b;border:1px solid #2c3a22;color:var(--lime); }
-.dk-av.u{ background:linear-gradient(135deg,#A6E84B,#5f8f1f);color:#0A0D0A; }
+.dk-av.u{ background:linear-gradient(135deg,#92CE53,#5f8f1f);color:#060607; }
 .dk-txt{ font-family:'ppNeueMontreal',sans-serif;font-weight:400;font-size:15px;line-height:1.6;color:#E8EBE4;max-width:680px;padding-top:5px; }
 .dk-txt .rec{ font-family:'IBM Plex Mono';font-size:12.5px;margin-top:11px;color:var(--muted); }
 .dk-txt .rec b{ color:var(--ink); } .dk-txt .rec .pos{ color:var(--lime); }
 .dk-time{ font-family:'IBM Plex Mono';font-size:10.5px;color:var(--dim);margin:2px 0 0 47px; }
 .dk-verdict{ font-family:'kensmark';font-weight:900;font-size:13px;letter-spacing:.06em;padding:6px 13px;border-radius:8px;display:inline-block;margin-top:11px; }
-.dk-verdict.ok{ background:rgba(166,232,75,.12);color:var(--lime);border:1px solid #3a521f; }
+.dk-verdict.ok{ background:rgba(146,206,83,.12);color:var(--lime);border:1px solid #3a521f; }
 .dk-verdict.no{ background:rgba(255,91,107,.1);color:var(--neg);border:1px solid #4a1d24; }
 .dk-code{ font-family:'IBM Plex Mono';font-size:11px;color:#FF8A95;border:1px solid #4a1d24;border-radius:6px;padding:2px 8px;margin:0 4px 4px 0;display:inline-block; }
 /* generic cards / kpis (Performance + Calibration) */
@@ -148,16 +148,16 @@ img.dk-cir{ object-fit:contain; background:#0e130b; padding:1px; }
 .sq-sig .row{ display:flex;justify-content:space-between;font-size:13px;padding:3px 0; }
 .sq-sig .row .k{ color:var(--muted); } .sq-sig .row .v{ font-family:'IBM Plex Mono'; }
 .sq-verdict{ font-family:'kensmark';font-weight:900;font-size:14px;letter-spacing:.05em;padding:7px 14px;border-radius:8px;display:inline-block; }
-.sq-verdict.ok{ background:rgba(166,232,75,.12);color:var(--lime);border:1px solid #3a521f; }
+.sq-verdict.ok{ background:rgba(146,206,83,.12);color:var(--lime);border:1px solid #3a521f; }
 .sq-verdict.no{ background:rgba(255,91,107,.1);color:var(--neg);border:1px solid #4a1d24; }
 .sq-foot{ font-size:11px;color:var(--dim);margin-top:8px; }
 /* Streamlit widget restyle: green Ask buttons + chat input */
-.stButton>button{ background:var(--lime); color:#0A0D0A; border:none; border-radius:9px; font-family:'kensmark'; font-weight:700; font-size:12px; padding:8px 0; letter-spacing:.02em; transition:.15s; }
-.stButton>button:hover{ background:#B7F564; color:#0A0D0A; transform:translateY(-1px); }
-.stButton>button:focus{ box-shadow:none;color:#0A0D0A; }
+.stButton>button{ background:var(--lime); color:#060607; border:none; border-radius:9px; font-family:'kensmark'; font-weight:700; font-size:12px; padding:8px 0; letter-spacing:.02em; transition:.15s; }
+.stButton>button:hover{ background:#B7F564; color:#060607; transform:translateY(-1px); }
+.stButton>button:focus{ box-shadow:none;color:#060607; }
 [data-testid="stChatInput"]{ background:rgba(17,21,15,.85); border:1px solid var(--line); border-radius:14px; }
 [data-testid="stChatInput"] textarea{ font-family:'kensmark'; color:var(--ink); }
-[data-testid="stChatInput"] button{ background:var(--lime)!important; color:#0A0D0A!important; border-radius:9px; }
+[data-testid="stChatInput"] button{ background:var(--lime)!important; color:#060607!important; border-radius:9px; }
 [data-testid="stSidebar"] .stRadio label{ font-size:13px; }
 /* landing top header */
 .dk-head{ display:flex; align-items:center; gap:11px; padding:2px 0 2px; }
@@ -179,14 +179,14 @@ div[role="radiogroup"] label{ padding:5px 14px;border-radius:8px;font-size:13px;
 div[role="radiogroup"] label:hover{ background:#161b12;color:var(--ink); }
 div[role="radiogroup"] label>div:first-child{ display:none; }
 /* neon glow + motion to match the reference's lit feel */
-.stButton>button{ box-shadow:0 0 16px rgba(166,232,75,.30); }
-.stButton>button:hover{ box-shadow:0 0 22px rgba(166,232,75,.5); }
-.dk-card::after,.dk-match::after,.dk-bal::after,.dk-chat::after{ filter:drop-shadow(-3px 3px 5px rgba(166,232,75,.45)); }
-.dk-verdict.ok{ box-shadow:0 0 16px rgba(166,232,75,.22); }
-.dk-hero .g{ text-shadow:0 0 22px rgba(166,232,75,.45); }
+.stButton>button{ box-shadow:0 0 16px rgba(146,206,83,.30); }
+.stButton>button:hover{ box-shadow:0 0 22px rgba(146,206,83,.5); }
+.dk-card::after,.dk-match::after,.dk-bal::after,.dk-chat::after{ filter:drop-shadow(-3px 3px 5px rgba(146,206,83,.45)); }
+.dk-verdict.ok{ box-shadow:0 0 16px rgba(146,206,83,.22); }
+.dk-hero .g{ text-shadow:0 0 22px rgba(146,206,83,.45); }
 .dk-card{ transition:border-color .15s, transform .15s; }
 .dk-card:hover{ border-color:#3a521f; transform:translateY(-2px); }
-.dk-av.a{ box-shadow:0 0 12px rgba(166,232,75,.18); }
+.dk-av.a{ box-shadow:0 0 12px rgba(146,206,83,.18); }
 .stApp{ animation:drift 60s ease-in-out infinite alternate; }
 @keyframes drift{ from{background-position:0 0,0 0,0 0,0 0,0 0,0 0,0 0,0 0,0 0,0 0,0 0,0 0;} to{background-position:0 0,8px 12px,-10px 8px,6px -8px,-8px 10px,10px 6px,-6px -10px,4px 8px,-8px -6px,12px 4px,-4px 10px,8px -8px;} }
 hr{ border-color:var(--line); }
