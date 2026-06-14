@@ -109,6 +109,8 @@ img.dk-cir{ object-fit:contain; background:#0e130b; padding:1px; }
 /* chat panel */
 .dk-chat{ position:relative; overflow:hidden; background:rgba(13,16,11,.55); border:1px solid var(--line); border-radius:18px; padding:20px 22px; min-height:120px; }
 .dk-chat::after{ content:""; position:absolute; top:0; right:0; border-width:0 40px 40px 0; border-style:solid; border-color:transparent var(--lime) transparent transparent; opacity:.85; }
+.dk-arr{ position:absolute; top:50%; transform:translateY(-50%); width:30px;height:30px;border-radius:50%;background:#0d120b;border:1px solid var(--line);display:grid;place-items:center;color:var(--muted);font-size:17px;z-index:2; }
+.dk-arr.l{ left:-14px; } .dk-arr.r{ right:-14px; }
 .dk-msg{ display:flex; gap:13px; margin:18px 0; align-items:flex-start; }
 .dk-av{ width:34px;height:34px;border-radius:10px;flex:none;display:grid;place-items:center;font-size:15px;font-family:'Archivo';font-weight:800; }
 .dk-av.a{ background:#0d120b;border:1px solid #2c3a22;color:var(--lime); }
@@ -239,15 +241,20 @@ def match_card(f: dict, edge_pct: float) -> str:
 
 # ---- chat bubbles ----------------------------------------------------------
 def user_msg(text: str, ts: str = "") -> str:
-    t = f'<div class="dk-time">{ts}</div>' if ts else ""
-    return (f'<div class="dk-msg"><div class="dk-av u">◐</div>'
+    t = f'<div class="dk-time">⧉ {ts}</div>' if ts else ""
+    return (f'<div class="dk-msg"><div class="dk-av u">◧</div>'
             f'<div class="dk-txt">{text}</div></div>{t}')
 
 
 def engine_msg(body_html: str, ts: str = "") -> str:
-    t = f'<div class="dk-time">{ts}</div>' if ts else ""
+    t = f'<div class="dk-time">⧉ {ts}</div>' if ts else ""
     return (f'<div class="dk-msg"><div class="dk-av a">◆</div>'
             f'<div class="dk-txt">{body_html}</div></div>{t}')
+
+
+def chat_panel(bubbles: str) -> str:
+    return (f'<div class="dk-chat"><span class="dk-arr l">‹</span>'
+            f'{bubbles}<span class="dk-arr r">›</span></div>')
 
 
 # ---- kpis (Performance / Calibration reuse) --------------------------------

@@ -15,12 +15,21 @@ from data import (LIVE_SCORES, REASONINGS, fixtures, recorded_run,
                   live_fixtures, live_scores)
 from engine import Candidate, PortfolioState, edge, fractional_kelly, gate_check
 import scoring
+import llm
 
 BRAND = "sport-quant"
 
 st.set_page_config(page_title="sport-quant terminal", layout="wide",
                    initial_sidebar_state="collapsed")
 theme.inject_css()
+
+# Make the OpenRouter key (Streamlit secret) visible to llm.py via env.
+try:
+    _k = st.secrets.get("OPENROUTER_API_KEY")
+    if _k:
+        os.environ.setdefault("OPENROUTER_API_KEY", _k)
+except Exception:
+    pass
 
 RUN = recorded_run()
 STATE = PortfolioState()
@@ -53,13 +62,16 @@ def _decide(f: dict) -> dict:
             "edge": edge(c.model_p, c.odds)}
 
 
-def _response_html(d: dict) -> str:
+def _fallback_reasoning(f: dict) -> str:
+    return (REASONINGS.get(f["event"]) or
+            f'Model puts {f["selection"]} at {f["model_p"]*100:.1f}% vs {f["market_p"]*100:.1f}% '
+            f'implied — a {(f["model_p"]-f["market_p"])*100:+.1f}pt model edge across '
+            f'{", ".join(f["sources"])} (live World Cup 2026 fixture; model probability illustrative).')
+
+
+def _verdict_html(d: dict) -> str:
+    """The deterministic gate's verdict — appended AFTER the LLM's streamed reasoning."""
     f = d["f"]
-    reasoning = REASONINGS.get(f["event"]) or (
-        f'Model puts {f["selection"]} at {f["model_p"]*100:.1f}% vs {f["market_p"]*100:.1f}% '
-        f'implied — a {(f["model_p"]-f["market_p"])*100:+.1f}pt model edge across '
-        f'{", ".join(f["sources"])}. Fixture is live World Cup 2026 data; the model '
-        f'probability is illustrative.')
     if d["passed"]:
         verdict = '<span class="dk-verdict ok">APPROVED · GATE PASSED</span>'
         rec = (f'<div class="rec"><b>{f["selection"]}</b> · stake '
@@ -69,19 +81,15 @@ def _response_html(d: dict) -> str:
         extra = ""
     else:
         verdict = '<span class="dk-verdict no">REJECTED · GATE BLOCKED</span>'
-        rec = '<div class="rec">No bet surfaced — the model proposed, the policy refused.</div>'
+        rec = '<div class="rec">No bet surfaced — the model proposed, the risk desk refused.</div>'
         codes = "".join(f'<span class="dk-code">{r}</span>' for r in d["reasons"])
         extra = f'<div style="margin-top:9px">{codes}</div>'
-    return f'{reasoning}{rec}<div style="margin-top:6px">{verdict}</div>{extra}'
+    return f'{rec}<div style="margin-top:6px">{verdict}</div>{extra}'
 
 
 def _ask(event_name: str) -> None:
-    d = next((_decide(f) for f in FIX if f["event"] == event_name), None)
-    if d is None:
-        return
-    thread = st.session_state.setdefault("thread", [])
-    thread.append(("u", f'Ok give me the details of what I should bet on {event_name}.'))
-    thread.append(("a", _response_html(d)))
+    # queue the question; the chat view streams the LLM reply, then the gate decides.
+    st.session_state["pending"] = event_name
 
 
 # ---- full-width live ticker (top) -----------------------------------------
@@ -103,20 +111,41 @@ with rail_col:
 with main:
     if page == "Terminal":
         thread = st.session_state.get("thread", [])
-        if thread:
+        pending = st.session_state.get("pending")
+        if thread or pending:
             # chat view — matches the reference chat screenshot: just the panel
-            bubbles = ""
-            for role, body in thread:
-                ts = "4:41 PM" if role == "u" else "4:42 PM"
-                bubbles += theme.user_msg(body, ts) if role == "u" else theme.engine_msg(body, ts)
-            st.markdown(f'<div class="dk-chat">{bubbles}</div>', unsafe_allow_html=True)
+            if thread:
+                bubbles = ""
+                for role, body in thread:
+                    ts = "4:41 PM" if role == "u" else "4:42 PM"
+                    bubbles += theme.user_msg(body, ts) if role == "u" else theme.engine_msg(body, ts)
+                st.markdown(theme.chat_panel(bubbles), unsafe_allow_html=True)
+
+            if pending:
+                f = next((x for x in FIX if x["event"] == pending), None)
+                if f:
+                    d = _decide(f)
+                    q = f"Ok give me the details of what I should bet on {pending}."
+                    st.markdown(theme.user_msg(q, "4:41 PM"), unsafe_allow_html=True)
+                    st.markdown('<div class="dk-msg"><div class="dk-av a">◆</div>'
+                                '<div class="dk-txt" style="padding-top:2px">', unsafe_allow_html=True)
+                    streamed = st.write_stream(
+                        llm.stream_analysis(f, d["edge"] * 100, _fallback_reasoning(f)))
+                    st.markdown("</div></div>", unsafe_allow_html=True)
+                    body = f"{streamed}{_verdict_html(d)}"
+                    thread = st.session_state.setdefault("thread", [])
+                    thread.append(("u", q))
+                    thread.append(("a", body))
+                    st.session_state.pop("pending", None)
+                    st.rerun()
         else:
             # landing view — hero + match cards
             st.markdown('<div class="dk-hero">Introducing the <span class="g">terminal</span>. '
                         'It\'s all about Positive EV. Connect to the desk, then ask for predictions. '
                         'Create your market or your bet!</div>', unsafe_allow_html=True)
-            st.markdown('<p class="dk-sub">The model proposes a sized bet; a deterministic policy '
-                        'approves or refuses it. No free-form prompt-gaming.</p>', unsafe_allow_html=True)
+            st.markdown('<p class="dk-sub">A real model streams the analysis; a deterministic '
+                        'policy approves or refuses the bet. No free-form prompt-gaming.</p>',
+                        unsafe_allow_html=True)
             cards = FIX[:8]
             for row_start in range(0, len(cards), 2):
                 cols = st.columns(2, gap="small")
@@ -124,7 +153,7 @@ with main:
                     with col:
                         e = max(0.0, edge(f["model_p"], f["odds"])) * 100
                         st.markdown(theme.match_card(f, e), unsafe_allow_html=True)
-                        if st.button("Ask the desk", key=f'ask_{f["event"]}', use_container_width=True):
+                        if st.button("Ask the model", key=f'ask_{f["event"]}', use_container_width=True):
                             _ask(f["event"])
                             st.rerun()
 
@@ -216,9 +245,9 @@ with main:
 
 # ---- bottom-pinned chat input (Terminal only) -----------------------------
 if page == "Terminal":
-    prompt = st.chat_input("Ask about a match, e.g. “best edge tonight?” or “Bayern vs Werder Bremen”")
+    prompt = st.chat_input("Ask about a match, e.g. “best edge tonight?” or a team name")
     if prompt:
-        match = next((f for f in FIX if f["event"].lower() in prompt.lower()
+        match = next((f for f in FIX if any(w in f["event"].lower() for w in prompt.lower().split())
                       or prompt.lower() in f["event"].lower()), None)
         if match is None:
             match = max(FIX, key=lambda f: edge(f["model_p"], f["odds"]))
