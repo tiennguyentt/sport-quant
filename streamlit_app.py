@@ -24,22 +24,10 @@ STATE = PortfolioState()
 
 # ---- nav (left rail, de-crypto'd version of the aLink sidebar) -------------
 with st.sidebar:
-    st.markdown(
-        f'<div style="display:flex;gap:10px;align-items:center;margin-bottom:4px">'
-        f'<div class="sq-logo">▚</div><div><div class="sq-brand">{BRAND}</div>'
-        f'<div class="sq-kick">v0.1 · governed</div></div></div>',
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        f'<div class="sq-card" style="padding:13px 14px;margin:10px 0">'
-        f'<div class="l" style="font-size:11px;color:var(--muted)">PAPER BANKROLL</div>'
-        f'<div class="num" style="font-size:22px;font-weight:600;margin-top:4px">$100,000</div>'
-        f'<div class="sq-foot">engine online · policy v1.3 · synthetic data</div></div>',
-        unsafe_allow_html=True,
-    )
+    st.markdown(theme.rail(BRAND, "100,000.00"), unsafe_allow_html=True)
     page = st.radio("nav", ["Terminal", "Performance", "Calibration"], label_visibility="collapsed")
-    st.markdown('<div class="sq-foot" style="margin-top:18px">▸ Documentation<br>▸ Settings<br>'
-                '<span style="color:var(--pos)">● engine connected</span></div>', unsafe_allow_html=True)
+    st.markdown('<div class="dk-foot">▢ Documentation<br>⚙ Settings<br>'
+                '<span class="on">● engine connected</span></div>', unsafe_allow_html=True)
 
 # live score ticker (top, like the reference terminal)
 st.markdown(theme.ticker(LIVE_SCORES), unsafe_allow_html=True)
@@ -58,20 +46,18 @@ def _response_html(d: dict) -> str:
     f = d["f"]
     reasoning = REASONINGS.get(f["event"], "")
     if d["passed"]:
-        verdict = '<span class="sq-verdict ok">APPROVED · GATE PASSED</span>'
+        verdict = '<span class="dk-verdict ok">APPROVED · GATE PASSED</span>'
         rec = (f'<div class="rec"><b>{f["selection"]}</b> · stake '
                f'<b class="pos">{theme.money(d["stake"])}</b> · edge '
                f'<b class="pos">+{d["edge"]*100:.1f}%</b> · odds {f["odds"]:.2f} · '
                f'conf {f["confidence"]*100:.0f}% · sources {", ".join(f["sources"])}</div>')
         extra = ""
     else:
-        verdict = '<span class="sq-verdict no">REJECTED · GATE BLOCKED</span>'
+        verdict = '<span class="dk-verdict no">REJECTED · GATE BLOCKED</span>'
         rec = '<div class="rec">No bet surfaced — the model proposed, the policy refused.</div>'
-        codes = " ".join(f'<span class="sq-cat" style="border-color:#4a1d24;color:#FF8A95">{r}</span>'
-                         for r in d["reasons"])
-        extra = f'<div class="sq-reasons">{codes}</div>'
-    return (f'<div class="rsn">{reasoning}</div>{rec}'
-            f'<div class="sq-reasons">{verdict}</div>{extra}')
+        codes = "".join(f'<span class="dk-code">{r}</span>' for r in d["reasons"])
+        extra = f'<div style="margin-top:9px">{codes}</div>'
+    return f'{reasoning}{rec}<div style="margin-top:6px">{verdict}</div>{extra}'
 
 
 def _ask(event_name: str) -> None:
@@ -85,14 +71,13 @@ def _ask(event_name: str) -> None:
 
 # ===========================================================================
 if page == "Terminal":
-    st.markdown('<div class="sq-kick">the terminal · positive-EV, governed</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sq-h">Ask about any match. The gate decides what you see.</div>',
+    st.markdown('<div class="dk-hero">Introducing the <span class="g">terminal</span>. '
+                'It\'s all about Positive EV.<br>Ask for a prediction — the gate decides what you see.</div>',
                 unsafe_allow_html=True)
-    st.markdown('<p style="color:var(--muted);font-size:14px;margin:2px 0 16px">The model proposes a '
-                'sized bet; a deterministic policy approves or refuses it. No free-form prompt-gaming.</p>',
-                unsafe_allow_html=True)
+    st.markdown('<p class="dk-sub">The model proposes a sized bet; a deterministic policy approves or '
+                'refuses it. No free-form prompt-gaming.</p>', unsafe_allow_html=True)
 
-    # +EV scanner — match cards you can ask about
+    # +EV scanner — DKING-style match cards you can ask about
     cards = FIX[:8]
     for row_start in range(0, len(cards), 4):
         cols = st.columns(4, gap="small")
@@ -100,16 +85,19 @@ if page == "Terminal":
             with col:
                 e = max(0.0, edge(f["model_p"], f["odds"])) * 100
                 st.markdown(theme.match_card(f, e), unsafe_allow_html=True)
-                if st.button("Ask", key=f'ask_{f["event"]}', use_container_width=True):
+                if st.button("Ask DKING", key=f'ask_{f["event"]}', use_container_width=True):
                     _ask(f["event"])
                     st.rerun()
 
-    st.markdown("<div style='height:6px'></div>", unsafe_allow_html=True)
-
-    # chat thread
-    for role, body in st.session_state.get("thread", []):
-        st.markdown(theme.user_msg(body) if role == "u" else theme.engine_msg(body),
-                    unsafe_allow_html=True)
+    # chat thread inside the green-cornered panel
+    thread = st.session_state.get("thread", [])
+    if thread:
+        st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
+        bubbles = "".join(
+            theme.user_msg(body) if role == "u" else theme.engine_msg(body)
+            for role, body in thread
+        )
+        st.markdown(f'<div class="dk-chat">{bubbles}</div>', unsafe_allow_html=True)
 
     prompt = st.chat_input("Ask about a match, e.g. “best edge tonight?” or “Bayern vs Werder Bremen”")
     if prompt:

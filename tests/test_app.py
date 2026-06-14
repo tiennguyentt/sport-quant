@@ -15,7 +15,7 @@ def test_terminal_is_front_door(at):
     assert at.radio[0].value == "Terminal"
     body = " ".join(getattr(m, "value", "") or "" for m in at.markdown)
     assert "the gate decides" in body.lower()
-    assert "LIVE SCORES" in body  # ticker present
+    assert "LIVE SCORE TRACKER" in body  # ticker present
 
 
 def test_ask_routes_through_gate(at):

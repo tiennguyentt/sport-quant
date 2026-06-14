@@ -1,147 +1,150 @@
-"""Design system for sport-quant — a clean, high-level dark dashboard modelled on the
-reference αVault UI (de-crypto'd). Dark fintech/terminal aesthetic: near-black canvas,
-lifted panels, hairline borders, tabular-mono numbers, green/red P&L, one white CTA.
+"""Design system for sport-quant — a pixel-faithful rebuild of the SIRE / DKING terminal.
 
-All visual primitives live here so app.py stays compositional.
+Reference: the DKING terminal screenshots — near-black starfield canvas, lime-green accent,
+heavy Archivo display type, a live-score ticker, a left rail with a green folded-corner
+balance card, a chat panel with avatar bubbles, DKING-style match cards, and a green input.
+De-crypto'd: wallet/staking labels become session/paper-bankroll, same exact visual slots.
 """
 from __future__ import annotations
 
 import streamlit as st
 
-# ---- palette ---------------------------------------------------------------
-BG      = "#0A0C0F"   # canvas, near-black
-PANEL   = "#131619"   # card surface
-PANEL2  = "#181C21"   # inset / nested surface
-LINE    = "#23282E"   # hairline border
-INK     = "#E9ECEF"   # primary text
-MUTED   = "#8B929B"   # labels / secondary
-DIM     = "#5A616A"   # tertiary
-POS     = "#2FE6A8"   # gains (green)
-NEG     = "#FF5B6B"   # losses (red)
-ACCENT  = "#2FE6A8"   # brand accent
-WARN    = "#E7B24B"   # amber
+# ---- palette (DKING) -------------------------------------------------------
+BG      = "#0A0D0A"
+PANEL   = "#11150F"
+PANEL2  = "#161B12"
+LINE    = "#222A1C"
+INK     = "#F2F4EF"
+MUTED   = "#8A938A"
+DIM     = "#5A6356"
+LIME    = "#A6E84B"   # the DKING green
+POS     = "#A6E84B"
+NEG     = "#FF5B6B"
+ACCENT  = "#A6E84B"
 
 
 def inject_css() -> None:
     html = """
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0A0C0F; --panel:#131619; --panel2:#181C21; --line:#23282E;
-  --ink:#E9ECEF; --muted:#8B929B; --dim:#5A616A; --pos:#2FE6A8; --neg:#FF5B6B; --accent:#2FE6A8;
+  --bg:#0A0D0A; --panel:#11150F; --panel2:#161B12; --line:#222A1C;
+  --ink:#F2F4EF; --muted:#8A938A; --dim:#5A6356; --lime:#A6E84B; --pos:#A6E84B; --neg:#FF5B6B; --accent:#A6E84B;
 }
-html,body,[class*="css"]{ font-family:'IBM Plex Sans',sans-serif; }
-.stApp{ background:var(--bg); color:var(--ink); }
+html,body,[class*="css"]{ font-family:'Archivo',sans-serif; }
+.stApp{
+  background:#0A0D0A;
+  background-image:
+    radial-gradient(1200px 700px at 50% -10%, rgba(166,232,75,.05), transparent 60%),
+    radial-gradient(1px 1px at 12% 22%, rgba(166,232,75,.40), transparent),
+    radial-gradient(1px 1px at 78% 18%, rgba(255,255,255,.18), transparent),
+    radial-gradient(1px 1px at 34% 64%, rgba(166,232,75,.28), transparent),
+    radial-gradient(1px 1px at 62% 78%, rgba(255,255,255,.14), transparent),
+    radial-gradient(1px 1px at 88% 52%, rgba(166,232,75,.22), transparent),
+    radial-gradient(1px 1px at 8% 76%, rgba(255,255,255,.12), transparent),
+    radial-gradient(2px 2px at 46% 36%, rgba(166,232,75,.18), transparent),
+    radial-gradient(1px 1px at 24% 88%, rgba(166,232,75,.20), transparent);
+  color:var(--ink);
+}
 #MainMenu,header[data-testid="stHeader"],footer{ display:none!important; }
-[data-testid="stAppViewContainer"]>.main .block-container{ padding:1.1rem 1.4rem 4rem; max-width:1180px; }
-[data-testid="stSidebar"]{ background:#0C0F12; border-right:1px solid var(--line); }
-[data-testid="stSidebar"] *{ color:var(--ink); }
+[data-testid="stAppViewContainer"]>.main .block-container{ padding:.9rem 1.4rem 5rem; max-width:1240px; }
 .num{ font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums; }
 .pos{ color:var(--pos); } .neg{ color:var(--neg); }
-
-/* top bar */
-.sq-top{ display:flex; align-items:center; gap:14px; padding:2px 2px 14px; border-bottom:1px solid var(--line); margin-bottom:16px; }
-.sq-logo{ width:30px;height:30px;border-radius:8px;background:var(--ink);color:#0A0C0F;display:grid;place-items:center;
-          font-family:'Archivo';font-weight:900;font-size:18px;transform:skewX(-6deg); }
-.sq-brand{ font-family:'Archivo';font-weight:800;font-size:18px;letter-spacing:-.02em; }
-.sq-pill{ font-family:'IBM Plex Mono';font-size:11px;color:var(--muted);border:1px solid var(--line);
-          border-radius:999px;padding:4px 11px;letter-spacing:.04em; }
-.sq-pill b{ color:var(--accent); font-weight:600; }
-.sq-spacer{ margin-left:auto; }
-.sq-chip{ font-family:'IBM Plex Mono';font-size:11px;color:var(--muted);border:1px solid var(--line);
-          border-radius:7px;padding:5px 10px; }
-
-/* section heads */
-.sq-h{ font-family:'Archivo';font-weight:800;font-size:26px;letter-spacing:-.02em;margin:2px 0 2px; }
-.sq-kick{ font-family:'IBM Plex Mono';font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim); }
-
-/* cards */
-.sq-card{ background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px 18px; }
-.sq-card .cap{ font-size:13px;color:var(--muted);font-weight:500;margin-bottom:14px; }
-
-/* KPI cells */
+/* sidebar = DKING left rail */
+[data-testid="stSidebar"]{ background:transparent; border-right:none; padding-top:6px; }
+[data-testid="stSidebar"]>div{ padding-top:10px; }
+[data-testid="stSidebar"] *{ color:var(--ink); }
+.dk-rail{ background:rgba(17,21,15,.82); border:1px solid var(--line); border-radius:18px; padding:16px 15px; backdrop-filter:blur(3px); }
+.dk-brand{ display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+.dk-mark{ width:34px;height:34px;border-radius:9px;border:1px solid #2c3a22;background:#0d120b;display:grid;place-items:center;color:var(--lime);font-size:15px; }
+.dk-brand b{ font-family:'Archivo';font-weight:800;font-size:17px;letter-spacing:-.01em; display:block;line-height:1; }
+.dk-brand span{ font-family:'IBM Plex Mono';font-size:10px;color:var(--dim);letter-spacing:.12em; }
+.dk-row{ display:flex;justify-content:space-between;align-items:center;font-size:12px;margin:12px 2px 8px; }
+.dk-row .k{ color:var(--muted);font-weight:600; } .dk-row .v{ font-family:'IBM Plex Mono';color:var(--muted);font-size:11px; }
+.dk-bal{ position:relative; overflow:hidden; background:#0e130b; border:1px solid #2c3a22; border-radius:13px; padding:13px 14px; }
+.dk-bal::after{ content:""; position:absolute; top:0; right:0; border-width:0 30px 30px 0; border-style:solid; border-color:transparent var(--lime) transparent transparent; }
+.dk-bal .l{ font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.02em; }
+.dk-bal .v{ font-family:'Archivo';font-weight:800;font-size:24px;color:var(--lime);letter-spacing:-.01em;margin-top:3px; }
+.dk-foot{ font-size:12px;color:var(--dim);line-height:2.1;margin-top:14px; }
+.dk-foot .on{ color:var(--lime); }
+/* top live-score ticker */
+.dk-tick{ display:flex; align-items:center; gap:16px; background:rgba(10,13,10,.7); border:1px solid var(--line); border-radius:12px; padding:8px 14px; overflow:hidden; margin-bottom:16px; }
+.dk-tick .lab{ font-family:'IBM Plex Mono';font-size:11px;font-weight:600;color:var(--lime);letter-spacing:.08em;white-space:nowrap;flex:none;display:flex;align-items:center;gap:6px; }
+.dk-tick .lab::before{ content:"";width:7px;height:7px;border-radius:50%;background:var(--lime);box-shadow:0 0 8px var(--lime); }
+.dk-track{ display:flex; gap:34px; white-space:nowrap; animation:dktk 40s linear infinite; }
+.dk-mi{ display:flex; align-items:center; gap:9px; }
+.dk-cir{ width:20px;height:20px;border-radius:50%;background:#1a2113;border:1px solid #2c3a22;flex:none; }
+.dk-mi .nm{ font-family:'Archivo';font-weight:700;font-size:13px;color:var(--ink);text-transform:uppercase;letter-spacing:.01em; }
+.dk-mi .sc{ font-family:'Archivo';font-weight:800;font-size:14px;color:var(--lime); }
+.dk-mi .mn{ font-family:'IBM Plex Mono';font-size:10px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:1px 7px; }
+@keyframes dktk{ from{transform:translateX(0);} to{transform:translateX(-50%);} }
+/* hero line */
+.dk-hero{ font-family:'Archivo';font-weight:800;font-size:30px;line-height:1.15;letter-spacing:-.02em;max-width:620px;margin:6px 0 4px; }
+.dk-hero .g{ color:var(--lime); }
+.dk-sub{ color:var(--muted);font-size:14px;margin:0 0 16px;max-width:620px; }
+/* DKING match card */
+.dk-card{ position:relative; overflow:hidden; background:rgba(17,21,15,.7); border:1px solid var(--line); border-radius:15px; padding:16px 16px 14px; height:100%; backdrop-filter:blur(2px); }
+.dk-card::after{ content:""; position:absolute; top:0; right:0; border-width:0 30px 30px 0; border-style:solid; border-color:transparent var(--lime) transparent transparent; }
+.dk-card .lg{ font-family:'IBM Plex Mono';font-size:10px;color:var(--dim);letter-spacing:.12em;text-transform:uppercase; }
+.dk-teamrow{ display:flex;justify-content:space-between;align-items:center;margin:9px 0; }
+.dk-teamrow .t{ font-family:'Archivo';font-weight:800;font-size:16px;letter-spacing:-.01em; }
+.dk-teamrow .s{ font-family:'Archivo';font-weight:800;font-size:18px;color:var(--lime); }
+.dk-prog{ height:3px;background:#1a2113;border-radius:2px;overflow:hidden;margin:4px 0 11px; }
+.dk-prog>i{ display:block;height:100%;background:var(--lime); }
+.dk-meta{ display:flex;justify-content:space-between;align-items:flex-end; }
+.dk-meta .m{ font-family:'IBM Plex Mono';font-size:10.5px;color:var(--muted);line-height:1.7; }
+.dk-meta .m b{ color:var(--dim);font-weight:500; }
+.dk-edge{ color:var(--lime);font-weight:600; }
+/* chat panel */
+.dk-chat{ position:relative; overflow:hidden; background:rgba(13,16,11,.55); border:1px solid var(--line); border-radius:18px; padding:20px 22px; min-height:120px; }
+.dk-chat::after{ content:""; position:absolute; top:0; right:0; border-width:0 40px 40px 0; border-style:solid; border-color:transparent var(--lime) transparent transparent; opacity:.85; }
+.dk-msg{ display:flex; gap:13px; margin:18px 0; align-items:flex-start; }
+.dk-av{ width:34px;height:34px;border-radius:10px;flex:none;display:grid;place-items:center;font-size:15px;font-family:'Archivo';font-weight:800; }
+.dk-av.a{ background:#0d120b;border:1px solid #2c3a22;color:var(--lime); }
+.dk-av.u{ background:linear-gradient(135deg,#A6E84B,#5f8f1f);color:#0A0D0A; }
+.dk-txt{ font-family:'Archivo';font-weight:400;font-size:15px;line-height:1.6;color:#E8EBE4;max-width:680px;padding-top:5px; }
+.dk-txt .rec{ font-family:'IBM Plex Mono';font-size:12.5px;margin-top:11px;color:var(--muted); }
+.dk-txt .rec b{ color:var(--ink); } .dk-txt .rec .pos{ color:var(--lime); }
+.dk-time{ font-family:'IBM Plex Mono';font-size:10.5px;color:var(--dim);margin:2px 0 0 47px; }
+.dk-verdict{ font-family:'Archivo';font-weight:900;font-size:13px;letter-spacing:.06em;padding:6px 13px;border-radius:8px;display:inline-block;margin-top:11px; }
+.dk-verdict.ok{ background:rgba(166,232,75,.12);color:var(--lime);border:1px solid #3a521f; }
+.dk-verdict.no{ background:rgba(255,91,107,.1);color:var(--neg);border:1px solid #4a1d24; }
+.dk-code{ font-family:'IBM Plex Mono';font-size:11px;color:#FF8A95;border:1px solid #4a1d24;border-radius:6px;padding:2px 8px;margin:0 4px 4px 0;display:inline-block; }
+/* generic cards / kpis (Performance + Calibration) */
+.sq-card{ background:rgba(17,21,15,.7); border:1px solid var(--line); border-radius:15px; padding:18px; backdrop-filter:blur(2px); }
+.sq-card .cap{ font-size:13px;color:var(--muted);font-weight:600;margin-bottom:14px; }
+.sq-h{ font-family:'Archivo';font-weight:800;font-size:28px;letter-spacing:-.02em;margin:2px 0; }
+.sq-kick{ font-family:'IBM Plex Mono';font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim); }
 .sq-kgrid{ display:grid; gap:1px; background:var(--line); border:1px solid var(--line); border-radius:12px; overflow:hidden; }
 .sq-kgrid.c4{ grid-template-columns:repeat(4,1fr); } .sq-kgrid.c3{ grid-template-columns:repeat(3,1fr); }
 .sq-k{ background:var(--panel); padding:14px 15px; }
-.sq-k .l{ font-size:11px;color:var(--muted);letter-spacing:.04em;margin-bottom:7px;display:flex;gap:5px;align-items:center; }
-.sq-k .v{ font-family:'IBM Plex Mono';font-weight:600;font-size:21px;letter-spacing:-.01em; }
-
-/* tabs (segmented) */
-.sq-seg{ display:inline-flex; background:var(--panel2); border:1px solid var(--line); border-radius:9px; padding:3px; gap:3px; }
-.sq-seg .s{ font-size:13px;color:var(--muted);padding:6px 16px;border-radius:7px;font-weight:500; }
-.sq-seg .s.on{ background:#262C32;color:var(--ink); }
-
-/* table */
+.sq-k .l{ font-size:11px;color:var(--muted);margin-bottom:7px; }
+.sq-k .v{ font-family:'IBM Plex Mono';font-weight:600;font-size:21px; }
 .sq-tbl{ width:100%; border-collapse:collapse; font-size:13px; }
-.sq-tbl th{ text-align:right;font-weight:500;font-size:11px;color:var(--muted);letter-spacing:.03em;
-            padding:10px 12px;border-bottom:1px solid var(--line); }
+.sq-tbl th{ text-align:right;font-weight:600;font-size:11px;color:var(--muted);padding:10px 12px;border-bottom:1px solid var(--line); }
 .sq-tbl th:first-child,.sq-tbl td:first-child{ text-align:left; }
-.sq-tbl td{ padding:13px 12px;border-bottom:1px solid #1A1E23;font-family:'IBM Plex Mono';
-            font-variant-numeric:tabular-nums;text-align:right;color:var(--ink); }
-.sq-tbl tr:hover td{ background:#15191E; }
-.sq-ev{ font-family:'IBM Plex Sans';font-weight:500; }
-.sq-cat{ font-family:'IBM Plex Mono';font-size:11px;color:var(--muted);border:1px solid var(--line);
-         border-radius:6px;padding:2px 8px; }
+.sq-tbl td{ padding:13px 12px;border-bottom:1px solid #181d14;font-family:'IBM Plex Mono';text-align:right; }
+.sq-cat{ font-family:'IBM Plex Mono';font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:2px 8px; }
 .sq-bar{ display:inline-block;height:4px;border-radius:2px;vertical-align:middle;margin-left:8px; }
-
-/* signal card (telegram-style) */
-.sq-sig{ background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:15px 16px; }
-.sq-sig .hd{ font-family:'Archivo';font-weight:700;font-size:13px;color:var(--accent);letter-spacing:.02em; }
-.sq-sig .sub{ font-family:'IBM Plex Mono';font-size:11px;color:var(--dim);letter-spacing:.1em;margin-bottom:10px; }
+.sq-sig{ position:relative;overflow:hidden;background:#0e130b; border:1px solid #2c3a22; border-radius:13px; padding:15px 16px; }
+.sq-sig::after{ content:"";position:absolute;top:0;right:0;border-width:0 26px 26px 0;border-style:solid;border-color:transparent var(--lime) transparent transparent; }
+.sq-sig .hd{ font-family:'Archivo';font-weight:800;font-size:13px;color:var(--lime); }
+.sq-sig .sub{ font-family:'IBM Plex Mono';font-size:10px;color:var(--dim);letter-spacing:.1em;margin-bottom:10px; }
 .sq-sig .row{ display:flex;justify-content:space-between;font-size:13px;padding:3px 0; }
 .sq-sig .row .k{ color:var(--muted); } .sq-sig .row .v{ font-family:'IBM Plex Mono'; }
-
-/* pipeline strip */
-.sq-pipe{ display:flex; align-items:stretch; gap:0; border:1px solid var(--line); border-radius:12px; overflow:hidden; }
-.sq-stage{ flex:1; padding:13px 16px; background:var(--panel); border-right:1px solid var(--line); }
-.sq-stage:last-child{ border-right:none; }
-.sq-stage .n{ font-family:'IBM Plex Mono';font-size:10px;color:var(--dim);letter-spacing:.14em; }
-.sq-stage .t{ font-family:'Archivo';font-weight:700;font-size:14px;margin-top:3px; }
-.sq-stage.on{ background:#10231C; } .sq-stage.on .t{ color:var(--accent); }
-
-/* gate verdict + checklist */
-.sq-verdict{ font-family:'Archivo';font-weight:900;font-size:15px;letter-spacing:.05em;padding:7px 14px;border-radius:8px;display:inline-block; }
-.sq-verdict.ok{ background:#10231C;color:var(--pos);border:1px solid #1d4a3a; }
-.sq-verdict.no{ background:#2a1418;color:var(--neg);border:1px solid #4a1d24; }
-.sq-check{ font-family:'IBM Plex Mono';font-size:12px;padding:5px 0;border-bottom:1px solid #1A1E23;display:flex;gap:8px; }
-
-/* CTA */
-.sq-cta{ background:var(--ink);color:#0A0C0F;font-family:'Archivo';font-weight:700;font-size:13px;
-         text-align:center;padding:11px;border-radius:9px; }
+.sq-verdict{ font-family:'Archivo';font-weight:900;font-size:14px;letter-spacing:.05em;padding:7px 14px;border-radius:8px;display:inline-block; }
+.sq-verdict.ok{ background:rgba(166,232,75,.12);color:var(--lime);border:1px solid #3a521f; }
+.sq-verdict.no{ background:rgba(255,91,107,.1);color:var(--neg);border:1px solid #4a1d24; }
 .sq-foot{ font-size:11px;color:var(--dim);margin-top:8px; }
-
-/* live score ticker */
-.sq-ticker{ display:flex; align-items:center; gap:14px; background:#0C0F12; border:1px solid var(--line);
-            border-radius:10px; padding:8px 12px; overflow:hidden; margin-bottom:14px; }
-.tk-lab{ font-family:'IBM Plex Mono';font-size:11px;color:var(--pos);letter-spacing:.1em;white-space:nowrap;flex:none; }
-.tk-track{ display:flex; gap:30px; white-space:nowrap; animation:tk 38s linear infinite; }
-.tk-i{ font-size:13px;color:var(--muted); } .tk-i b{ color:var(--ink);font-weight:600; }
-.tk-i i{ color:var(--pos);font-style:normal;font-family:'IBM Plex Mono';font-size:11px;margin-left:6px; }
-@keyframes tk{ from{transform:translateX(0);} to{transform:translateX(-50%);} }
-
-/* match card (the +EV scanner) */
-.sq-match{ position:relative; background:var(--panel); border:1px solid var(--line); border-radius:13px;
-           padding:15px 16px 14px; overflow:hidden; height:100%; }
-.sq-match::after{ content:""; position:absolute; top:0; right:0; border-width:0 26px 26px 0;
-                  border-style:solid; border-color:transparent var(--accent) transparent transparent; opacity:.9; }
-.sq-match .lg{ font-family:'IBM Plex Mono';font-size:10px;color:var(--dim);letter-spacing:.12em; }
-.sq-match .tm{ font-family:'Archivo';font-weight:700;font-size:15px;line-height:1.32;margin:6px 0 10px; }
-.sq-match .mt{ display:flex;justify-content:space-between;font-family:'IBM Plex Mono';font-size:11px;color:var(--muted);
-               border-top:1px solid #1A1E23;padding-top:9px; }
-.sq-match .ed{ color:var(--pos); }
-
-/* chat thread */
-.sq-msg{ display:flex; gap:11px; margin:14px 0; }
-.sq-av{ width:30px;height:30px;border-radius:8px;flex:none;display:grid;place-items:center;
-        font-family:'Archivo';font-weight:800;font-size:13px; }
-.sq-av.u{ background:#1c2228;color:var(--muted); } .sq-av.a{ background:var(--ink);color:#0A0C0F;transform:skewX(-6deg); }
-.sq-bub{ background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:13px 15px; max-width:90%; }
-.sq-bub.u{ background:#15191E; color:var(--muted); }
-.sq-bub .rsn{ font-size:13.5px; line-height:1.55; color:var(--ink); }
-.sq-bub .rec{ font-family:'IBM Plex Mono';font-size:12.5px;margin-top:10px;color:var(--muted); }
-.sq-bub .rec b{ color:var(--ink); } .sq-bub .rec .pos{ color:var(--pos); }
-.sq-reasons{ margin-top:11px;border-top:1px solid #1A1E23;padding-top:9px; }
+/* Streamlit widget restyle: green Ask buttons + chat input */
+.stButton>button{ background:var(--lime); color:#0A0D0A; border:none; border-radius:9px; font-family:'Archivo'; font-weight:700; font-size:12px; padding:8px 0; letter-spacing:.02em; transition:.15s; }
+.stButton>button:hover{ background:#B7F564; color:#0A0D0A; transform:translateY(-1px); }
+.stButton>button:focus{ box-shadow:none;color:#0A0D0A; }
+[data-testid="stChatInput"]{ background:rgba(17,21,15,.85); border:1px solid var(--line); border-radius:14px; }
+[data-testid="stChatInput"] textarea{ font-family:'Archivo'; color:var(--ink); }
+[data-testid="stChatInput"] button{ background:var(--lime)!important; color:#0A0D0A!important; border-radius:9px; }
+[data-testid="stSidebar"] .stRadio label{ font-size:13px; }
 hr{ border-color:var(--line); }
 </style>
 """
@@ -152,31 +155,68 @@ hr{ border-color:var(--line); }
 
 
 def money(v: float, *, sign: bool = False, dollar: bool = True) -> str:
-    s = f"{'+' if sign and v > 0 else ''}{'-' if v < 0 else ''}{'$' if dollar else ''}{abs(v):,.0f}"
-    return s
+    return f"{'+' if sign and v > 0 else ''}{'-' if v < 0 else ''}{'$' if dollar else ''}{abs(v):,.0f}"
 
 
 def cls(v: float) -> str:
     return "pos" if v > 0 else ("neg" if v < 0 else "")
 
 
-def topbar(brand: str, regime: str = "live") -> None:
-    st.markdown(
-        f"""<div class="sq-top">
-        <div class="sq-logo">▚</div>
-        <div class="sq-brand">{brand}</div>
-        <span class="sq-pill">AIoT&nbsp; <b>sense → fuse → gate → act</b></span>
-        <span class="sq-spacer"></span>
-        <span class="sq-chip">policy v1.3</span>
-        <span class="sq-chip">recorded scenario · {regime}</span>
-        </div>""",
-        unsafe_allow_html=True,
+# ---- sidebar (DKING left rail) --------------------------------------------
+def rail(brand: str, bankroll: str) -> str:
+    return (
+        f'<div class="dk-rail">'
+        f'<div class="dk-brand"><div class="dk-mark">◆</div>'
+        f'<div><b>{brand}</b><span>V0.1 · GOVERNED</span></div></div>'
+        f'<div class="dk-row"><span class="k">Session</span><span class="v">0xQUANT…paper</span></div>'
+        f'<div class="dk-bal"><div class="l">Paper Bankroll</div><div class="v">{bankroll}</div></div>'
+        f'</div>'
     )
 
 
-def kpi(label: str, value_html: str, *, icon: str = "") -> str:
-    ic = f'<span style="color:#5A616A">{icon}</span>' if icon else ""
-    return f'<div class="sq-k"><div class="l">{ic}{label}</div><div class="v">{value_html}</div></div>'
+# ---- live ticker -----------------------------------------------------------
+def ticker(scores: list[dict]) -> str:
+    def item(s):
+        return (f'<span class="dk-mi"><span class="dk-cir"></span>'
+                f'<span class="nm">{s["home"]}</span><span class="sc">{s["hs"]}</span>'
+                f'<span style="color:#5A6356">/</span><span class="sc">{s["as_"]}</span>'
+                f'<span class="nm">{s["away"]}</span><span class="dk-cir"></span>'
+                f'<span class="mn">{s["min"]}\'</span></span>')
+    items = "".join(item(s) for s in scores)
+    return (f'<div class="dk-tick"><span class="lab">LIVE SCORE TRACKER</span>'
+            f'<div class="dk-track">{items}{items}</div></div>')
+
+
+# ---- DKING match card ------------------------------------------------------
+def match_card(f: dict, edge_pct: float) -> str:
+    home, _, away = f["event"].partition(" vs ")
+    fill = min(100, max(8, edge_pct * 9))
+    return (
+        f'<div class="dk-card"><div class="lg">{f["category"]}</div>'
+        f'<div class="dk-teamrow"><span class="t">{home}</span><span class="s">{f["model_p"]*100:.0f}</span></div>'
+        f'<div class="dk-teamrow"><span class="t">{away}</span><span class="s">{(1-f["model_p"])*100:.0f}</span></div>'
+        f'<div class="dk-prog"><i style="width:{fill:.0f}%"></i></div>'
+        f'<div class="dk-meta"><div class="m"><b>START</b> {f["start"]}<br><b>VENUE</b> {f["venue"]}</div>'
+        f'<div class="dk-edge">+{edge_pct:.1f}% EV</div></div></div>'
+    )
+
+
+# ---- chat bubbles ----------------------------------------------------------
+def user_msg(text: str, ts: str = "") -> str:
+    t = f'<div class="dk-time">{ts}</div>' if ts else ""
+    return (f'<div class="dk-msg"><div class="dk-av u">◐</div>'
+            f'<div class="dk-txt">{text}</div></div>{t}')
+
+
+def engine_msg(body_html: str, ts: str = "") -> str:
+    t = f'<div class="dk-time">{ts}</div>' if ts else ""
+    return (f'<div class="dk-msg"><div class="dk-av a">◆</div>'
+            f'<div class="dk-txt">{body_html}</div></div>{t}')
+
+
+# ---- kpis (Performance / Calibration reuse) --------------------------------
+def kpi(label: str, value_html: str) -> str:
+    return f'<div class="sq-k"><div class="l">{label}</div><div class="v">{value_html}</div></div>'
 
 
 def kpi_grid(cells: list[str], cols: int = 4) -> str:
@@ -184,35 +224,4 @@ def kpi_grid(cells: list[str], cols: int = 4) -> str:
 
 
 def segmented(options: list[str], active: str) -> str:
-    segs = "".join(f'<span class="s {"on" if o == active else ""}">{o}</span>' for o in options)
-    return f'<div class="sq-seg">{segs}</div>'
-
-
-def ticker(scores: list[dict]) -> str:
-    items = "".join(
-        f'<span class="tk-i"><b>{s["home"]}</b> {s["hs"]}–{s["as_"]} <b>{s["away"]}</b>'
-        f'<i>{s["min"]}\'</i></span>'
-        for s in scores
-    )
-    return (f'<div class="sq-ticker"><span class="tk-lab">● LIVE SCORES</span>'
-            f'<div class="tk-track">{items}{items}</div></div>')
-
-
-def match_card(f: dict, edge_pct: float) -> str:
-    home_away = f["event"].replace(" vs ", "<br>vs ")
-    return (f'<div class="sq-match"><div class="lg">{f["category"]}</div>'
-            f'<div class="tm">{home_away}</div>'
-            f'<div class="mt"><span>{f["start"]} · {f["venue"]}</span>'
-            f'<span class="ed">+{edge_pct:.1f}% edge</span></div></div>')
-
-
-def user_msg(text: str) -> str:
-    return (f'<div class="sq-msg" style="flex-direction:row-reverse">'
-            f'<div class="sq-av u">YOU</div>'
-            f'<div class="sq-bub u">{text}</div></div>')
-
-
-def engine_msg(body_html: str) -> str:
-    return (f'<div class="sq-msg"><div class="sq-av a">▚</div>'
-            f'<div class="sq-bub">{body_html}</div></div>')
-
+    return ""
