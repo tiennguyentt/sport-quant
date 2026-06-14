@@ -95,6 +95,8 @@ html,body,[class*="css"]{ font-family:'Archivo',sans-serif; }
 .dk-teamrow{ display:flex;justify-content:space-between;align-items:center;margin:11px 0; }
 .dk-tm{ display:flex;align-items:center;gap:11px; }
 .dk-ph{ width:32px;height:32px;border-radius:8px;background:#222a18;border:1px solid #394a28;flex:none;display:grid;place-items:center;font-family:'Archivo';font-weight:800;font-size:14px;color:#9aab73; }
+img.dk-ph{ object-fit:contain; padding:3px; background:#0e130b; }
+img.dk-cir{ object-fit:contain; background:#0e130b; padding:1px; }
 .dk-teamrow .t{ font-family:'Archivo';font-weight:800;font-size:16px;letter-spacing:-.01em;text-transform:uppercase; }
 .dk-teamrow .s{ font-family:'Archivo';font-weight:800;font-size:26px;color:var(--lime);line-height:1; }
 .dk-prog{ height:3px;background:#1a2113;border-radius:2px;overflow:hidden;margin:6px 0 12px; }
@@ -184,21 +186,37 @@ def rail(brand: str, bankroll: str) -> str:
 
 # ---- live ticker -----------------------------------------------------------
 def ticker(scores: list[dict]) -> str:
+    def badge(s, side):
+        url, nm = s.get(f"{side}_badge"), s["home" if side == "home" else "away"]
+        return f'<img class="dk-cir" src="{url}" alt="">' if url else f'<span class="dk-cir">{nm[:1]}</span>'
+
     def item(s):
-        return (f'<span class="dk-mi"><span class="dk-cir">{s["home"][:1]}</span>'
+        mn = s["min"] if str(s["min"]) in ("FT", "HT") else f'{s["min"]}\''
+        return (f'<span class="dk-mi">{badge(s, "home")}'
                 f'<span class="nm">{s["home"]}</span><span class="sc">{s["hs"]}</span>'
                 f'<span style="color:#5A6356">/</span><span class="sc">{s["as_"]}</span>'
-                f'<span class="nm">{s["away"]}</span><span class="dk-cir">{s["away"][:1]}</span>'
-                f'<span class="mn">{s["min"]}\'</span></span>')
+                f'<span class="nm">{s["away"]}</span>{badge(s, "away")}'
+                f'<span class="mn">{mn}</span></span>')
     items = "".join(item(s) for s in scores)
     return (f'<div class="dk-tick"><span class="lab">LIVE SCORE TRACKER</span>'
             f'<div class="dk-twrap"><div class="dk-track">{items}{items}</div></div></div>')
 
 
-# ---- match card (DKING-style: logo + team + big score, stacked meta) -------
-def _badge(name: str) -> str:
-    # team monogram badge standing in for a crest (no external logo fetch)
-    return f'<span class="dk-ph">{name[:1].upper()}</span>'
+# ---- match card (logo + team + big score, stacked meta) --------------------
+_PALETTE = ["#E0524B", "#4B7BE0", "#E0B24B", "#3FD68C", "#9B6BE0", "#E0744B",
+            "#46C7E0", "#C45BE0", "#E04B92", "#7CC44B"]
+
+
+def _team_color(name: str) -> str:
+    return _PALETTE[sum(ord(ch) for ch in name) % len(_PALETTE)]
+
+
+def _badge(name: str, url: str | None = None) -> str:
+    if url:
+        return f'<img class="dk-ph" src="{url}" alt="">'
+    c = _team_color(name)
+    return (f'<span class="dk-ph" style="background:{c}22;border-color:{c}66;color:{c}">'
+            f'{name[:1].upper()}</span>')
 
 
 def match_card(f: dict, edge_pct: float) -> str:
@@ -206,9 +224,11 @@ def match_card(f: dict, edge_pct: float) -> str:
     fill = min(100, max(8, edge_pct * 9))
     return (
         f'<div class="dk-card"><div class="lg">{f["category"]}</div>'
-        f'<div class="dk-teamrow"><span class="dk-tm">{_badge(home)}<span class="t">{home}</span></span>'
+        f'<div class="dk-teamrow"><span class="dk-tm">{_badge(home, f.get("home_badge"))}'
+        f'<span class="t">{home}</span></span>'
         f'<span class="s">{f["model_p"]*100:.0f}</span></div>'
-        f'<div class="dk-teamrow"><span class="dk-tm">{_badge(away)}<span class="t">{away}</span></span>'
+        f'<div class="dk-teamrow"><span class="dk-tm">{_badge(away, f.get("away_badge"))}'
+        f'<span class="t">{away}</span></span>'
         f'<span class="s">{(1-f["model_p"])*100:.0f}</span></div>'
         f'<div class="dk-prog"><i style="width:{fill:.0f}%"></i></div>'
         f'<div class="dk-meta"><div class="m"><span class="dot"></span><b>START:</b> {f["start"]}<br>'

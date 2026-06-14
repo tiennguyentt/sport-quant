@@ -6,10 +6,13 @@ deterministic gate. Models advise, code governs.
 """
 from __future__ import annotations
 
+import os
+
 import streamlit as st
 
 import theme
-from data import LIVE_SCORES, REASONINGS, fixtures, recorded_run
+from data import (LIVE_SCORES, REASONINGS, fixtures, recorded_run,
+                  live_fixtures, live_scores)
 from engine import Candidate, PortfolioState, edge, fractional_kelly, gate_check
 import scoring
 
@@ -20,8 +23,25 @@ st.set_page_config(page_title="sport-quant terminal", layout="wide",
 theme.inject_css()
 
 RUN = recorded_run()
-FIX = fixtures()
 STATE = PortfolioState()
+
+
+@st.cache_data(ttl=300, show_spinner=False)
+def _get_fixtures():
+    """Real World Cup 2026 fixtures (TheSportsDB), synthetic fallback if offline."""
+    if os.getenv("SPORTQUANT_OFFLINE"):
+        return fixtures()
+    return live_fixtures() or fixtures()
+
+
+@st.cache_data(ttl=120, show_spinner=False)
+def _get_scores():
+    return live_scores() or LIVE_SCORES
+
+
+FIX = _get_fixtures()
+LIVE = _get_scores()
+DATA_IS_LIVE = FIX and FIX[0].get("category") == "World Cup 2026"
 
 
 def _decide(f: dict) -> dict:
@@ -35,7 +55,11 @@ def _decide(f: dict) -> dict:
 
 def _response_html(d: dict) -> str:
     f = d["f"]
-    reasoning = REASONINGS.get(f["event"], "")
+    reasoning = REASONINGS.get(f["event"]) or (
+        f'Model puts {f["selection"]} at {f["model_p"]*100:.1f}% vs {f["market_p"]*100:.1f}% '
+        f'implied — a {(f["model_p"]-f["market_p"])*100:+.1f}pt model edge across '
+        f'{", ".join(f["sources"])}. Fixture is live World Cup 2026 data; the model '
+        f'probability is illustrative.')
     if d["passed"]:
         verdict = '<span class="dk-verdict ok">APPROVED · GATE PASSED</span>'
         rec = (f'<div class="rec"><b>{f["selection"]}</b> · stake '
@@ -61,7 +85,7 @@ def _ask(event_name: str) -> None:
 
 
 # ---- full-width live ticker (top) -----------------------------------------
-st.markdown(theme.ticker(LIVE_SCORES), unsafe_allow_html=True)
+st.markdown(theme.ticker(LIVE), unsafe_allow_html=True)
 
 # ---- two columns: DKING rail | main ---------------------------------------
 rail_col, main = st.columns([0.23, 0.77], gap="medium")
@@ -69,36 +93,40 @@ rail_col, main = st.columns([0.23, 0.77], gap="medium")
 with rail_col:
     st.markdown(theme.rail(BRAND, "100,000.00"), unsafe_allow_html=True)
     page = st.radio("nav", ["Terminal", "Performance", "Calibration"], label_visibility="collapsed")
+    if st.session_state.get("thread"):
+        if st.button("↺ New session", use_container_width=True):
+            st.session_state.pop("thread", None)
+            st.rerun()
     st.markdown('<div class="dk-foot">▢ Documentation<br>⚙ Settings<br>'
                 '<span class="on">● engine connected</span></div>', unsafe_allow_html=True)
 
 with main:
     if page == "Terminal":
-        st.markdown('<div class="dk-hero">Introducing the <span class="g">terminal</span>. '
-                    'It\'s all about Positive EV. Connect to the desk, then ask for predictions. '
-                    'Create your market or your bet!</div>', unsafe_allow_html=True)
-        st.markdown('<p class="dk-sub">The model proposes a sized bet; a deterministic policy approves '
-                    'or refuses it. No free-form prompt-gaming.</p>', unsafe_allow_html=True)
-
-        cards = FIX[:8]
-        for row_start in range(0, len(cards), 2):
-            cols = st.columns(2, gap="small")
-            for col, f in zip(cols, cards[row_start:row_start + 2]):
-                with col:
-                    e = max(0.0, edge(f["model_p"], f["odds"])) * 100
-                    st.markdown(theme.match_card(f, e), unsafe_allow_html=True)
-                    if st.button("Ask the desk", key=f'ask_{f["event"]}', use_container_width=True):
-                        _ask(f["event"])
-                        st.rerun()
-
         thread = st.session_state.get("thread", [])
         if thread:
-            st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
-            bubbles = "".join(
-                theme.user_msg(body) if role == "u" else theme.engine_msg(body)
-                for role, body in thread
-            )
+            # chat view — matches the reference chat screenshot: just the panel
+            bubbles = ""
+            for role, body in thread:
+                ts = "4:41 PM" if role == "u" else "4:42 PM"
+                bubbles += theme.user_msg(body, ts) if role == "u" else theme.engine_msg(body, ts)
             st.markdown(f'<div class="dk-chat">{bubbles}</div>', unsafe_allow_html=True)
+        else:
+            # landing view — hero + match cards
+            st.markdown('<div class="dk-hero">Introducing the <span class="g">terminal</span>. '
+                        'It\'s all about Positive EV. Connect to the desk, then ask for predictions. '
+                        'Create your market or your bet!</div>', unsafe_allow_html=True)
+            st.markdown('<p class="dk-sub">The model proposes a sized bet; a deterministic policy '
+                        'approves or refuses it. No free-form prompt-gaming.</p>', unsafe_allow_html=True)
+            cards = FIX[:8]
+            for row_start in range(0, len(cards), 2):
+                cols = st.columns(2, gap="small")
+                for col, f in zip(cols, cards[row_start:row_start + 2]):
+                    with col:
+                        e = max(0.0, edge(f["model_p"], f["odds"])) * 100
+                        st.markdown(theme.match_card(f, e), unsafe_allow_html=True)
+                        if st.button("Ask the desk", key=f'ask_{f["event"]}', use_container_width=True):
+                            _ask(f["event"])
+                            st.rerun()
 
     elif page == "Performance":
         k = RUN["kpis"]

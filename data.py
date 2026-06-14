@@ -3,7 +3,9 @@
 # precomputed recorded run so the app loads instantly.
 from __future__ import annotations
 
+import json
 import random
+import urllib.request
 
 # --- live score ticker (top marquee), mirrors the reference terminal --------
 LIVE_SCORES = [
@@ -24,7 +26,7 @@ FIXTURES = [
     ("Blazers vs Mavericks", "NBA", "Mavericks -4.5", 0.566, 0.515, 2.02, 0.66, 0.15, ["elo", "xg", "market"], "Moda Center", "9:00 PM"),
     ("Seahawks vs Commanders", "NFL", "Seahawks ML", 0.498, 0.512, 1.98, 0.55, 0.16, ["elo", "market"], "Lumen Field", "1:00 PM"),
     ("Dota2: Xtreme Gaming vs MOUZ", "Dota 2", "Xtreme Gaming", 0.604, 0.541, 1.85, 0.72, 0.11, ["vision", "elo", "xg"], "BO3", "4:00 PM"),
-    ("Bayern München vs Werder Bremen", "Bundesliga", "Bayern ML", 0.708, 0.642, 1.46, 0.74, 0.10, ["vision", "elo", "xg", "market"], "Allianz Arena", "6:30 PM"),
+    ("Bayern München vs Werder Bremen", "Bundesliga", "Bayern ML", 0.708, 0.642, 1.56, 0.74, 0.10, ["vision", "elo", "xg", "market"], "Allianz Arena", "6:30 PM"),
     ("Tottenham vs Manchester City", "EPL", "Man City ML", 0.561, 0.547, 1.83, 0.63, 0.14, ["elo", "xg"], "Tottenham Stadium", "11:30 AM"),
     # --- the honest rejections ---
     ("Inter vs Napoli", "Serie A", "Inter ML", 0.512, 0.503, 2.05, 0.58, 0.13, ["elo", "market"], "San Siro", "2:45 PM"),          # edge_too_small
@@ -135,5 +137,90 @@ def recorded_run(seed: int = 7) -> dict:
     return {"settled": settled, "kpis": kpis, "pnl_curve": curve}
 
 
+# ---------------------------------------------------------------------------
+# REAL data: World Cup 2026 via TheSportsDB free API (no key). Fixtures, scores,
+# and real team crest badges. Model probabilities stay illustrative (free APIs
+# carry no betting odds). Falls back to the synthetic data above on any failure.
+# ---------------------------------------------------------------------------
+_API = "https://www.thesportsdb.com/api/v1/json/3"
+WC_LEAGUE = "4429"  # FIFA World Cup
+
+
+def _fetch(url: str):
+    req = urllib.request.Request(url, headers={"User-Agent": "sport-quant/0.1"})
+    with urllib.request.urlopen(req, timeout=8) as r:
+        return json.load(r)
+
+
+def _illustrative_pricing(home: str, away: str) -> dict:
+    """Deterministic, clearly-illustrative model output for a real fixture."""
+    seed = sum(ord(c) for c in home + away)
+    r = random.Random(seed)
+    model_p = round(0.52 + r.uniform(0.02, 0.20), 3)
+    delta = r.choice([0.06, 0.05, 0.045, 0.035, 0.015, 0.0, 0.07])  # mix of pass/fail
+    implied = max(0.05, model_p - delta)
+    odds = round(1.0 / implied, 2)
+    return {
+        "selection": f"{home} ML",
+        "model_p": model_p,
+        "market_p": round(1.0 / odds - 0.004, 3),
+        "odds": odds,
+        "confidence": round(0.54 + r.uniform(0.0, 0.22), 2),
+        "ci_width": round(r.uniform(0.09, 0.18), 2),
+        "sources": ["vision", "elo", "xg"] if delta else ["elo"],
+    }
+
+
+def _wc_events() -> list[dict]:
+    """All real WC2026 events we can pull from the free tier, deduped."""
+    evs, seen = [], set()
+    for ep in (f"eventsnextleague.php?id={WC_LEAGUE}",
+               f"eventsseason.php?id={WC_LEAGUE}&s=2026",
+               f"eventspastleague.php?id={WC_LEAGUE}"):
+        try:
+            for e in (_fetch(f"{_API}/{ep}") or {}).get("events") or []:
+                k = e.get("strEvent")
+                if k and k not in seen and e.get("strHomeTeam") and e.get("strAwayTeam"):
+                    seen.add(k)
+                    evs.append(e)
+        except Exception:
+            continue
+    return evs
+
+
+def live_fixtures() -> list[dict] | None:
+    evs = _wc_events()
+    if not evs:
+        return None
+    out = []
+    for e in evs[:8]:
+        home, away = e["strHomeTeam"], e["strAwayTeam"]
+        row = {"event": f"{home} vs {away}", "category": "World Cup 2026",
+               "venue": e.get("strVenue") or "TBD",
+               "start": (e.get("strTimestamp") or "")[11:16] or "TBD",
+               "home_badge": e.get("strHomeTeamBadge"),
+               "away_badge": e.get("strAwayTeamBadge")}
+        row.update(_illustrative_pricing(home, away))
+        out.append(row)
+    return out or None
+
+
+def live_scores() -> list[dict] | None:
+    evs = [e for e in _wc_events() if e.get("intHomeScore") is not None]
+    if not evs:
+        return None
+    out = []
+    for e in evs[:6]:
+        out.append({"home": e["strHomeTeam"], "away": e["strAwayTeam"],
+                    "hs": int(e.get("intHomeScore") or 0), "as_": int(e.get("intAwayScore") or 0),
+                    "min": "FT",
+                    "home_badge": e.get("strHomeTeamBadge"),
+                    "away_badge": e.get("strAwayTeamBadge")})
+    return out or None
+
+
 if __name__ == "__main__":
     print(recorded_run()["kpis"])
+    lf = live_fixtures()
+    print("live WC2026 fixtures:", len(lf) if lf else "unavailable")
+

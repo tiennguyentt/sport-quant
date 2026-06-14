@@ -1,6 +1,11 @@
 """Smoke tests via Streamlit AppTest — no network, no model calls."""
+import os
+
 import pytest
 from streamlit.testing.v1 import AppTest
+
+# Force deterministic synthetic fixtures (no live API) so tests are stable.
+os.environ["SPORTQUANT_OFFLINE"] = "1"
 
 
 @pytest.fixture()
