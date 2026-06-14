@@ -176,6 +176,17 @@ div[role="radiogroup"]{ gap:2px; justify-content:center; }
 div[role="radiogroup"] label{ padding:5px 14px;border-radius:8px;font-size:13px;color:var(--muted); }
 div[role="radiogroup"] label:hover{ background:#161b12;color:var(--ink); }
 div[role="radiogroup"] label>div:first-child{ display:none; }
+/* neon glow + motion to match the reference's lit feel */
+.stButton>button{ box-shadow:0 0 16px rgba(166,232,75,.30); }
+.stButton>button:hover{ box-shadow:0 0 22px rgba(166,232,75,.5); }
+.dk-card::after,.dk-match::after,.dk-bal::after,.dk-chat::after{ filter:drop-shadow(-3px 3px 5px rgba(166,232,75,.45)); }
+.dk-verdict.ok{ box-shadow:0 0 16px rgba(166,232,75,.22); }
+.dk-hero .g{ text-shadow:0 0 22px rgba(166,232,75,.45); }
+.dk-card{ transition:border-color .15s, transform .15s; }
+.dk-card:hover{ border-color:#3a521f; transform:translateY(-2px); }
+.dk-av.a{ box-shadow:0 0 12px rgba(166,232,75,.18); }
+.stApp{ animation:drift 60s ease-in-out infinite alternate; }
+@keyframes drift{ from{background-position:0 0,0 0,0 0,0 0,0 0,0 0,0 0,0 0,0 0,0 0,0 0,0 0;} to{background-position:0 0,8px 12px,-10px 8px,6px -8px,-8px 10px,10px 6px,-6px -10px,4px 8px,-8px -6px,12px 4px,-4px 10px,8px -8px;} }
 hr{ border-color:var(--line); }
 </style>
 """
