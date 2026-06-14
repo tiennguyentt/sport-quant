@@ -164,6 +164,7 @@ async function load(){
     `${tbadge(s.away,s.away_badge)}<span class="mn">${s.min}</span></span>`).join('');
   document.getElementById('cards').innerHTML = FIX.map(card).join('');
   document.getElementById('scrub').innerHTML = Array(72).fill('<i></i>').join('');
+  if(location.hash === '#chat' && FIX.length) ask(FIX[0].event);
 }
 function card(f){
   const [home,away] = f.event.split(' vs ');
