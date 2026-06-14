@@ -157,6 +157,25 @@ img.dk-cir{ object-fit:contain; background:#0e130b; padding:1px; }
 [data-testid="stChatInput"] textarea{ font-family:'Archivo'; color:var(--ink); }
 [data-testid="stChatInput"] button{ background:var(--lime)!important; color:#0A0D0A!important; border-radius:9px; }
 [data-testid="stSidebar"] .stRadio label{ font-size:13px; }
+/* landing top header */
+.dk-head{ display:flex; align-items:center; gap:11px; padding:2px 0 2px; }
+.dk-head b{ font-family:'Archivo';font-weight:800;font-size:17px;letter-spacing:-.01em; }
+.dk-hmark{ width:28px;height:28px;border-radius:7px;border:1px solid #2c3a22;background:#0d120b;display:grid;place-items:center;color:var(--lime);font-size:13px; }
+.dk-clock{ font-family:'IBM Plex Mono';font-size:13px;color:var(--muted);margin-left:2px; }
+.dk-dots{ display:inline-flex;gap:5px;margin-left:4px; }
+.dk-dots i{ width:7px;height:7px;border-radius:50%;background:var(--lime);display:inline-block;animation:dkb 1.2s infinite; }
+.dk-dots i:nth-child(2){ animation-delay:.2s; } .dk-dots i:nth-child(3){ animation-delay:.4s; }
+@keyframes dkb{ 0%,100%{opacity:.3;} 50%{opacity:1;} }
+.dk-status{ text-align:right;font-family:'IBM Plex Mono';font-size:12px;color:var(--muted);padding-top:7px; }
+.dk-status .on{ color:var(--lime); }
+.dk-filter{ font-family:'IBM Plex Mono';font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:9px;padding:8px 13px;float:right;margin-top:14px; }
+.dk-scrub{ display:flex;gap:3px;justify-content:center;align-items:center;height:24px;margin:16px 0 6px; }
+.dk-scrub i{ width:2px;background:var(--dim);border-radius:1px;display:inline-block; }
+.dk-scrub i:nth-child(odd){ height:8px; } .dk-scrub i:nth-child(even){ height:13px; } .dk-scrub i:nth-child(7n){ height:20px;background:var(--lime);opacity:.7; }
+div[role="radiogroup"]{ gap:2px; justify-content:center; }
+div[role="radiogroup"] label{ padding:5px 14px;border-radius:8px;font-size:13px;color:var(--muted); }
+div[role="radiogroup"] label:hover{ background:#161b12;color:var(--ink); }
+div[role="radiogroup"] label>div:first-child{ display:none; }
 hr{ border-color:var(--line); }
 </style>
 """

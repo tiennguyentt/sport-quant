@@ -7,6 +7,7 @@ deterministic gate. Models advise, code governs.
 from __future__ import annotations
 
 import os
+from datetime import datetime
 
 import streamlit as st
 
@@ -93,71 +94,84 @@ def _ask(event_name: str) -> None:
 
 
 # ---- full-width live ticker (top) -----------------------------------------
+# ---- top header strip (brand · clock · nav · status) ----------------------
+hc1, hc2, hc3 = st.columns([0.30, 0.46, 0.24], gap="small")
+with hc1:
+    st.markdown(f'<div class="dk-head"><span class="dk-hmark">◆</span><b>{BRAND}</b>'
+                f'<span class="dk-clock">{datetime.now().strftime("%I:%M %p")}</span>'
+                f'<span class="dk-dots"><i></i><i></i><i></i></span></div>', unsafe_allow_html=True)
+with hc2:
+    page = st.radio("nav", ["Terminal", "Performance", "Calibration"],
+                    horizontal=True, label_visibility="collapsed")
+with hc3:
+    st.markdown('<div class="dk-status">engine&nbsp;<span class="on">●</span></div>',
+                unsafe_allow_html=True)
+
 st.markdown(theme.ticker(LIVE), unsafe_allow_html=True)
 
-# ---- two columns: DKING rail | main ---------------------------------------
-rail_col, main = st.columns([0.23, 0.77], gap="medium")
+thread = st.session_state.get("thread", [])
+pending = st.session_state.get("pending")
+in_chat = page == "Terminal" and bool(thread or pending)
 
-with rail_col:
-    st.markdown(theme.rail(BRAND, "100,000.00"), unsafe_allow_html=True)
-    page = st.radio("nav", ["Terminal", "Performance", "Calibration"], label_visibility="collapsed")
-    if st.session_state.get("thread"):
+if page == "Terminal" and not in_chat:
+    # ===== LANDING (matches 19.11.20): header above, no rail, 3-wide cards ====
+    he, fi = st.columns([0.74, 0.26])
+    with he:
+        st.markdown('<div class="dk-hero">Introducing the <span class="g">terminal</span>. '
+                    'It\'s all about Positive EV. Connect to the desk, then ask for predictions. '
+                    'Create your market or your bet!</div>', unsafe_allow_html=True)
+    with fi:
+        st.markdown('<div class="dk-filter">⬡ All Leagues ▾</div>', unsafe_allow_html=True)
+    cards = FIX[:9]
+    for rs in range(0, len(cards), 3):
+        cols = st.columns(3, gap="small")
+        for col, f in zip(cols, cards[rs:rs + 3]):
+            with col:
+                e = max(0.0, edge(f["model_p"], f["odds"])) * 100
+                st.markdown(theme.match_card(f, e), unsafe_allow_html=True)
+                if st.button("Ask the model", key=f'ask_{f["event"]}', use_container_width=True):
+                    _ask(f["event"])
+                    st.rerun()
+    st.markdown('<div class="dk-scrub">' + "".join("<i></i>" for _ in range(72)) + "</div>",
+                unsafe_allow_html=True)
+
+elif in_chat:
+    # ===== CHAT (matches 19.11.51): rail | chat panel ========================
+    rail_col, main = st.columns([0.23, 0.77], gap="medium")
+    with rail_col:
+        st.markdown(theme.rail(BRAND, "100,000.00"), unsafe_allow_html=True)
         if st.button("↺ New session", use_container_width=True):
             st.session_state.pop("thread", None)
+            st.session_state.pop("pending", None)
             st.rerun()
-    st.markdown('<div class="dk-foot">▢ Documentation<br>⚙ Settings<br>'
-                '<span class="on">● engine connected</span></div>', unsafe_allow_html=True)
+        st.markdown('<div class="dk-foot">▢ Documentation<br>⚙ Settings<br>'
+                    '<span class="on">● engine connected</span></div>', unsafe_allow_html=True)
+    with main:
+        if thread:
+            bubbles = ""
+            for role, body in thread:
+                ts = "4:41 PM" if role == "u" else "4:42 PM"
+                bubbles += theme.user_msg(body, ts) if role == "u" else theme.engine_msg(body, ts)
+            st.markdown(theme.chat_panel(bubbles), unsafe_allow_html=True)
+        if pending:
+            f = next((x for x in FIX if x["event"] == pending), None)
+            if f:
+                d = _decide(f)
+                q = f"Ok give me the details of what I should bet on {pending}."
+                st.markdown(theme.user_msg(q, "4:41 PM"), unsafe_allow_html=True)
+                st.markdown('<div class="dk-msg"><div class="dk-av a">◆</div>'
+                            '<div class="dk-txt" style="padding-top:2px">', unsafe_allow_html=True)
+                streamed = st.write_stream(
+                    llm.stream_analysis(f, d["edge"] * 100, _fallback_reasoning(f)))
+                st.markdown("</div></div>", unsafe_allow_html=True)
+                thread = st.session_state.setdefault("thread", [])
+                thread.append(("u", q))
+                thread.append(("a", f"{streamed}{_verdict_html(d)}"))
+                st.session_state.pop("pending", None)
+                st.rerun()
 
-with main:
-    if page == "Terminal":
-        thread = st.session_state.get("thread", [])
-        pending = st.session_state.get("pending")
-        if thread or pending:
-            # chat view — matches the reference chat screenshot: just the panel
-            if thread:
-                bubbles = ""
-                for role, body in thread:
-                    ts = "4:41 PM" if role == "u" else "4:42 PM"
-                    bubbles += theme.user_msg(body, ts) if role == "u" else theme.engine_msg(body, ts)
-                st.markdown(theme.chat_panel(bubbles), unsafe_allow_html=True)
-
-            if pending:
-                f = next((x for x in FIX if x["event"] == pending), None)
-                if f:
-                    d = _decide(f)
-                    q = f"Ok give me the details of what I should bet on {pending}."
-                    st.markdown(theme.user_msg(q, "4:41 PM"), unsafe_allow_html=True)
-                    st.markdown('<div class="dk-msg"><div class="dk-av a">◆</div>'
-                                '<div class="dk-txt" style="padding-top:2px">', unsafe_allow_html=True)
-                    streamed = st.write_stream(
-                        llm.stream_analysis(f, d["edge"] * 100, _fallback_reasoning(f)))
-                    st.markdown("</div></div>", unsafe_allow_html=True)
-                    body = f"{streamed}{_verdict_html(d)}"
-                    thread = st.session_state.setdefault("thread", [])
-                    thread.append(("u", q))
-                    thread.append(("a", body))
-                    st.session_state.pop("pending", None)
-                    st.rerun()
-        else:
-            # landing view — hero + match cards
-            st.markdown('<div class="dk-hero">Introducing the <span class="g">terminal</span>. '
-                        'It\'s all about Positive EV. Connect to the desk, then ask for predictions. '
-                        'Create your market or your bet!</div>', unsafe_allow_html=True)
-            st.markdown('<p class="dk-sub">A real model streams the analysis; a deterministic '
-                        'policy approves or refuses the bet. No free-form prompt-gaming.</p>',
-                        unsafe_allow_html=True)
-            cards = FIX[:8]
-            for row_start in range(0, len(cards), 2):
-                cols = st.columns(2, gap="small")
-                for col, f in zip(cols, cards[row_start:row_start + 2]):
-                    with col:
-                        e = max(0.0, edge(f["model_p"], f["odds"])) * 100
-                        st.markdown(theme.match_card(f, e), unsafe_allow_html=True)
-                        if st.button("Ask the model", key=f'ask_{f["event"]}', use_container_width=True):
-                            _ask(f["event"])
-                            st.rerun()
-
-    elif page == "Performance":
+elif page == "Performance":
+    if True:
         k = RUN["kpis"]
         st.markdown('<div class="sq-kick">engine performance · paper portfolio</div>', unsafe_allow_html=True)
         st.markdown('<div class="sq-h">Performance</div>', unsafe_allow_html=True)
@@ -191,7 +205,8 @@ with main:
             f'<th>Realized P&amp;L ($)</th></tr></thead><tbody>{rows}</tbody></table></div>',
             unsafe_allow_html=True)
 
-    elif page == "Calibration":
+elif page == "Calibration":
+    if True:
         import numpy as np
         settled = RUN["settled"]
         p = np.array([s["model_p"] for s in settled])
