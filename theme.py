@@ -297,6 +297,10 @@ img.dk-cir{ object-fit:contain; background:#0e130b; padding:1px; }
 .st-key-home_brand button:hover{ background:transparent!important; box-shadow:none!important; transform:none!important; }
 .st-key-home_brand button p{ font-family:'kensmark'!important; font-weight:800!important; font-size:17px!important; letter-spacing:-.01em!important; }
 .st-key-home_brand button:hover p{ color:var(--lime)!important; }
+/* the ◆ is rendered with Streamlit's emerald :green — recolor to the brand lime
+   so the mark matches the numbers, buttons, watermark and favicon (#92CE53) */
+.st-key-home_brand button p span,
+.st-key-home_brand button p span *{ color:var(--lime)!important; }
 /* rail home — quiet ghost utility button, not a hero CTA */
 .st-key-home_rail button{ background:transparent!important; border:1px solid var(--line)!important;
   box-shadow:none!important; color:var(--muted)!important; font-family:'IBM Plex Mono'!important;
