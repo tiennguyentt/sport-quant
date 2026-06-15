@@ -20,7 +20,7 @@ import llm
 
 BRAND = "sport-quant"
 
-st.set_page_config(page_title="sport-quant terminal", layout="wide",
+st.set_page_config(page_title="sport-quant terminal", page_icon="📈", layout="wide",
                    initial_sidebar_state="collapsed")
 theme.inject_css()
 
