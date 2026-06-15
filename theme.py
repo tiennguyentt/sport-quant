@@ -56,7 +56,8 @@ html,body,[class*="css"]{ font-family:'ppNeueMontreal','kensmark',sans-serif; }
   color:var(--ink);
 }
 #MainMenu,header[data-testid="stHeader"],footer{ display:none!important; }
-[data-testid="stAppViewContainer"]>.main .block-container{ padding:.35rem 1.4rem 5rem; max-width:1240px; }
+[data-testid="stAppViewContainer"]>.main .block-container,
+[data-testid="stMainBlockContainer"], .block-container{ padding:.6rem 1.4rem 4.5rem!important; max-width:1240px; }
 .num{ font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums; }
 .pos{ color:var(--pos); } .neg{ color:var(--neg); }
 /* sidebar = the reference left rail */
