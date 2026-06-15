@@ -458,11 +458,16 @@ hr{ border-color:var(--line); }
   [data-testid="stForm"] [data-testid="stHorizontalBlock"]{ flex-wrap:nowrap!important; }
   [data-testid="stForm"] [data-testid="stColumn"]{ min-width:0!important; }
   .dk-status, .dk-clock{ display:none; }       /* desktop-only chrome */
-  /* MOBILE header: show the hamburger, drop the inline nav + model columns so
-     the brand and ☰ redistribute to the two edges */
+  /* MOBILE header: show the hamburger, drop the inline nav + model columns,
+     and pin brand hard-LEFT / hamburger hard-RIGHT via space-between */
   [data-testid="stPopover"]{ display:flex!important; }
   [data-testid="stColumn"]:has(.st-key-nav_top),
   [data-testid="stColumn"]:has(.st-key-mdl_top){ display:none!important; }
+  [data-testid="stHorizontalBlock"]:has(.st-key-home_brand){
+    justify-content:space-between!important; flex-wrap:nowrap!important; }
+  [data-testid="stHorizontalBlock"]:has(.st-key-home_brand) > [data-testid="stColumn"]{
+    flex:0 0 auto!important; width:auto!important; }
+  [data-testid="stColumn"]:has([data-testid="stPopover"]){ margin-left:auto!important; }
   /* LANDING — undo the viewport lock so the page scrolls naturally on a phone */
   /* landing locked to the dynamic viewport (dvh tracks mobile browser chrome) —
      watermark fills the void, slide pins above the composer, NO page scroll */
