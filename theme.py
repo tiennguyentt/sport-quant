@@ -58,6 +58,8 @@ def inject_css() -> None:
   --ink:#F2F4EF; --muted:#8A938A; --dim:#5A6356; --lime:#92CE53; --pos:#92CE53; --neg:#FF5B6B; --accent:#92CE53;
 }
 html,body,[class*="css"]{ font-family:'ppNeueMontreal','kensmark',sans-serif; }
+html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+*{ -webkit-tap-highlight-color:transparent; }
 .stApp{
   background:#060607;
   background-image:
@@ -218,9 +220,20 @@ img.dk-cir{ object-fit:contain; background:#0e130b; padding:1px; }
 .dk-strip::-webkit-scrollbar-track{ background:transparent; }
 .dk-strip::-webkit-scrollbar-thumb{ background:#26301c; border-radius:5px; }
 .dk-strip::-webkit-scrollbar-thumb:hover{ background:#3a521f; }
-.dk-card2{ flex:0 0 366px; scroll-snap-align:start; position:relative; overflow:hidden;
-  background:linear-gradient(180deg,#0e120b,#0a0d07); border:1px solid var(--line); border-radius:15px;
-  padding:16px 18px 16px; transition:border-color .15s, transform .15s; }
+.dk-card2{ flex:0 0 300px; scroll-snap-align:start; position:relative; overflow:hidden;
+  background:linear-gradient(180deg,#0e120b,#0a0d07); border:1px solid var(--line); border-radius:14px;
+  padding:14px 16px; transition:border-color .15s, transform .15s; }
+/* compact landing card internals — smaller, cleaner, more breathing room */
+.dk-card2 .lg{ font-size:9.5px; }
+.dk-card2 .dk-teamrow{ margin:8px 0; }
+.dk-card2 .dk-teamrow .t{ font-size:14px; }
+.dk-card2 .dk-teamrow .s{ font-size:27px; }
+.dk-card2 .dk-ph{ width:27px; height:27px; font-size:12px; }
+.dk-card2 .dk-prog{ margin:5px 0 9px; }
+.dk-card2 .dk-cfoot{ margin-top:10px; padding-top:9px; }
+.dk-card2 .dk-foot3{ font-size:9.5px; line-height:1.75; }
+.dk-card2 .dk-evtag{ font-size:12px; }
+.dk-card2 .dk-askbtn{ padding:7px 14px; font-size:11px; }
 .dk-card2:hover{ border-color:#3a521f; transform:translateY(-2px); }
 .dk-card2::after{ content:""; position:absolute; top:0; right:0; border-width:0 30px 30px 0;
   border-style:solid; border-color:transparent var(--lime) transparent transparent;
@@ -331,6 +344,31 @@ div[role="radiogroup"] label>div:first-child{ display:none; }
 .stApp{ animation:drift 60s ease-in-out infinite alternate; }
 @keyframes drift{ from{background-position:0 0,0 0,0 0,0 0,0 0,0 0,0 0,0 0,0 0,0 0,0 0,0 0;} to{background-position:0 0,8px 12px,-10px 8px,6px -8px,-8px 10px,10px 6px,-6px -10px,4px 8px,-8px -6px,12px 4px,-4px 10px,8px -8px;} }
 hr{ border-color:var(--line); }
+/* ---- hamburger menu: nav + model + status collapsed into a popover -------- */
+/* trigger = a quiet bordered terminal control (NOT the green CTA button) */
+[data-testid="stPopover"] button{
+  background:rgba(17,21,15,.9)!important; border:1px solid var(--line)!important;
+  color:var(--ink)!important; border-radius:10px!important; box-shadow:none!important;
+  font-family:'IBM Plex Mono'!important; font-weight:500!important; font-size:13px!important;
+  letter-spacing:.03em!important; min-height:38px; transform:none!important; }
+[data-testid="stPopover"] button:hover{
+  border-color:var(--lime)!important; color:var(--lime)!important;
+  background:rgba(146,206,83,.06)!important; box-shadow:none!important; transform:none!important; }
+/* the floating menu surface */
+[data-testid="stPopoverBody"]{
+  background:#0d120b!important; border:1px solid var(--line)!important;
+  border-radius:14px!important; box-shadow:0 18px 50px rgba(0,0,0,.6)!important; min-width:230px; }
+.menu-sec{ font-family:'IBM Plex Mono';font-size:10px;letter-spacing:.16em;color:var(--dim);
+  text-transform:uppercase;margin:2px 2px 8px; }
+.menu-sec.t{ margin-top:14px;border-top:1px solid var(--line);padding-top:14px; }
+.menu-status{ font-family:'IBM Plex Mono';font-size:11px;color:var(--muted);
+  margin-top:14px;border-top:1px solid var(--line);padding-top:12px; }
+.menu-status .on{ color:var(--lime); }
+/* menu nav = full-width stacked rows; hover lights lime */
+[data-testid="stPopover"] div[role="radiogroup"]{ flex-direction:column; gap:2px; align-items:stretch; }
+[data-testid="stPopover"] div[role="radiogroup"] label{ width:100%; justify-content:flex-start;
+  padding:8px 12px; border-radius:8px; margin:0; }
+[data-testid="stPopover"] div[role="radiogroup"] label:hover{ background:rgba(146,206,83,.08); color:var(--lime); }
 /* ============================================================================
    MOBILE-FIRST RESPONSIVE  —  the terminal collapses to a single-column phone UI.
    Desktop assumes a wide canvas (fixed-width cards, viewport-locked landing,
@@ -350,17 +388,20 @@ hr{ border-color:var(--line); }
   div[role="radiogroup"] label{ padding:6px 12px; font-size:13px; }
   [data-testid="stSelectbox"]{ max-width:220px; }
   /* LANDING — undo the viewport lock so the page scrolls naturally on a phone */
+  /* center the compact strip in the open space between header and composer
+     (min-height keeps it centered when it fits, but lets the page grow & scroll
+      if it ever doesn't — so nothing is clipped); dvh tracks mobile browser chrome */
   .sq-landing{ height:auto; max-height:none; overflow:visible;
-    justify-content:flex-start; padding-bottom:130px; }
+    min-height:calc(100dvh - 240px); justify-content:center; padding-bottom:20px; }
   [data-testid="stMainBlockContainer"]:has(.sq-landing),
   .block-container:has(.sq-landing){ overflow:visible!important; }
-  .dk-hero{ font-size:20px; line-height:1.32; margin:6px auto 16px; max-width:100%; }
+  .dk-hero{ font-size:19px; line-height:1.34; margin:0 auto 18px; max-width:100%; }
   .dk-sub{ font-size:13px; }
   .dk-filter{ display:none; }                 /* floating 'All Leagues' chip just clutters mobile */
   /* match cards — one near-full-width card per view, edge-to-edge, snap between them */
   .dk-strip{ gap:12px; scroll-snap-type:x mandatory;
     margin:0 -.85rem; padding:4px .85rem 14px; }
-  .dk-card2{ flex:0 0 84vw; padding:15px 16px; }
+  .dk-card2{ flex:0 0 80vw; padding:14px 15px; }
   .dk-card{ padding:14px 14px 12px; }
   /* live ticker — slightly more compact */
   .dk-tick{ gap:10px; padding:7px 11px; margin-bottom:12px; }
@@ -394,6 +435,24 @@ hr{ border-color:var(--line); }
   .sq-tbl{ font-size:12px; } .sq-tbl td,.sq-tbl th{ padding:9px 7px; }
   /* LaTeX blocks can overflow horizontally rather than blow out the layout */
   [data-testid="stMarkdownContainer"] .katex-display{ overflow-x:auto; overflow-y:hidden; }
+  /* ---- NATIVE-APP POLISH ---------------------------------------------------
+     hidden scrollbars, momentum scroll, iOS safe-area, ≥44px touch targets so
+     the terminal reads like a native app rather than a shrunk desktop site. */
+  .dk-strip{ scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+  .dk-strip::-webkit-scrollbar{ display:none; height:0; }
+  .dk-flow{ scrollbar-width:none; } .dk-flow::-webkit-scrollbar{ display:none; }
+  .sq-ruler{ display:none; }                  /* drop the desktop tick-ruler decor on mobile */
+  /* the fixed composer + page bottom respect the iOS home indicator */
+  [data-testid="stForm"]{ bottom:calc(10px + env(safe-area-inset-bottom)); }
+  [data-testid="stAppViewContainer"]>.main .block-container,
+  [data-testid="stMainBlockContainer"], .block-container{
+    padding-bottom:calc(7rem + env(safe-area-inset-bottom))!important; }
+  /* comfortable native touch targets */
+  [data-testid="stPopover"] button{ min-height:44px!important; }
+  [data-testid="stForm"] [data-testid="stFormSubmitButton"]>button{ min-height:46px!important; }
+  .dk-askbtn{ min-height:42px; display:inline-flex; align-items:center; }
+  [data-testid="stPopover"] div[role="radiogroup"] label{ min-height:44px; }
+  .st-key-home_brand button{ min-height:40px; }
 }
 @media (max-width:430px){
   .dk-hero{ font-size:18px; }

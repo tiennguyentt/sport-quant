@@ -172,22 +172,25 @@ def _go_home() -> None:
     st.session_state.pop("pending", None)
 
 
-# ---- top header strip (brand · nav · model · status) ----------------------
-# The brand IS the home button — click the logo to return to the default screen.
-hc1, hc2, hc3, hc4 = st.columns([0.26, 0.40, 0.20, 0.14], gap="small")
+# ---- top header strip (brand · hamburger menu) ----------------------------
+# The brand IS the home button; nav + model + status collapse into a single
+# hamburger popover — keeps the header to one compact row on every screen size.
+hc1, hc2 = st.columns([0.68, 0.32], gap="small", vertical_alignment="center")
 with hc1:
     st.button(f":green[◆]  {BRAND}", key="home_brand", on_click=_go_home,
               help="Back to the terminal home")
 with hc2:
-    page = st.radio("nav", ["Terminal", "Performance", "Calibration", "About"],
-                    key="nav_page", horizontal=True, label_visibility="collapsed")
-with hc3:
-    st.selectbox("model", list(MODEL_MAP), key="model_choice", label_visibility="collapsed")
-with hc4:
-    st.markdown('<div class="dk-status">engine&nbsp;<span class="on">●</span></div>',
-                unsafe_allow_html=True)
+    _cur = st.session_state.get("nav_page", "Terminal")
+    with st.popover(f"☰  {_cur}", use_container_width=True):
+        st.markdown('<div class="menu-sec">Navigate</div>', unsafe_allow_html=True)
+        page = st.radio("nav", ["Terminal", "Performance", "Calibration", "About"],
+                        key="nav_page", label_visibility="collapsed")
+        st.markdown('<div class="menu-sec t">Engine model</div>', unsafe_allow_html=True)
+        st.selectbox("model", list(MODEL_MAP), key="model_choice", label_visibility="collapsed")
+        st.markdown('<div class="menu-status">engine&nbsp;<span class="on">●</span>&nbsp;'
+                    'online · gate governed</div>', unsafe_allow_html=True)
 
-SEL_MODEL = MODEL_MAP.get(st.session_state.get("model_choice", "deepseek-v4"))
+SEL_MODEL = MODEL_MAP.get(st.session_state.get("model_choice", "deepseek-v3"))
 
 st.markdown(theme.ticker(LIVE), unsafe_allow_html=True)
 
@@ -208,10 +211,9 @@ if page == "Terminal" and not in_chat:
         st.markdown('<div class="dk-filter">⬡ All Leagues ▾</div>', unsafe_allow_html=True)
     # hero + cards + scrubber in one block so the flex centering works across all three
     _hero = (
-        '<div class="dk-hero">Introducing the <span class="g">terminal</span>. '
-        'It&rsquo;s all about <span class="g">Positive EV</span> — LLM-powered edges for '
-        '<span class="g">Polymarket &amp; Kalshi</span>. Connect to the engine, then '
-        '<span class="g">ask for predictions</span>.</div>'
+        '<div class="dk-hero">LLM-powered <span class="g">+EV edges</span> for '
+        'Polymarket &amp; Kalshi. Ask the engine — a deterministic gate '
+        '<span class="g">decides the bet</span>.</div>'
     )
     strip = "".join(theme.card(f, max(0.0, edge(f["model_p"], f["odds"])) * 100) for f in FIX[:12])
     st.markdown(
