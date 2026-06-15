@@ -18,9 +18,9 @@ from engine import Candidate, PortfolioState, edge, fractional_kelly, gate_check
 import scoring
 import llm
 
-BRAND = "sport-quant"
+BRAND = "Sport Quant"
 
-st.set_page_config(page_title="sport-quant terminal", page_icon="📈", layout="wide",
+st.set_page_config(page_title="Sport Quant terminal", page_icon="📈", layout="wide",
                    initial_sidebar_state="collapsed")
 theme.inject_css()
 
@@ -338,7 +338,7 @@ elif page == "About":
     st.markdown('<div class="sq-kick">about · how it works</div>', unsafe_allow_html=True)
     st.markdown('<div class="sq-h">Quant scoring for prediction markets</div>', unsafe_allow_html=True)
     st.markdown('<p style="color:var(--muted);font-size:14px;margin:4px 0 18px;max-width:680px">'
-                'sport-quant scores live markets (built for Polymarket &amp; Kalshi), finds +EV '
+                'Sport Quant scores live markets (built for Polymarket &amp; Kalshi), finds +EV '
                 'mispricings, and sizes bets with fractional Kelly — governed by a deterministic '
                 'gate. The pipeline:</p>', unsafe_allow_html=True)
     st.markdown(theme.flow(), unsafe_allow_html=True)

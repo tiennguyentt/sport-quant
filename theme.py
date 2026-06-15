@@ -13,6 +13,26 @@ import streamlit as st
 
 import fonts_data  # Brand fonts (Kensmark + PP Neue Montreal) embedded as data URIs
 
+# ---- branded favicon — matches dk-mark: dark panel + brand border + lime ◆ + glow --
+_FAVICON_SVG = (
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">'
+    # outer background
+    '<rect width="32" height="32" rx="7" fill="#060607"/>'
+    # inner panel (dk-mark bg) with brand-green border
+    '<rect x="1.5" y="1.5" width="29" height="29" rx="5.5" fill="#0d120b" stroke="#2c3a22" stroke-width="1.5"/>'
+    # glow filter for the diamond
+    '<filter id="g" x="-80%" y="-80%" width="260%" height="260%">'
+    '<feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="b"/>'
+    '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
+    '</filter>'
+    # lime ◆ diamond
+    '<polygon points="16,5 27,16 16,27 5,16" fill="#92CE53" filter="url(#g)"/>'
+    # inner highlight on diamond
+    '<polygon points="16,8.5 23.5,16 16,23.5 8.5,16" fill="none" stroke="#b8e87a" stroke-width="0.6" opacity="0.45"/>'
+    '</svg>'
+)
+_FAVICON = "data:image/svg+xml," + urllib.parse.quote(_FAVICON_SVG)
+
 # ---- palette (the reference) -------------------------------------------------------
 BG      = "#060607"
 PANEL   = "#11150F"
@@ -29,7 +49,7 @@ ACCENT  = "#92CE53"
 
 def inject_css() -> None:
     html = """
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23060607'/%3E%3Cpolygon points='16,3 29,16 16,29 3,16' fill='%2392CE53'/%3E%3C/svg%3E">
+<link rel="icon" href="__FAVICON__">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -318,6 +338,7 @@ hr{ border-color:var(--line); }
     html = "\n".join(line for line in html.splitlines() if line.strip())
     # embed the real Brand fonts (Kensmark + PP Neue Montreal) right after <style>
     html = html.replace("<style>", "<style>" + fonts_data.FONT_CSS, 1)
+    html = html.replace("__FAVICON__", _FAVICON, 1)
     st.markdown(html, unsafe_allow_html=True)
 
 
@@ -487,7 +508,7 @@ def footer() -> str:
     ]
     right = "".join(f'<span class="ft-chip"><b>{k}</b> {v}</span>' for k, v in chips)
     return ('<div class="dk-footer">'
-            '<div class="ft-brand"><span class="ft-dot"></span><b>sport-quant</b>'
+            '<div class="ft-brand"><span class="ft-dot"></span><b>Sport Quant</b>'
             '<span class="ft-tag">governed decision engine</span></div>'
             f'<div class="ft-right">{right}</div></div>')
 
