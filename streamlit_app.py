@@ -175,13 +175,12 @@ def _go_home() -> None:
 # ---- top header strip (brand · hamburger menu) ----------------------------
 # The brand IS the home button; nav + model + status collapse into a single
 # hamburger popover — keeps the header to one compact row on every screen size.
-hc1, hc2 = st.columns([0.68, 0.32], gap="small", vertical_alignment="center")
+hc1, hc2 = st.columns([0.82, 0.18], gap="small", vertical_alignment="center")
 with hc1:
     st.button(f":green[◆]  {BRAND}", key="home_brand", on_click=_go_home,
               help="Back to the terminal home")
 with hc2:
-    _cur = st.session_state.get("nav_page", "Terminal")
-    with st.popover(f"☰  {_cur}", use_container_width=True):
+    with st.popover("☰", use_container_width=True):
         st.markdown('<div class="menu-sec">Navigate</div>', unsafe_allow_html=True)
         page = st.radio("nav", ["Terminal", "Performance", "Calibration", "About"],
                         key="nav_page", label_visibility="collapsed")
@@ -205,19 +204,12 @@ pending = st.session_state.get("pending")
 in_chat = page == "Terminal" and bool(thread or pending)
 
 if page == "Terminal" and not in_chat:
-    # ===== LANDING (matches 19.11.20): header above, no rail, 3-wide cards ====
-    _sp, fi = st.columns([0.78, 0.22])
-    with fi:
-        st.markdown('<div class="dk-filter">⬡ All Leagues ▾</div>', unsafe_allow_html=True)
-    # hero + cards + scrubber in one block so the flex centering works across all three
-    _hero = (
-        '<div class="dk-hero">LLM-powered <span class="g">+EV edges</span> for '
-        'Polymarket &amp; Kalshi. Ask the engine — a deterministic gate '
-        '<span class="g">decides the bet</span>.</div>'
-    )
+    # ===== LANDING (Grok-style): faint centered watermark fills the calm void,
+    # the card slide is pinned just above the bottom-fixed composer. The whole
+    # screen is locked to the viewport — no page scroll here. ==================
     strip = "".join(theme.card(f, max(0.0, edge(f["model_p"], f["odds"])) * 100) for f in FIX[:12])
     st.markdown(
-        f'<div class="sq-landing">{_hero}{theme.card_strip(strip)}{theme.scrubber()}</div>',
+        f'<div class="sq-landing">{theme.landing_hero()}{theme.card_strip(strip)}</div>',
         unsafe_allow_html=True,
     )
     _ask_box("ask_landing")

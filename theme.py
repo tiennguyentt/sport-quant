@@ -321,13 +321,30 @@ div[role="radiogroup"]{ gap:2px; justify-content:center; }
 div[role="radiogroup"] label{ padding:5px 14px;border-radius:8px;font-size:13px;color:var(--muted); }
 div[role="radiogroup"] label:hover{ background:#161b12;color:var(--ink); }
 div[role="radiogroup"] label>div:first-child{ display:none; }
-/* landing: fill the remaining viewport, center content, no page scroll */
-.sq-landing{ display:flex; flex-direction:column; justify-content:center;
-  height:calc(100vh - 145px); max-height:calc(100vh - 145px);
-  overflow:hidden; padding-bottom:90px; box-sizing:border-box; }
-/* kill vertical scrollbar when the landing fills the whole screen */
+/* LANDING — locked to the viewport (Grok-style): watermark fills the void,
+   the card slide pins to the bottom just above the fixed composer. NO scroll. */
+.sq-landing{ display:flex; flex-direction:column;
+  height:calc(100vh - 150px); max-height:calc(100vh - 150px);
+  overflow:hidden; padding-bottom:122px; box-sizing:border-box; }
+/* lock EVERY scroll ancestor while the landing is shown — only the chat scrolls */
 [data-testid="stMainBlockContainer"]:has(.sq-landing),
-.block-container:has(.sq-landing){ overflow:hidden !important; }
+.block-container:has(.sq-landing),
+section.main:has(.sq-landing),
+[data-testid="stAppViewContainer"]:has(.sq-landing){ overflow:hidden !important; }
+/* the faint, softly-pulsing centre mark (the calm void) */
+.sq-wm{ flex:1 1 auto; min-height:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; text-align:center; gap:20px; }
+.sq-wm-mark{ font-size:92px; line-height:1; color:var(--lime); opacity:.14;
+  text-shadow:0 0 50px rgba(146,206,83,.55); animation:wmPulse 4.5s ease-in-out infinite; }
+@keyframes wmPulse{ 0%,100%{opacity:.11;transform:scale(1);} 50%{opacity:.2;transform:scale(1.04);} }
+.sq-wm-sub{ font-family:'ppNeueMontreal',sans-serif; font-size:14px; color:var(--muted);
+  max-width:330px; line-height:1.55; }
+.sq-wm-sub b{ color:var(--lime); font-weight:600; }
+/* top bar stays ONE row: wordmark left, hamburger icon right (never wraps) */
+[data-testid="stHorizontalBlock"]:has(.st-key-home_brand){ flex-wrap:nowrap !important; align-items:center; }
+[data-testid="stHorizontalBlock"]:has(.st-key-home_brand) [data-testid="stColumn"]{ min-width:0 !important; }
+/* hamburger trigger = a compact square-ish icon, the ☰ centred and legible */
+[data-testid="stPopover"] button{ font-size:17px!important; padding:6px 0!important; }
 /* thinking state — shown while waiting for the first LLM token */
 .sq-thinking{ display:flex;align-items:center;gap:12px;padding-top:6px; }
 .sq-thinking .sq-tl{ font-family:'IBM Plex Mono';font-size:11.5px;color:var(--muted);letter-spacing:.1em; }
@@ -388,14 +405,16 @@ hr{ border-color:var(--line); }
   div[role="radiogroup"] label{ padding:6px 12px; font-size:13px; }
   [data-testid="stSelectbox"]{ max-width:220px; }
   /* LANDING — undo the viewport lock so the page scrolls naturally on a phone */
-  /* center the compact strip in the open space between header and composer
-     (min-height keeps it centered when it fits, but lets the page grow & scroll
-      if it ever doesn't — so nothing is clipped); dvh tracks mobile browser chrome */
-  .sq-landing{ height:auto; max-height:none; overflow:visible;
-    min-height:calc(100dvh - 240px); justify-content:center; padding-bottom:20px; }
+  /* landing locked to the dynamic viewport (dvh tracks mobile browser chrome) —
+     watermark fills the void, slide pins above the composer, NO page scroll */
+  .sq-landing{ height:calc(100dvh - 132px); max-height:calc(100dvh - 132px);
+    overflow:hidden; padding-bottom:calc(134px + env(safe-area-inset-bottom)); }
   [data-testid="stMainBlockContainer"]:has(.sq-landing),
-  .block-container:has(.sq-landing){ overflow:visible!important; }
-  .dk-hero{ font-size:19px; line-height:1.34; margin:0 auto 18px; max-width:100%; }
+  .block-container:has(.sq-landing),
+  section.main:has(.sq-landing),
+  [data-testid="stAppViewContainer"]:has(.sq-landing){ overflow:hidden!important; }
+  .sq-wm-mark{ font-size:72px; }
+  .sq-wm-sub{ font-size:13px; max-width:280px; }
   .dk-sub{ font-size:13px; }
   .dk-filter{ display:none; }                 /* floating 'All Leagues' chip just clutters mobile */
   /* match cards — one near-full-width card per view, edge-to-edge, snap between them */
@@ -584,6 +603,14 @@ def card_strip(cards_html: str) -> str:
 def scrubber() -> str:
     """The tick-ruler decor that sits between the scrolling cards and the composer."""
     return '<div class="sq-ruler"><span class="mk">[ ]</span></div>'
+
+
+def landing_hero() -> str:
+    """Grok-style calm centre: a large faint, softly-pulsing brand mark and one
+    muted line of value prop — fills the void between the top bar and the slide."""
+    return ('<div class="sq-wm"><div class="sq-wm-mark">◆</div>'
+            '<div class="sq-wm-sub">Ask the engine for a <b>+EV edge</b> — '
+            'the deterministic gate decides the bet.</div></div>')
 
 
 # ---- chat bubbles ----------------------------------------------------------
