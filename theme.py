@@ -89,7 +89,12 @@ html,body,[class*="css"]{ font-family:'ppNeueMontreal','kensmark',sans-serif; }
 /* hero line */
 .dk-hero{ font-family:'ppNeueMontreal',sans-serif;font-weight:700;font-size:30px;line-height:1.15;letter-spacing:-.02em;max-width:620px;margin:6px 0 4px; }
 .dk-hero .g{ color:var(--lime); }
-.dk-sub{ color:var(--muted);font-size:14px;margin:0 0 16px;max-width:620px; }
+.dk-sub{ color:var(--muted);font-size:14px;margin:0 0 16px;max-width:660px; }
+.dk-thesis{ display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:13px;overflow:hidden;margin:4px 0 20px; }
+.dk-th{ background:rgba(17,21,15,.7);padding:15px 16px; }
+.dk-th .k{ font-family:'IBM Plex Mono';font-size:10.5px;letter-spacing:.14em;color:var(--lime);margin-bottom:8px; }
+.dk-th .b{ font-family:'ppNeueMontreal',sans-serif;font-size:12.5px;line-height:1.55;color:var(--muted); }
+.dk-th .b b{ color:var(--ink);font-weight:600; }
 /* DKING match card */
 .dk-card{ position:relative; overflow:hidden; background:rgba(17,21,15,.7); border:1px solid var(--line); border-radius:15px; padding:16px 16px 14px; height:100%; backdrop-filter:blur(2px); }
 .dk-card::after{ content:""; position:absolute; top:0; right:0; border-width:0 30px 30px 0; border-style:solid; border-color:transparent var(--lime) transparent transparent; }
@@ -290,8 +295,28 @@ def engine_msg(body_html: str, ts: str = "") -> str:
 
 
 def chat_panel(bubbles: str) -> str:
-    return (f'<div class="dk-chat"><span class="dk-arr l">‹</span>'
-            f'{bubbles}<span class="dk-arr r">›</span></div>')
+    return f'<div class="dk-chat">{bubbles}</div>'
+
+
+def thesis() -> str:
+    """The pain point this system solves and how — logic + data, at a glance."""
+    cols = [
+        ("THE PROBLEM",
+         "Prediction markets are owned by sharp syndicates with better data and discipline. "
+         "Most “AI tips” are ungrounded hype — no proof their probabilities are even accurate."),
+        ("THE METHOD",
+         "Multi-source signals (vision · ELO · xG) become one probability. A <b>deterministic "
+         "gate</b> — code, not the model — sizes the bet with fractional Kelly and hard caps "
+         "(max 1%/position, ~12% deployed). The model advises; the code governs. No prompt-gaming."),
+        ("THE PROOF",
+         "We measure whether the model is actually <b>right</b>: calibration (Brier · ECE), "
+         "closing-line value, and statistically-significant ROI — not just win rate. "
+         "See the <b>Calibration</b> tab."),
+    ]
+    cells = "".join(
+        f'<div class="dk-th"><div class="k">{k}</div><div class="b">{b}</div></div>'
+        for k, b in cols)
+    return f'<div class="dk-thesis">{cells}</div>'
 
 
 # ---- kpis (Performance / Calibration reuse) --------------------------------

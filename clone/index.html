@@ -56,6 +56,11 @@ body{ font-family:'ppNeueMontreal','kensmark',sans-serif; color:var(--ink); min-
 .hero .g{ color:var(--lime);text-shadow:0 0 22px rgba(146,206,83,.45); }
 .filter{ font-family:'IBM Plex Mono';font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:9px;padding:9px 14px;white-space:nowrap;flex:none; }
 .sub{ color:var(--muted);font-size:14px;margin-bottom:16px; }
+.thesis{ display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:13px;overflow:hidden;margin:4px 0 20px; }
+.th{ background:rgba(17,21,15,.7);padding:15px 16px; }
+.th .k{ font-family:'IBM Plex Mono';font-size:10.5px;letter-spacing:.14em;color:var(--lime);margin-bottom:8px; }
+.th .b{ font-family:'ppNeueMontreal',sans-serif;font-size:12.5px;line-height:1.55;color:var(--muted); }
+.th .b b{ color:var(--ink);font-weight:600; }
 
 /* cards grid */
 .cards{ display:grid;grid-template-columns:repeat(3,1fr);gap:14px; }
@@ -124,12 +129,12 @@ img.ph{ padding:3px;background:#0e130b; }
   <section id="landing">
     <div class="toprow">
       <div>
-        <div class="hero">Introducing the <span class="g">terminal</span>. It's all about Positive EV.
-          Connect to the desk, then ask for predictions. Create your market or your bet!</div>
+        <div class="hero">The <span class="g">Positive-EV</span> terminal. A real model hunts mispriced edges across live matches — and a deterministic risk gate decides which are actually worth a bet.</div>
       </div>
       <div class="filter">⬡ All Leagues ▾</div>
     </div>
-    <p class="sub">A real model streams the analysis; a deterministic policy approves or refuses the bet. No free-form prompt-gaming.</p>
+    <p class="sub">Pick a fixture and ask the model, or type a question below. The model advises; the code governs.</p>
+    <div class="thesis"><div class="th"><div class="k">THE PROBLEM</div><div class="b">Prediction markets are owned by sharp syndicates with better data and discipline. Most “AI tips” are ungrounded hype — no proof their probabilities are even accurate.</div></div><div class="th"><div class="k">THE METHOD</div><div class="b">Multi-source signals (vision · ELO · xG) become one probability. A <b>deterministic gate</b> — code, not the model — sizes the bet with fractional Kelly and hard caps (max 1%/position). No prompt-gaming.</div></div><div class="th"><div class="k">THE PROOF</div><div class="b">We measure whether the model is actually <b>right</b>: calibration (Brier · ECE), closing-line value, and significant ROI — not just win rate.</div></div></div>
     <div class="cards" id="cards"></div>
     <div class="scrub" id="scrub"></div>
   </section>

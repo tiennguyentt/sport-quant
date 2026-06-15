@@ -126,11 +126,14 @@ if page == "Terminal" and not in_chat:
     # ===== LANDING (matches 19.11.20): header above, no rail, 3-wide cards ====
     he, fi = st.columns([0.74, 0.26])
     with he:
-        st.markdown('<div class="dk-hero">Introducing the <span class="g">terminal</span>. '
-                    'It\'s all about Positive EV. Connect to the desk, then ask for predictions. '
-                    'Create your market or your bet!</div>', unsafe_allow_html=True)
+        st.markdown('<div class="dk-hero">The <span class="g">Positive-EV</span> terminal. '
+                    'A real model hunts mispriced edges across live matches — and a deterministic '
+                    'risk gate decides which are actually worth a bet.</div>', unsafe_allow_html=True)
+        st.markdown('<p class="dk-sub">Pick a fixture and ask the model, or type a question below. '
+                    'The model advises; the code governs.</p>', unsafe_allow_html=True)
     with fi:
         st.markdown('<div class="dk-filter">⬡ All Leagues ▾</div>', unsafe_allow_html=True)
+    st.markdown(theme.thesis(), unsafe_allow_html=True)
     cards = FIX[:9]
     for rs in range(0, len(cards), 3):
         cols = st.columns(3, gap="small")
