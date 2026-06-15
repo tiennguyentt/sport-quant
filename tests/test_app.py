@@ -20,7 +20,7 @@ def test_terminal_is_front_door(at):
     assert at.radio[0].value == "Terminal"
     body = " ".join(getattr(m, "value", "") or "" for m in at.markdown)
     assert "polymarket" in body.lower()  # hero targets Polymarket & Kalshi
-    assert "venue" in body.lower()       # fixture cards render
+    assert "stadium" in body.lower()     # the match cards render (START/STADIUM/TIME)
     assert "LIVE SCORE TRACKER" in body  # ticker present
 
 
@@ -32,16 +32,16 @@ def test_about_has_the_math(at):
 
 
 def test_ask_routes_through_gate(at):
-    at.text_input[0].set_value("Bayern vs Werder Bremen")  # in-body chat form
-    next(b for b in at.button if "➤" in b.label).click().run()
+    at.text_input[0].set_value("Bayern vs Werder Bremen")  # the composer form
+    next(b for b in at.button if "Ask" in b.label).click().run()
     assert not at.exception, at.exception
     assert len(at.session_state["thread"]) == 2  # user + engine reply
 
 
 def test_rejection_shows_reason_codes(at):
-    sea = next((b for b in at.button if "Seahawks" in b.key), None)
-    assert sea is not None
-    sea.click().run()
+    # a card's "Ask" button is a ?ask=<event> link; routing a no-edge match hits the gate.
+    at.query_params["ask"] = "Seahawks vs Commanders"
+    at.run()
     assert not at.exception, at.exception
     body = " ".join(getattr(m, "value", "") or "" for m in at.markdown)
     assert "REJECTED" in body  # the honest no-bet path

@@ -7,6 +7,8 @@ De-crypto'd: wallet/staking labels become session/paper-bankroll, same exact vis
 """
 from __future__ import annotations
 
+import urllib.parse
+
 import streamlit as st
 
 import fonts_data  # Brand fonts (Kensmark + PP Neue Montreal) embedded as data URIs
@@ -87,7 +89,7 @@ html,body,[class*="css"]{ font-family:'ppNeueMontreal','kensmark',sans-serif; }
 .dk-mi .mn{ font-family:'IBM Plex Mono';font-size:10px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:1px 7px; }
 @keyframes dktk{ from{transform:translateX(0);} to{transform:translateX(-50%);} }
 /* hero line */
-.dk-hero{ font-family:'ppNeueMontreal',sans-serif;font-weight:700;font-size:30px;line-height:1.15;letter-spacing:-.02em;max-width:620px;margin:6px 0 4px; }
+.dk-hero{ font-family:'ppNeueMontreal',sans-serif;font-weight:700;font-size:27px;line-height:1.26;letter-spacing:-.02em;max-width:740px;margin:4px auto 22px;text-align:center;color:var(--ink); }
 .dk-hero .g{ color:var(--lime); }
 .dk-sub{ color:var(--muted);font-size:14px;margin:0 0 16px;max-width:660px; }
 /* animated pipeline diagram (explains the flow visually) */
@@ -185,12 +187,67 @@ img.dk-cir{ object-fit:contain; background:#0e130b; padding:1px; }
 [data-testid="stChatInput"] textarea{ font-family:'ppNeueMontreal',sans-serif; color:var(--ink); }
 [data-testid="stChatInput"] textarea::placeholder{ color:var(--dim); font-family:'ppNeueMontreal',sans-serif; }
 [data-testid="stChatInput"] button{ background:var(--lime)!important; color:#060607!important; border-radius:9px; box-shadow:0 0 14px rgba(146,206,83,.3); }
-/* in-body chat input (a styled form) — fully customizable, no pinned footer */
-[data-testid="stForm"]{ border:none!important; padding:0!important; background:transparent!important; }
-[data-testid="stTextInput"] input{ background:rgba(17,21,15,.92); border:1px solid var(--line); border-radius:12px; color:var(--ink); font-family:'ppNeueMontreal',sans-serif; font-size:14px; padding:13px 16px; }
-[data-testid="stTextInput"] input::placeholder{ color:var(--dim); }
-[data-testid="stTextInput"] input:focus{ border-color:#3a521f; box-shadow:none; }
-[data-testid="stForm"] .stButton>button{ padding:13px 0; border-radius:12px; box-shadow:0 0 14px rgba(146,206,83,.3); }
+/* the match cards live in a horizontally-scrolling strip (a carousel, like the source) */
+.dk-strip{ display:flex; gap:16px; overflow-x:auto; overflow-y:hidden; padding:6px 2px 14px;
+  scroll-snap-type:x proximity; scrollbar-color:#2c3a22 transparent; }
+.dk-strip::-webkit-scrollbar{ height:9px; }
+.dk-strip::-webkit-scrollbar-track{ background:transparent; }
+.dk-strip::-webkit-scrollbar-thumb{ background:#26301c; border-radius:5px; }
+.dk-strip::-webkit-scrollbar-thumb:hover{ background:#3a521f; }
+.dk-card2{ flex:0 0 366px; scroll-snap-align:start; position:relative; overflow:hidden;
+  background:linear-gradient(180deg,#0e120b,#0a0d07); border:1px solid var(--line); border-radius:15px;
+  padding:16px 18px 16px; transition:border-color .15s, transform .15s; }
+.dk-card2:hover{ border-color:#3a521f; transform:translateY(-2px); }
+.dk-card2::after{ content:""; position:absolute; top:0; right:0; border-width:0 30px 30px 0;
+  border-style:solid; border-color:transparent var(--lime) transparent transparent;
+  filter:drop-shadow(-3px 3px 5px rgba(146,206,83,.45)); }
+.dk-cfoot{ display:flex; justify-content:space-between; align-items:flex-end; gap:12px; margin-top:13px;
+  border-top:1px solid #161b12; padding-top:12px; }
+.dk-foot3{ font-family:'IBM Plex Mono'; font-size:10.5px; line-height:1.95; color:var(--dim); }
+.dk-foot3 b{ color:var(--dim); font-weight:500; letter-spacing:.05em; }
+.dk-foot3 .v{ color:var(--lime); }
+.dk-cbtn{ display:flex; flex-direction:column; align-items:flex-end; gap:8px; flex:none; }
+.dk-evtag{ font-family:'kensmark'; font-weight:800; font-size:13px; color:var(--lime);
+  text-shadow:0 0 12px rgba(146,206,83,.4); }
+.dk-askbtn{ display:inline-block; background:var(--lime); color:#060607!important; font-family:'kensmark';
+  font-weight:700; font-size:12px; padding:9px 18px; border-radius:9px; text-decoration:none;
+  white-space:nowrap; box-shadow:0 0 14px rgba(146,206,83,.3); transition:.15s; }
+.dk-askbtn:hover{ background:#B7F564; transform:translateY(-1px); }
+/* tick-ruler scrubber decor (between the cards and the composer) */
+.sq-ruler{ position:relative; height:30px; margin:10px 0 4px;
+  background-image:repeating-linear-gradient(90deg, rgba(138,147,138,.32) 0 1px, transparent 1px 14px);
+  -webkit-mask-image:linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+          mask-image:linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent); }
+.sq-ruler::before{ content:""; position:absolute; inset:0;
+  background-image:repeating-linear-gradient(90deg, rgba(146,206,83,.22) 0 1px, transparent 1px 70px);
+  height:30px; }
+.sq-ruler .mk{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  font-family:'IBM Plex Mono'; color:var(--lime); letter-spacing:26px; font-size:14px;
+  padding-left:26px; text-shadow:0 0 10px rgba(146,206,83,.6); }
+/* chat composer — a centered rounded box FIXED to the bottom (chrome stays, cards scroll) */
+[data-testid="stForm"]{ position:fixed; left:50%; bottom:16px; top:auto!important; transform:translateX(-50%);
+  width:min(780px,92vw); height:auto!important; z-index:60; margin:0!important;
+  background:rgba(15,19,12,.96); border:1px solid var(--line)!important; border-radius:16px;
+  padding:14px 16px 12px!important; box-shadow:0 14px 50px rgba(0,0,0,.55); }
+[data-testid="stForm"] [data-testid="stTextInput"] input{ background:transparent; border:none; border-radius:0;
+  color:var(--ink); font-family:'ppNeueMontreal',sans-serif; font-size:16px; padding:6px 4px; }
+[data-testid="stForm"] [data-testid="stTextInput"] input::placeholder{ color:var(--dim); font-family:'ppNeueMontreal',sans-serif; }
+[data-testid="stForm"] [data-testid="stTextInput"] input:focus{ border:none; box-shadow:none; }
+/* the decorative attach / mic icons (left of the send button) */
+[data-testid="stForm"] [data-testid="stMarkdownContainer"] [data-testid="stIconMaterial"]{
+  color:var(--dim); font-size:22px; margin-right:8px; }
+/* green send pill, bottom-right of the composer */
+[data-testid="stForm"] [data-testid="stFormSubmitButton"]>button{ background:var(--lime); color:#060607;
+  border:none; border-radius:9px; min-height:40px; padding:0 20px!important; font-family:'kensmark';
+  font-weight:700; font-size:13px; box-shadow:0 0 14px rgba(146,206,83,.3); transform:none; }
+[data-testid="stForm"] [data-testid="stFormSubmitButton"]>button:hover{ background:#B7F564; transform:translateY(-1px); }
+[data-testid="stForm"] [data-testid="stFormSubmitButton"] [data-testid="stIconMaterial"]{ font-size:18px; }
+/* the brand mark IS the home button — make it look like a logo, not a green button */
+.st-key-home_brand button{ background:transparent!important; border:none!important; box-shadow:none!important;
+  color:var(--ink)!important; padding:5px 2px!important; justify-content:flex-start!important; transform:none!important; }
+.st-key-home_brand button:hover{ background:transparent!important; box-shadow:none!important; transform:none!important; }
+.st-key-home_brand button p{ font-family:'kensmark'!important; font-weight:800!important; font-size:17px!important; letter-spacing:-.01em!important; }
+.st-key-home_brand button:hover p{ color:var(--lime)!important; }
 /* model selectbox in the header */
 [data-testid="stSelectbox"] div[data-baseweb="select"]>div{ background:rgba(17,21,15,.9); border:1px solid var(--line); border-radius:9px; font-family:'IBM Plex Mono'; font-size:12px; color:var(--ink); min-height:34px; }
 [data-testid="stSidebar"] .stRadio label{ font-size:13px; }
@@ -310,9 +367,51 @@ def match_card(f: dict, edge_pct: float) -> str:
         f'<span class="s">{(1-f["model_p"])*100:.0f}</span></div>'
         f'<div class="dk-prog"><i style="width:{fill:.0f}%"></i></div>'
         f'<div class="dk-meta"><div class="m"><span class="dot"></span><b>START:</b> {f["start"]}<br>'
-        f'<b>VENUE:</b> {f["venue"]}<br><b>MODEL:</b> {f["confidence"]*100:.0f}% conf</div>'
+        f'<b>STADIUM:</b> {f["venue"]}<br><b>MODEL:</b> {f["confidence"]*100:.0f}% conf</div>'
         f'<div class="dk-edge">+{edge_pct:.1f}% EV</div></div></div>'
     )
+
+
+def card_head(f: dict, edge_pct: float) -> str:
+    """Top of a match card: category, two team rows (logo + name + big green number), edge bar."""
+    home, _, away = f["event"].partition(" vs ")
+    fill = min(100, max(8, edge_pct * 9))
+    return (
+        f'<div class="dk-cardtop"><div class="lg">{f["category"]}</div>'
+        f'<div class="dk-teamrow"><span class="dk-tm">{_badge(home, f.get("home_badge"))}'
+        f'<span class="t">{home}</span></span>'
+        f'<span class="s">{f["model_p"]*100:.0f}</span></div>'
+        f'<div class="dk-teamrow"><span class="dk-tm">{_badge(away, f.get("away_badge"))}'
+        f'<span class="t">{away}</span></span>'
+        f'<span class="s">{(1-f["model_p"])*100:.0f}</span></div>'
+        f'<div class="dk-prog"><i style="width:{fill:.0f}%"></i></div></div>'
+    )
+
+
+def card_foot(f: dict) -> str:
+    """Bottom-left of a match card: START / STADIUM / TIME, mono with green values (the source layout)."""
+    return (f'<div class="dk-foot3"><div><b>START:</b> <span class="v">{f["start"]}</span></div>'
+            f'<div><b>STADIUM:</b> <span class="v">{f["venue"]}</span></div>'
+            f'<div><b>TIME:</b> <span class="v">PRE-MATCH</span></div></div>')
+
+
+def card(f: dict, edge_pct: float) -> str:
+    """A full match card with the inline 'Ask' button (a ?ask= link, so it works inside HTML)."""
+    href = "?ask=" + urllib.parse.quote(f["event"])
+    return (f'<div class="dk-card2">{card_head(f, edge_pct)}'
+            f'<div class="dk-cfoot">{card_foot(f)}'
+            f'<div class="dk-cbtn"><div class="dk-evtag">+{edge_pct:.1f}% EV</div>'
+            f'<a class="dk-askbtn" target="_self" href="{href}">Ask the model</a></div></div></div>')
+
+
+def card_strip(cards_html: str) -> str:
+    """The horizontally-scrolling strip the cards live in (a carousel, matches the source)."""
+    return f'<div class="dk-strip">{cards_html}</div>'
+
+
+def scrubber() -> str:
+    """The tick-ruler decor that sits between the scrolling cards and the composer."""
+    return '<div class="sq-ruler"><span class="mk">[ ]</span></div>'
 
 
 # ---- chat bubbles ----------------------------------------------------------

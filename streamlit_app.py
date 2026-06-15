@@ -103,12 +103,14 @@ def _ask(event_name: str, user_text: str | None = None) -> None:
 
 
 def _ask_box(key: str) -> None:
-    """In-body chat input (a styled form) — fully customizable, no pinned footer bar."""
+    """Chat composer — one centered rounded box (styled in theme CSS): the input on top,
+    decorative attach/mic icons + a green send pill on the bottom row. Matches the reference."""
     with st.form(key, clear_on_submit=True, border=False):
-        c1, c2 = st.columns([0.86, 0.14], gap="small")
-        q = c1.text_input("ask", placeholder="Ask about a match, or a team name",
+        q = st.text_input("ask", placeholder="Ask the model about a match, or a team name",
                           label_visibility="collapsed")
-        go = c2.form_submit_button("Ask  ➤", use_container_width=True)
+        c1, c2 = st.columns([0.7, 0.3], gap="small", vertical_alignment="center")
+        c1.markdown(":material/attach_file: :material/mic:")
+        go = c2.form_submit_button("Ask  :material/send:", use_container_width=True)
     if go and q.strip():
         m = next((f for f in FIX if any(w in f["event"].lower() for w in q.lower().split())), None) \
             or max(FIX, key=lambda f: edge(f["model_p"], f["odds"]))
@@ -131,24 +133,30 @@ def _go_home() -> None:
     st.session_state.pop("pending", None)
 
 
-# ---- top header strip (brand · nav · model · home) ------------------------
-hc1, hc2, hc3, hc4 = st.columns([0.24, 0.40, 0.20, 0.16], gap="small")
+# ---- top header strip (brand · nav · model · status) ----------------------
+# The brand IS the home button — click the logo to return to the default screen.
+hc1, hc2, hc3, hc4 = st.columns([0.26, 0.40, 0.20, 0.14], gap="small")
 with hc1:
-    st.markdown(f'<div class="dk-head"><span class="dk-hmark">◆</span><b>{BRAND}</b>'
-                f'<span class="dk-clock">{datetime.now().strftime("%I:%M %p")}</span>'
-                f'<span class="dk-dots"><i></i><i></i><i></i></span></div>', unsafe_allow_html=True)
+    st.button(f":green[◆]  {BRAND}", key="home_brand", on_click=_go_home,
+              help="Back to the terminal home")
 with hc2:
     page = st.radio("nav", ["Terminal", "Performance", "Calibration", "About"],
                     key="nav_page", horizontal=True, label_visibility="collapsed")
 with hc3:
     st.selectbox("model", list(MODEL_MAP), key="model_choice", label_visibility="collapsed")
 with hc4:
-    st.button("⌂ Home", on_click=_go_home, use_container_width=True,
-              help="Back to the terminal home screen")
+    st.markdown('<div class="dk-status">engine&nbsp;<span class="on">●</span></div>',
+                unsafe_allow_html=True)
 
 SEL_MODEL = MODEL_MAP.get(st.session_state.get("model_choice", "deepseek-v4"))
 
 st.markdown(theme.ticker(LIVE), unsafe_allow_html=True)
+
+# a card's "Ask" button is a ?ask=<event> link — route it into the chat, then clean the URL.
+_ask_param = st.query_params.get("ask")
+if _ask_param:
+    st.query_params.clear()
+    _ask(_ask_param)
 
 thread = st.session_state.get("thread", [])
 pending = st.session_state.get("pending")
@@ -156,24 +164,18 @@ in_chat = page == "Terminal" and bool(thread or pending)
 
 if page == "Terminal" and not in_chat:
     # ===== LANDING (matches 19.11.20): header above, no rail, 3-wide cards ====
-    he, fi = st.columns([0.74, 0.26])
-    with he:
-        st.markdown('<div class="dk-hero"><span class="g">LLM-powered</span> +EV for '
-                    '<span class="g">Polymarket</span> &amp; <span class="g">Kalshi</span>.</div>',
-                    unsafe_allow_html=True)
+    _sp, fi = st.columns([0.78, 0.22])
     with fi:
         st.markdown('<div class="dk-filter">⬡ All Leagues ▾</div>', unsafe_allow_html=True)
-    cards = FIX[:9]
-    for rs in range(0, len(cards), 3):
-        cols = st.columns(3, gap="small")
-        for col, f in zip(cols, cards[rs:rs + 3]):
-            with col:
-                e = max(0.0, edge(f["model_p"], f["odds"])) * 100
-                st.markdown(theme.match_card(f, e), unsafe_allow_html=True)
-                if st.button("Ask the model", key=f'ask_{f["event"]}', use_container_width=True):
-                    _ask(f["event"])
-                    st.rerun()
-    st.markdown('<div style="height:8px"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="dk-hero">Introducing the <span class="g">terminal</span>. '
+                'It&rsquo;s all about <span class="g">Positive EV</span> — LLM-powered edges for '
+                '<span class="g">Polymarket &amp; Kalshi</span>. Score live markets, then ask the model.</div>',
+                unsafe_allow_html=True)
+    # the cards live in a horizontally-scrolling strip in the middle band; each card's
+    # "Ask" button is a ?ask= link (works inside HTML), handled at the top of the script.
+    strip = "".join(theme.card(f, max(0.0, edge(f["model_p"], f["odds"])) * 100) for f in FIX[:12])
+    st.markdown(theme.card_strip(strip), unsafe_allow_html=True)
+    st.markdown(theme.scrubber(), unsafe_allow_html=True)
     _ask_box("ask_landing")
 
 elif in_chat:
