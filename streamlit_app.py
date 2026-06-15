@@ -184,7 +184,7 @@ elif in_chat:
     rail_col, main = st.columns([0.23, 0.77], gap="medium")
     with rail_col:
         st.markdown(theme.rail(BRAND, "100,000.00"), unsafe_allow_html=True)
-        st.button("← Home  ·  new session", on_click=_go_home, use_container_width=True)
+        st.button("← Home  ·  new session", key="home_rail", on_click=_go_home, use_container_width=True)
     with main:
         if thread:
             bubbles = ""

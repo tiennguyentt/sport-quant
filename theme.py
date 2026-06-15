@@ -251,6 +251,13 @@ img.dk-cir{ object-fit:contain; background:#0e130b; padding:1px; }
 .st-key-home_brand button:hover{ background:transparent!important; box-shadow:none!important; transform:none!important; }
 .st-key-home_brand button p{ font-family:'kensmark'!important; font-weight:800!important; font-size:17px!important; letter-spacing:-.01em!important; }
 .st-key-home_brand button:hover p{ color:var(--lime)!important; }
+/* rail home — quiet ghost utility button, not a hero CTA */
+.st-key-home_rail button{ background:transparent!important; border:1px solid var(--line)!important;
+  box-shadow:none!important; color:var(--muted)!important; font-family:'IBM Plex Mono'!important;
+  font-size:11px!important; font-weight:400!important; letter-spacing:.04em!important;
+  padding:7px 0!important; transform:none!important; margin-top:10px; }
+.st-key-home_rail button:hover{ background:rgba(146,206,83,.07)!important;
+  border-color:var(--lime)!important; color:var(--lime)!important; box-shadow:none!important; transform:none!important; }
 /* model selectbox in the header */
 [data-testid="stSelectbox"] div[data-baseweb="select"]>div{ background:rgba(17,21,15,.9); border:1px solid var(--line); border-radius:9px; font-family:'IBM Plex Mono'; font-size:12px; color:var(--ink); min-height:34px; }
 [data-testid="stSidebar"] .stRadio label{ font-size:13px; }
@@ -317,7 +324,7 @@ def rail(brand: str, bankroll: str) -> str:
         f'<div class="dk-brand"><div class="dk-mark">◆</div>'
         f'<div><b>{brand}</b><span>V0.1 · GOVERNED</span></div></div>'
         f'<div class="dk-row"><span class="k">Session</span><span class="v">SQ · PAPER</span></div>'
-        f'<div class="dk-bal"><div class="l">Paper Bankroll</div><div class="v">{bankroll}</div></div>'
+        f'<div class="dk-bal"><div class="l">Paper Bankroll</div><div class="v">${bankroll}</div></div>'
         f'</div>'
     )
 
