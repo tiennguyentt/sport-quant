@@ -96,9 +96,10 @@ def _verdict_html(d: dict) -> str:
     return f'{rec}<div style="margin-top:6px">{verdict}</div>{extra}'
 
 
-def _ask(event_name: str) -> None:
+def _ask(event_name: str, user_text: str | None = None) -> None:
     # queue the question; the chat view streams the LLM reply, then the gate decides.
-    st.session_state["pending"] = event_name
+    # user_text = exactly what the human typed (echoed in the chat); None for card clicks.
+    st.session_state["pending"] = {"event": event_name, "text": user_text}
 
 
 # ---- full-width live ticker (top) -----------------------------------------
@@ -148,7 +149,7 @@ elif in_chat:
     rail_col, main = st.columns([0.23, 0.77], gap="medium")
     with rail_col:
         st.markdown(theme.rail(BRAND, "100,000.00"), unsafe_allow_html=True)
-        if st.button("↺ New session", use_container_width=True):
+        if st.button("← Home  ·  new session", use_container_width=True):
             st.session_state.pop("thread", None)
             st.session_state.pop("pending", None)
             st.rerun()
@@ -162,10 +163,11 @@ elif in_chat:
                 bubbles += theme.user_msg(body, ts) if role == "u" else theme.engine_msg(body, ts)
             st.markdown(theme.chat_panel(bubbles), unsafe_allow_html=True)
         if pending:
-            f = next((x for x in FIX if x["event"] == pending), None)
+            f = next((x for x in FIX if x["event"] == pending["event"]), None)
             if f:
                 d = _decide(f)
-                q = f"Ok give me the details of what I should bet on {pending}."
+                # echo the human's actual words; fall back to a default for card clicks
+                q = pending.get("text") or f"Give me the details on {pending['event']}."
                 st.markdown(theme.user_msg(q, "4:41 PM"), unsafe_allow_html=True)
                 st.markdown('<div class="dk-msg"><div class="dk-av a">◆</div>'
                             '<div class="dk-txt" style="padding-top:2px">', unsafe_allow_html=True)
@@ -274,5 +276,5 @@ if page == "Terminal":
                       or prompt.lower() in f["event"].lower()), None)
         if match is None:
             match = max(FIX, key=lambda f: edge(f["model_p"], f["odds"]))
-        _ask(match["event"])
+        _ask(match["event"], prompt)  # echo exactly what the user typed
         st.rerun()

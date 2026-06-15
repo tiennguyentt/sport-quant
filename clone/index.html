@@ -137,7 +137,7 @@ img.ph{ padding:3px;background:#0e130b; }
       <div class="brand"><div class="hmark">◆</div><div><b>sport-quant</b><span>V0.1 · GOVERNED</span></div></div>
       <div class="brow"><span>Session</span><span class="v">0xQUANT…paper</span></div>
       <div class="bal"><div class="l">Paper Bankroll</div><div class="v">100,000.00</div></div>
-      <button class="reset" onclick="goHome()">↺ New session</button>
+      <button class="reset" onclick="goHome()">← Home  ·  new session</button>
       <div class="rfoot">▢ Documentation<br>⚙ Settings<br><span class="on">● engine connected</span></div>
     </div></div>
     <div class="chat"><div id="thread"></div>
@@ -180,13 +180,13 @@ function card(f){
 function esc(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
 function goHome(){ document.getElementById('landing').classList.remove('hidden'); document.getElementById('chatview').classList.add('hidden'); document.getElementById('thread').innerHTML=''; }
 function askText(){ const v=document.getElementById('msg').value.trim(); if(!v) return;
-  let m = FIX.find(f=>v.toLowerCase().split(' ').some(w=>w&&f.event.toLowerCase().includes(w))); if(!m) m=FIX[0]; ask(m.event); }
+  let m = FIX.find(f=>v.toLowerCase().split(' ').some(w=>w&&f.event.toLowerCase().includes(w))); if(!m) m=FIX[0]; ask(m.event, v); }
 
-async function ask(ev){
+async function ask(ev, userText){
   document.getElementById('landing').classList.add('hidden');
   document.getElementById('chatview').classList.remove('hidden');
   const thread = document.getElementById('thread');
-  thread.innerHTML += `<div class="msg"><div class="av u">◧</div><div class="ctxt">Ok give me the details of what I should bet on ${esc(ev)}.</div></div><div class="time">⧉ now</div>`;
+  thread.innerHTML += `<div class="msg"><div class="av u">◧</div><div class="ctxt">${esc(userText || ('Give me the details on '+ev+'.'))}</div></div><div class="time">⧉ now</div>`;
   thread.innerHTML += `<div class="msg"><div class="av a">◆</div><div class="ctxt" id="live"></div></div>`;
   const live = document.getElementById('live');
   const res = await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event:ev})});
