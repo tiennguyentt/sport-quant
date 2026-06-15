@@ -310,6 +310,14 @@ img.dk-cir{ object-fit:contain; background:#0e130b; padding:1px; }
   border-color:var(--lime)!important; color:var(--lime)!important; box-shadow:none!important; transform:none!important; }
 /* model selectbox in the header */
 [data-testid="stSelectbox"] div[data-baseweb="select"]>div{ background:rgba(17,21,15,.9); border:1px solid var(--line); border-radius:9px; font-family:'IBM Plex Mono'; font-size:12px; color:var(--ink); min-height:34px; }
+/* override Streamlit's default navy (#262730) wherever it leaks: text-input &
+   select wrappers, and the select dropdown menu — recolor to the brand dark */
+[data-baseweb="base-input"],[data-baseweb="input"]{ background:transparent!important; }
+[data-testid="stSelectbox"] [data-baseweb="select"]>div:first-child{ background:rgba(17,21,15,.95)!important; }
+[data-baseweb="popover"] [data-baseweb="menu"],
+[data-baseweb="popover"] ul[role="listbox"],
+[data-baseweb="menu"] li{ background:#0d120b!important; }
+[data-baseweb="menu"] li:hover{ background:rgba(146,206,83,.10)!important; }
 [data-testid="stSidebar"] .stRadio label{ font-size:13px; }
 /* landing top header */
 .dk-head{ display:flex; align-items:center; gap:11px; padding:2px 0 2px; }
@@ -379,17 +387,21 @@ section.main:has(.sq-landing),
 hr{ border-color:var(--line); }
 /* ---- hamburger menu: nav + model + status collapsed into a popover -------- */
 /* trigger = a quiet bordered terminal control (NOT the green CTA button) */
-[data-testid="stPopover"] button{
+[data-testid="stPopover"] button,
+[data-testid="stPopover"] button:hover,
+[data-testid="stPopover"] button:focus,
+[data-testid="stPopover"] button:active,
+[data-testid="stPopover"] button[aria-expanded="true"]{
   background:transparent!important; border:none!important; box-shadow:none!important;
-  color:var(--ink)!important; border-radius:8px!important; padding:0!important;
-  width:40px!important; min-width:40px!important; height:40px!important; min-height:40px!important;
+  outline:none!important; border-radius:8px!important; padding:0!important;
+  width:44px!important; min-width:44px!important; height:44px!important; min-height:44px!important;
   display:flex!important; align-items:center!important; justify-content:center!important;
   font-size:0!important; letter-spacing:0!important; transform:none!important; position:relative; }
-[data-testid="stPopover"] button:hover{
-  background:transparent!important; color:var(--lime)!important; box-shadow:none!important; transform:none!important; }
-/* draw a crisp, perfectly-centred 3-bar hamburger — no reliance on the ☰ glyph */
+[data-testid="stPopover"] button{ color:var(--ink)!important; }
+[data-testid="stPopover"] button:hover{ color:var(--lime)!important; }
+/* a crisp, centred 3-bar hamburger drawn in CSS (no ☰ glyph, no border) */
 [data-testid="stPopover"] button::before{
-  content:""; width:19px; height:2px; border-radius:2px; background:currentColor;
+  content:""!important; width:22px; height:2px; border-radius:2px; background:currentColor;
   box-shadow:0 -6px 0 currentColor, 0 6px 0 currentColor; }
 /* kill the default dropdown chevron — a clean ☰ icon only, Grok-style */
 [data-testid="stPopover"] button [data-testid="stIconMaterial"],
@@ -397,10 +409,25 @@ hr{ border-color:var(--line); }
 /* hide the ☰ text label entirely — the 3-bar icon is drawn via ::before */
 [data-testid="stPopover"] button div[data-testid="stMarkdownContainer"],
 [data-testid="stPopover"] button p{ display:none!important; }
-/* the floating menu surface */
+/* the menu opens as a full-height SIDE DRAWER that slides in (native pattern) */
 [data-testid="stPopoverBody"]{
-  background:#0d120b!important; border:1px solid var(--line)!important;
-  border-radius:14px!important; box-shadow:0 18px 50px rgba(0,0,0,.6)!important; min-width:230px; }
+  position:fixed!important; top:0!important; right:0!important; bottom:0!important; left:auto!important;
+  width:82vw!important; max-width:340px!important; min-width:0!important;
+  height:100vh!important; height:100dvh!important; max-height:100dvh!important;
+  background:#0b0f08!important; border:none!important; border-left:1px solid var(--line)!important;
+  border-radius:0!important; box-shadow:-24px 0 70px rgba(0,0,0,.65)!important;
+  padding:74px 24px 32px!important; overflow-y:auto!important;
+  animation:drawerIn .24s cubic-bezier(.2,.7,.2,1) both!important; }
+@keyframes drawerIn{ from{transform:translateX(102%);} to{transform:translateX(0);} }
+/* a dim scrim over the content behind the drawer */
+[data-testid="stPopoverBody"]::after{
+  content:""; position:fixed; top:0; bottom:0; left:0; right:min(82vw,340px);
+  background:rgba(3,4,2,.55); pointer-events:none; z-index:-1;
+  animation:scrimIn .24s ease both; }
+@keyframes scrimIn{ from{opacity:0;} to{opacity:1;} }
+/* bigger, tappable drawer nav rows */
+[data-testid="stPopoverBody"] div[role="radiogroup"] label{ font-size:16px!important; padding:13px 12px!important; }
+[data-testid="stPopoverBody"] .menu-sec{ font-size:11px; }
 .menu-sec{ font-family:'IBM Plex Mono';font-size:10px;letter-spacing:.16em;color:var(--dim);
   text-transform:uppercase;margin:2px 2px 8px; }
 .menu-sec.t{ margin-top:14px;border-top:1px solid var(--line);padding-top:14px; }
