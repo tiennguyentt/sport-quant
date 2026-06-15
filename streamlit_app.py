@@ -134,7 +134,7 @@ def _ask_box(key: str) -> None:
     """Chat composer — one centered rounded box (styled in theme CSS): the input on top,
     decorative attach/mic icons + a green send pill on the bottom row. Matches the reference."""
     with st.form(key, clear_on_submit=True, border=False):
-        q = st.text_input("ask", placeholder="Ask the model about a match, or a team name",
+        q = st.text_input("ask", placeholder="Ask the engine about a match or team",
                           label_visibility="collapsed")
         c1, c2 = st.columns([0.7, 0.3], gap="small", vertical_alignment="center")
         c1.markdown(":material/attach_file: :material/mic:")

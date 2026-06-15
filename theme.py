@@ -325,7 +325,7 @@ div[role="radiogroup"] label>div:first-child{ display:none; }
    the card slide pins to the bottom just above the fixed composer. NO scroll. */
 .sq-landing{ display:flex; flex-direction:column;
   height:calc(100vh - 150px); max-height:calc(100vh - 150px);
-  overflow:hidden; padding-bottom:122px; box-sizing:border-box; }
+  overflow:hidden; padding-bottom:128px; box-sizing:border-box; }
 /* lock EVERY scroll ancestor while the landing is shown — only the chat scrolls */
 [data-testid="stMainBlockContainer"]:has(.sq-landing),
 .block-container:has(.sq-landing),
@@ -371,6 +371,10 @@ hr{ border-color:var(--line); }
 [data-testid="stPopover"] button:hover{
   border-color:var(--lime)!important; color:var(--lime)!important;
   background:rgba(146,206,83,.06)!important; box-shadow:none!important; transform:none!important; }
+/* kill the default dropdown chevron — a clean ☰ icon only, Grok-style */
+[data-testid="stPopover"] button [data-testid="stIconMaterial"],
+[data-testid="stPopover"] button svg{ display:none!important; }
+[data-testid="stPopover"] button div[data-testid="stMarkdownContainer"]{ width:auto; }
 /* the floating menu surface */
 [data-testid="stPopoverBody"]{
   background:#0d120b!important; border:1px solid var(--line)!important;
@@ -396,14 +400,15 @@ hr{ border-color:var(--line); }
   /* tighter gutters; leave room at the bottom for the fixed composer */
   [data-testid="stAppViewContainer"]>.main .block-container,
   [data-testid="stMainBlockContainer"], .block-container{ padding:.4rem .85rem 7rem!important; }
-  /* header — let the brand/nav/model/status reflow instead of cramming one row */
-  [data-testid="stHorizontalBlock"]{ flex-wrap:wrap!important; row-gap:8px; }
-  .dk-head{ flex-wrap:wrap; }
-  .dk-status{ display:none; }                 /* the engine ● indicator is desktop chrome */
-  .dk-clock{ display:none; }
-  div[role="radiogroup"]{ flex-wrap:wrap; gap:4px; justify-content:flex-start; }
-  div[role="radiogroup"] label{ padding:6px 12px; font-size:13px; }
-  [data-testid="stSelectbox"]{ max-width:220px; }
+  /* ONLY the chat rail stacks on mobile. The header row and the composer's
+     inner row stay inline — a global wrap was dropping the composer's send
+     button to its own full-width line (the heavy, non-Grok composer). */
+  [data-testid="stHorizontalBlock"]:has(.st-key-home_rail){ flex-wrap:wrap!important; row-gap:12px; }
+  [data-testid="stHorizontalBlock"]:has(.st-key-home_rail) > [data-testid="stColumn"]{
+    flex:1 1 100%!important; width:100%!important; min-width:100%!important; }
+  [data-testid="stForm"] [data-testid="stHorizontalBlock"]{ flex-wrap:nowrap!important; }
+  [data-testid="stForm"] [data-testid="stColumn"]{ min-width:0!important; }
+  .dk-status, .dk-clock{ display:none; }       /* desktop-only chrome */
   /* LANDING — undo the viewport lock so the page scrolls naturally on a phone */
   /* landing locked to the dynamic viewport (dvh tracks mobile browser chrome) —
      watermark fills the void, slide pins above the composer, NO page scroll */
