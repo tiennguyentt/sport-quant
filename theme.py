@@ -133,18 +133,19 @@ img.dk-cir{ object-fit:contain; background:#0e130b; padding:1px; }
 .dk-meta .m .dot{ display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--lime);margin-right:7px;vertical-align:middle; }
 .dk-edge{ color:var(--lime);font-weight:700;font-family:'kensmark'; }
 /* chat panel */
-.dk-chat{ position:relative; overflow:hidden; background:rgba(13,16,11,.55); border:1px solid var(--line); border-radius:18px; padding:20px 22px; min-height:120px; }
+.dk-chat{ position:relative; overflow:hidden; background:rgba(13,16,11,.55); border:1px solid var(--line); border-radius:18px; padding:24px 26px; min-height:calc(100vh - 300px); }
 .dk-chat::after{ content:""; position:absolute; top:0; right:0; border-width:0 40px 40px 0; border-style:solid; border-color:transparent var(--lime) transparent transparent; opacity:.85; }
 .dk-arr{ position:absolute; top:50%; transform:translateY(-50%); width:30px;height:30px;border-radius:50%;background:#0d120b;border:1px solid var(--line);display:grid;place-items:center;color:var(--muted);font-size:17px;z-index:2; }
 .dk-arr.l{ left:-14px; } .dk-arr.r{ right:-14px; }
-.dk-msg{ display:flex; gap:13px; margin:18px 0; align-items:flex-start; }
+.dk-msg{ display:flex; gap:13px; margin:20px 0; align-items:flex-start; animation:msgIn .4s cubic-bezier(.2,.7,.2,1) both; }
+@keyframes msgIn{ from{opacity:0;transform:translateY(7px);} to{opacity:1;transform:none;} }
 .dk-av{ width:34px;height:34px;border-radius:10px;flex:none;display:grid;place-items:center;font-size:15px;font-family:'kensmark';font-weight:800; }
 .dk-av.a{ background:#0d120b;border:1px solid #2c3a22;color:var(--lime); }
 .dk-av.u{ background:linear-gradient(135deg,#92CE53,#5f8f1f);color:#060607; }
 .dk-txt{ font-family:'ppNeueMontreal',sans-serif;font-weight:400;font-size:15px;line-height:1.6;color:#E8EBE4;max-width:680px;padding-top:5px; }
 .dk-msg.u{ flex-direction:row-reverse; }
 .dk-bub{ font-family:'ppNeueMontreal',sans-serif;font-weight:400;font-size:15px;line-height:1.55;color:#0c1208;background:var(--lime);border-radius:14px 14px 4px 14px;padding:11px 15px;max-width:70%; }
-.dk-time.u{ text-align:right;margin:3px 50px 0 0; }
+.dk-time.u{ text-align:right;margin:4px 4px 0 0; }
 .dk-txt .rec{ font-family:'IBM Plex Mono';font-size:12.5px;margin-top:11px;color:var(--muted); }
 .dk-txt .rec b{ color:var(--ink); } .dk-txt .rec .pos{ color:var(--lime); }
 .dk-time{ font-family:'IBM Plex Mono';font-size:10.5px;color:var(--dim);margin:2px 0 0 47px; }
@@ -315,7 +316,7 @@ def rail(brand: str, bankroll: str) -> str:
         f'<div class="dk-rail">'
         f'<div class="dk-brand"><div class="dk-mark">◆</div>'
         f'<div><b>{brand}</b><span>V0.1 · GOVERNED</span></div></div>'
-        f'<div class="dk-row"><span class="k">Session</span><span class="v">0xQUANT…paper</span></div>'
+        f'<div class="dk-row"><span class="k">Session</span><span class="v">SQ · PAPER</span></div>'
         f'<div class="dk-bal"><div class="l">Paper Bankroll</div><div class="v">{bankroll}</div></div>'
         f'</div>'
     )
@@ -418,13 +419,13 @@ def scrubber() -> str:
 
 # ---- chat bubbles ----------------------------------------------------------
 def user_msg(text: str, ts: str = "") -> str:
-    t = f'<div class="dk-time u">{ts} ⧉</div>' if ts else ""
-    return (f'<div class="dk-msg u"><div class="dk-bub">{text}</div>'
-            f'<div class="dk-av u">◧</div></div>{t}')
+    # no avatar on the user side — a clean right-aligned bubble (asymmetric, only the engine is marked).
+    t = f'<div class="dk-time u">{ts}</div>' if ts else ""
+    return f'<div class="dk-msg u"><div class="dk-bub">{text}</div></div>{t}'
 
 
 def engine_msg(body_html: str, ts: str = "") -> str:
-    t = f'<div class="dk-time">⧉ {ts}</div>' if ts else ""
+    t = f'<div class="dk-time">{ts}</div>' if ts else ""
     return (f'<div class="dk-msg"><div class="dk-av a">◆</div>'
             f'<div class="dk-txt">{body_html}</div></div>{t}')
 
