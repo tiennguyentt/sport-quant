@@ -527,6 +527,10 @@ hr{ border-color:var(--line); }
     padding-bottom:calc(7rem + env(safe-area-inset-bottom))!important; }
   /* comfortable native touch targets */
   [data-testid="stPopover"] button{ width:44px!important; height:44px!important; min-height:44px!important; }
+  /* refine the MOBILE hamburger bars only (desktop hamburger is hidden anyway,
+     so the web UI is untouched): tighter, cleaner 3-bar icon */
+  [data-testid="stPopover"] button::before{ width:20px!important; height:2px!important;
+    box-shadow:0 -6px 0 currentColor, 0 6px 0 currentColor!important; }
   [data-testid="stForm"] [data-testid="stFormSubmitButton"]>button{ min-height:46px!important; }
   .dk-askbtn{ min-height:42px; display:inline-flex; align-items:center; }
   [data-testid="stPopover"] div[role="radiogroup"] label{ min-height:44px; }
