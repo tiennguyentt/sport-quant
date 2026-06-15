@@ -118,6 +118,9 @@ img.dk-cir{ object-fit:contain; background:#0e130b; padding:1px; }
 .dk-av.a{ background:#0d120b;border:1px solid #2c3a22;color:var(--lime); }
 .dk-av.u{ background:linear-gradient(135deg,#92CE53,#5f8f1f);color:#060607; }
 .dk-txt{ font-family:'ppNeueMontreal',sans-serif;font-weight:400;font-size:15px;line-height:1.6;color:#E8EBE4;max-width:680px;padding-top:5px; }
+.dk-msg.u{ flex-direction:row-reverse; }
+.dk-bub{ font-family:'ppNeueMontreal',sans-serif;font-weight:400;font-size:15px;line-height:1.55;color:#0c1208;background:var(--lime);border-radius:14px 14px 4px 14px;padding:11px 15px;max-width:70%; }
+.dk-time.u{ text-align:right;margin:3px 50px 0 0; }
 .dk-txt .rec{ font-family:'IBM Plex Mono';font-size:12.5px;margin-top:11px;color:var(--muted); }
 .dk-txt .rec b{ color:var(--ink); } .dk-txt .rec .pos{ color:var(--lime); }
 .dk-time{ font-family:'IBM Plex Mono';font-size:10.5px;color:var(--dim);margin:2px 0 0 47px; }
@@ -275,9 +278,9 @@ def match_card(f: dict, edge_pct: float) -> str:
 
 # ---- chat bubbles ----------------------------------------------------------
 def user_msg(text: str, ts: str = "") -> str:
-    t = f'<div class="dk-time">⧉ {ts}</div>' if ts else ""
-    return (f'<div class="dk-msg"><div class="dk-av u">◧</div>'
-            f'<div class="dk-txt">{text}</div></div>{t}')
+    t = f'<div class="dk-time u">{ts} ⧉</div>' if ts else ""
+    return (f'<div class="dk-msg u"><div class="dk-bub">{text}</div>'
+            f'<div class="dk-av u">◧</div></div>{t}')
 
 
 def engine_msg(body_html: str, ts: str = "") -> str:

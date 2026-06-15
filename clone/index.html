@@ -96,6 +96,9 @@ img.ph{ padding:3px;background:#0e130b; }
 .av{ width:36px;height:36px;border-radius:11px;flex:none;display:grid;place-items:center;font-family:'kensmark';font-weight:800;font-size:15px; }
 .av.u{ background:linear-gradient(135deg,#92ce53,#5f8f1f);color:#060607; } .av.a{ background:#0d120b;border:1px solid #2c3a22;color:var(--lime);box-shadow:0 0 12px rgba(146,206,83,.18); }
 .ctxt{ font-family:'ppNeueMontreal',sans-serif;font-size:15px;line-height:1.62;color:#e8ebe4;max-width:660px;padding-top:6px; }
+.msg.u{ flex-direction:row-reverse; }
+.bub{ font-family:'ppNeueMontreal',sans-serif;font-size:15px;line-height:1.55;color:#0c1208;background:var(--lime);border-radius:14px 14px 4px 14px;padding:11px 15px;max-width:70%; }
+.time.u{ text-align:right;margin:3px 50px 0 0; }
 .time{ font-family:'IBM Plex Mono';font-size:10.5px;color:var(--dim);margin:3px 0 0 50px; }
 .rec{ font-family:'IBM Plex Mono';font-size:12.5px;margin-top:11px;color:var(--muted); } .rec b{ color:var(--ink); } .rec .pos{ color:var(--lime); }
 .verdict{ font-family:'kensmark';font-weight:900;font-size:13px;letter-spacing:.06em;padding:6px 13px;border-radius:8px;display:inline-block;margin-top:11px; }
@@ -186,7 +189,7 @@ async function ask(ev, userText){
   document.getElementById('landing').classList.add('hidden');
   document.getElementById('chatview').classList.remove('hidden');
   const thread = document.getElementById('thread');
-  thread.innerHTML += `<div class="msg"><div class="av u">◧</div><div class="ctxt">${esc(userText || ('Give me the details on '+ev+'.'))}</div></div><div class="time">⧉ now</div>`;
+  thread.innerHTML += `<div class="msg u"><div class="bub">${esc(userText || ('Give me the details on '+ev+'.'))}</div><div class="av u">◧</div></div><div class="time u">now ⧉</div>`;
   thread.innerHTML += `<div class="msg"><div class="av a">◆</div><div class="ctxt" id="live"></div></div>`;
   const live = document.getElementById('live');
   const res = await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event:ev})});
