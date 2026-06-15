@@ -123,6 +123,7 @@ img.dk-ph{ object-fit:contain; padding:3px; background:#0e130b; }
 img.dk-cir{ object-fit:contain; background:#0e130b; padding:1px; }
 .dk-teamrow .t{ font-family:'kensmark';font-weight:800;font-size:16px;letter-spacing:-.01em;text-transform:uppercase; }
 .dk-teamrow .s{ font-family:'kensmark';font-weight:800;font-size:34px;color:var(--lime);line-height:1; }
+.dk-teamrow .s .pct{ font-size:.42em;font-weight:700;opacity:.7;margin-left:1px;vertical-align:.95em; }
 .dk-prog{ height:3px;background:#1a2113;border-radius:2px;overflow:hidden;margin:6px 0 12px; }
 .dk-prog>i{ display:block;height:100%;background:var(--lime); }
 .dk-meta{ display:flex;justify-content:space-between;align-items:flex-end; }
@@ -361,10 +362,10 @@ def match_card(f: dict, edge_pct: float) -> str:
         f'<div class="dk-card"><div class="lg">{f["category"]}</div>'
         f'<div class="dk-teamrow"><span class="dk-tm">{_badge(home, f.get("home_badge"))}'
         f'<span class="t">{home}</span></span>'
-        f'<span class="s">{f["model_p"]*100:.0f}</span></div>'
+        f'<span class="s">{f["model_p"]*100:.0f}<span class="pct">%</span></span></div>'
         f'<div class="dk-teamrow"><span class="dk-tm">{_badge(away, f.get("away_badge"))}'
         f'<span class="t">{away}</span></span>'
-        f'<span class="s">{(1-f["model_p"])*100:.0f}</span></div>'
+        f'<span class="s">{(1-f["model_p"])*100:.0f}<span class="pct">%</span></span></div>'
         f'<div class="dk-prog"><i style="width:{fill:.0f}%"></i></div>'
         f'<div class="dk-meta"><div class="m"><span class="dot"></span><b>START:</b> {f["start"]}<br>'
         f'<b>STADIUM:</b> {f["venue"]}<br><b>MODEL:</b> {f["confidence"]*100:.0f}% conf</div>'
@@ -380,10 +381,10 @@ def card_head(f: dict, edge_pct: float) -> str:
         f'<div class="dk-cardtop"><div class="lg">{f["category"]}</div>'
         f'<div class="dk-teamrow"><span class="dk-tm">{_badge(home, f.get("home_badge"))}'
         f'<span class="t">{home}</span></span>'
-        f'<span class="s">{f["model_p"]*100:.0f}</span></div>'
+        f'<span class="s">{f["model_p"]*100:.0f}<span class="pct">%</span></span></div>'
         f'<div class="dk-teamrow"><span class="dk-tm">{_badge(away, f.get("away_badge"))}'
         f'<span class="t">{away}</span></span>'
-        f'<span class="s">{(1-f["model_p"])*100:.0f}</span></div>'
+        f'<span class="s">{(1-f["model_p"])*100:.0f}<span class="pct">%</span></span></div>'
         f'<div class="dk-prog"><i style="width:{fill:.0f}%"></i></div></div>'
     )
 

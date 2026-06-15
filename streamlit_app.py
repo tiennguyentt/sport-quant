@@ -169,7 +169,8 @@ if page == "Terminal" and not in_chat:
         st.markdown('<div class="dk-filter">⬡ All Leagues ▾</div>', unsafe_allow_html=True)
     st.markdown('<div class="dk-hero">Introducing the <span class="g">terminal</span>. '
                 'It&rsquo;s all about <span class="g">Positive EV</span> — LLM-powered edges for '
-                '<span class="g">Polymarket &amp; Kalshi</span>. Score live markets, then ask the model.</div>',
+                '<span class="g">Polymarket &amp; Kalshi</span>. Connect to the engine, then '
+                '<span class="g">ask for predictions</span>.</div>',
                 unsafe_allow_html=True)
     # the cards live in a horizontally-scrolling strip in the middle band; each card's
     # "Ask" button is a ?ask= link (works inside HTML), handled at the top of the script.
