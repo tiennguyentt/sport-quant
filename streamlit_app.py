@@ -204,10 +204,36 @@ elif in_chat:
                 # echo the human's actual words; fall back to a default for card clicks
                 q = pending.get("text") or f"Give me the details on {pending['event']}."
                 st.markdown(theme.user_msg(q, "4:41 PM"), unsafe_allow_html=True)
+
+                # Show thinking indicator while waiting for the first LLM token.
+                # Cleared the moment the stream yields its first chunk.
+                _think = st.empty()
+                _think.markdown(
+                    '<div class="dk-msg"><div class="dk-av a">◆</div>'
+                    '<div class="dk-txt"><span class="sq-thinking">'
+                    '<span class="sq-tl">ANALYZING EDGE</span>'
+                    '<span class="dk-dots"><i></i><i></i><i></i></span>'
+                    '</span></div></div>',
+                    unsafe_allow_html=True,
+                )
+
+                def _stream_clear_thinking(gen, slot):
+                    first = True
+                    for chunk in gen:
+                        if first:
+                            slot.empty()
+                            first = False
+                        yield chunk
+                    slot.empty()  # also clear if stream returned nothing
+
                 st.markdown('<div class="dk-msg"><div class="dk-av a">◆</div>'
                             '<div class="dk-txt" style="padding-top:2px">', unsafe_allow_html=True)
                 streamed = st.write_stream(
-                    llm.stream_analysis(f, d["edge"] * 100, _fallback_reasoning(f), model=SEL_MODEL))
+                    _stream_clear_thinking(
+                        llm.stream_analysis(f, d["edge"] * 100, _fallback_reasoning(f), model=SEL_MODEL),
+                        _think,
+                    )
+                )
                 st.markdown("</div></div>", unsafe_allow_html=True)
                 thread = st.session_state.setdefault("thread", [])
                 thread.append(("u", q))

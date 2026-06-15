@@ -287,6 +287,10 @@ div[role="radiogroup"]{ gap:2px; justify-content:center; }
 div[role="radiogroup"] label{ padding:5px 14px;border-radius:8px;font-size:13px;color:var(--muted); }
 div[role="radiogroup"] label:hover{ background:#161b12;color:var(--ink); }
 div[role="radiogroup"] label>div:first-child{ display:none; }
+/* thinking state — shown while waiting for the first LLM token */
+.sq-thinking{ display:flex;align-items:center;gap:12px;padding-top:6px; }
+.sq-thinking .sq-tl{ font-family:'IBM Plex Mono';font-size:11.5px;color:var(--muted);letter-spacing:.1em; }
+.sq-thinking .dk-dots{ margin-left:0; }
 /* neon glow + motion to match the reference's lit feel */
 .stButton>button{ box-shadow:0 0 16px rgba(146,206,83,.30); }
 .stButton>button:hover{ box-shadow:0 0 22px rgba(146,206,83,.5); }
