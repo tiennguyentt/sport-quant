@@ -185,8 +185,6 @@ elif in_chat:
     with rail_col:
         st.markdown(theme.rail(BRAND, "100,000.00"), unsafe_allow_html=True)
         st.button("← Home  ·  new session", on_click=_go_home, use_container_width=True)
-        st.markdown('<div class="dk-foot">▢ Documentation<br>⚙ Settings<br>'
-                    '<span class="on">● engine connected</span></div>', unsafe_allow_html=True)
     with main:
         if thread:
             bubbles = ""
