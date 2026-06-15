@@ -126,7 +126,7 @@ if page == "Terminal" and not in_chat:
     # ===== LANDING (matches 19.11.20): header above, no rail, 3-wide cards ====
     he, fi = st.columns([0.74, 0.26])
     with he:
-        st.markdown('<div class="dk-hero">Find the <span class="g">+EV</span> on '
+        st.markdown('<div class="dk-hero"><span class="g">LLM-powered</span> +EV for '
                     '<span class="g">Polymarket</span> &amp; <span class="g">Kalshi</span>.</div>',
                     unsafe_allow_html=True)
     with fi:

@@ -345,7 +345,7 @@ def flow() -> str:
                   f'<div class="fl-s">{s}</div></div>')
     return (f'<div class="dk-flow">{parts}</div>'
             f'<div class="dk-flowllm"><span class="fl-branch"></span>'
-            f'<span class="fl-chip">✎ LLM · explains the numbers — it does not decide</span></div>')
+            f'<span class="fl-chip">✎ LLM-powered · integrates the +EV signals · sizing &amp; gate stay deterministic</span></div>')
 
 
 def footer() -> str:
