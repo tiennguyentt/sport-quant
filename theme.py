@@ -331,6 +331,76 @@ div[role="radiogroup"] label>div:first-child{ display:none; }
 .stApp{ animation:drift 60s ease-in-out infinite alternate; }
 @keyframes drift{ from{background-position:0 0,0 0,0 0,0 0,0 0,0 0,0 0,0 0,0 0,0 0,0 0,0 0;} to{background-position:0 0,8px 12px,-10px 8px,6px -8px,-8px 10px,10px 6px,-6px -10px,4px 8px,-8px -6px,12px 4px,-4px 10px,8px -8px;} }
 hr{ border-color:var(--line); }
+/* ============================================================================
+   MOBILE-FIRST RESPONSIVE  —  the terminal collapses to a single-column phone UI.
+   Desktop assumes a wide canvas (fixed-width cards, viewport-locked landing,
+   multi-column grids); below 768px we unlock height, bleed cards to the edges,
+   and stack every grid so nothing is clipped or crushed.
+   ========================================================================== */
+@media (max-width:768px){
+  /* tighter gutters; leave room at the bottom for the fixed composer */
+  [data-testid="stAppViewContainer"]>.main .block-container,
+  [data-testid="stMainBlockContainer"], .block-container{ padding:.4rem .85rem 7rem!important; }
+  /* header — let the brand/nav/model/status reflow instead of cramming one row */
+  [data-testid="stHorizontalBlock"]{ flex-wrap:wrap!important; row-gap:8px; }
+  .dk-head{ flex-wrap:wrap; }
+  .dk-status{ display:none; }                 /* the engine ● indicator is desktop chrome */
+  .dk-clock{ display:none; }
+  div[role="radiogroup"]{ flex-wrap:wrap; gap:4px; justify-content:flex-start; }
+  div[role="radiogroup"] label{ padding:6px 12px; font-size:13px; }
+  [data-testid="stSelectbox"]{ max-width:220px; }
+  /* LANDING — undo the viewport lock so the page scrolls naturally on a phone */
+  .sq-landing{ height:auto; max-height:none; overflow:visible;
+    justify-content:flex-start; padding-bottom:130px; }
+  [data-testid="stMainBlockContainer"]:has(.sq-landing),
+  .block-container:has(.sq-landing){ overflow:visible!important; }
+  .dk-hero{ font-size:20px; line-height:1.32; margin:6px auto 16px; max-width:100%; }
+  .dk-sub{ font-size:13px; }
+  .dk-filter{ display:none; }                 /* floating 'All Leagues' chip just clutters mobile */
+  /* match cards — one near-full-width card per view, edge-to-edge, snap between them */
+  .dk-strip{ gap:12px; scroll-snap-type:x mandatory;
+    margin:0 -.85rem; padding:4px .85rem 14px; }
+  .dk-card2{ flex:0 0 84vw; padding:15px 16px; }
+  .dk-card{ padding:14px 14px 12px; }
+  /* live ticker — slightly more compact */
+  .dk-tick{ gap:10px; padding:7px 11px; margin-bottom:12px; }
+  .dk-tick .lab{ font-size:10px; }
+  .dk-mi .nm{ font-size:12px; } .dk-mi .sc{ font-size:13px; }
+  /* fixed composer hugs the screen edges */
+  [data-testid="stForm"]{ width:calc(100vw - 20px); bottom:10px; padding:11px 13px 10px!important; }
+  [data-testid="stForm"] [data-testid="stTextInput"] input{ font-size:16px; }  /* ≥16px = no iOS zoom */
+  /* CHAT — the rail stacks above the conversation; trim its bulk */
+  .dk-rail{ padding:13px 14px; }
+  .dk-bal .v{ font-size:21px; }
+  .st-key-home_rail{ margin-bottom:6px; }
+  .dk-chat{ padding:16px 15px; min-height:auto; border-radius:14px; }
+  .dk-chat::after{ border-width:0 28px 28px 0; }
+  .dk-txt{ font-size:14px; padding-top:3px; }
+  .dk-bub{ max-width:86%; font-size:14px; }
+  .dk-msg{ gap:10px; margin:16px 0; }
+  .dk-av{ width:30px;height:30px;font-size:13px; }
+  .dk-time{ margin-left:40px; }
+  /* explainer grids collapse; the pipeline scrolls instead of crushing 6 nodes */
+  .dk-thesis{ grid-template-columns:1fr; }
+  .sq-kgrid.c4{ grid-template-columns:repeat(2,1fr); }
+  .sq-kgrid.c3{ grid-template-columns:repeat(2,1fr); }
+  .dk-flow{ overflow-x:auto; padding-bottom:8px; -webkit-overflow-scrolling:touch; }
+  .fl-node{ flex:0 0 88px; } .fl-link{ flex:0 0 22px; }
+  .dk-flowllm{ padding-left:0; } .fl-chip{ font-size:9.5px; }
+  /* page headings + big numbers scale down */
+  .sq-h{ font-size:23px; } .dk-teamrow .s{ font-size:30px; }
+  .sq-card{ padding:15px 14px; }
+  /* perf/calibration tables stay inside the screen */
+  .sq-tbl{ font-size:12px; } .sq-tbl td,.sq-tbl th{ padding:9px 7px; }
+  /* LaTeX blocks can overflow horizontally rather than blow out the layout */
+  [data-testid="stMarkdownContainer"] .katex-display{ overflow-x:auto; overflow-y:hidden; }
+}
+@media (max-width:430px){
+  .dk-hero{ font-size:18px; }
+  .dk-card2{ flex:0 0 88vw; }
+  .sq-kgrid.c4,.sq-kgrid.c3{ grid-template-columns:1fr; }
+  .sq-h{ font-size:21px; }
+}
 </style>
 """
     # Streamlit/markdown ends an HTML block at the first blank line — which would dump
