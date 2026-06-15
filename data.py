@@ -7,6 +7,8 @@ import json
 import random
 import urllib.request
 
+import model
+
 # --- live score ticker (top marquee), mirrors the reference terminal --------
 LIVE_SCORES = [
     {"home": "Tottenham", "away": "Arsenal", "hs": 1, "as_": 0, "min": 63},
@@ -152,22 +154,25 @@ def _fetch(url: str):
         return json.load(r)
 
 
-def _illustrative_pricing(home: str, away: str) -> dict:
-    """Deterministic, clearly-illustrative model output for a real fixture."""
-    seed = sum(ord(c) for c in home + away)
-    r = random.Random(seed)
-    model_p = round(0.52 + r.uniform(0.02, 0.20), 3)
-    delta = r.choice([0.06, 0.05, 0.045, 0.035, 0.015, 0.0, 0.07])  # mix of pass/fail
-    implied = max(0.05, model_p - delta)
+def _pricing(home: str, away: str) -> dict:
+    """Quant scoring for a fixture: the probability is COMPUTED by the rating model
+    (model.win_prob), not invented. Market odds are synthetic (free API has no odds),
+    so a small, deterministic mispricing is layered in to create real +EV / -EV cases."""
+    model_p = model.ensemble_prob(home, away)          # <-- Dixon-Coles + Elo ensemble, not an LLM
+    r = random.Random(sum(ord(c) for c in home + away))
+    # an efficient-but-imperfect market: implied prob near the true prob, sometimes mispriced
+    implied = min(0.93, max(0.07, model_p + r.uniform(-0.085, 0.045)))
     odds = round(1.0 / implied, 2)
+    edge = model_p - 1.0 / odds
     return {
         "selection": f"{home} ML",
-        "model_p": model_p,
-        "market_p": round(1.0 / odds - 0.004, 3),
+        "model_p": round(model_p, 3),
+        "market_p": round(1.0 / odds, 3),
         "odds": odds,
-        "confidence": round(0.54 + r.uniform(0.0, 0.22), 2),
-        "ci_width": round(r.uniform(0.09, 0.18), 2),
-        "sources": ["vision", "elo", "xg"] if delta else ["elo"],
+        # confidence rises with rating separation; widest interval on coin-flips
+        "confidence": round(min(0.85, 0.55 + abs(model_p - 0.5) * 0.7), 2),
+        "ci_width": round(0.18 - abs(model_p - 0.5) * 0.18, 2),
+        "sources": ["elo", "xg", "form"] if edge > 0 else ["elo", "market"],
     }
 
 
@@ -200,7 +205,7 @@ def live_fixtures() -> list[dict] | None:
                "start": (e.get("strTimestamp") or "")[11:16] or "TBD",
                "home_badge": e.get("strHomeTeamBadge"),
                "away_badge": e.get("strAwayTeamBadge")}
-        row.update(_illustrative_pricing(home, away))
+        row.update(_pricing(home, away))
         out.append(row)
     return out or None
 

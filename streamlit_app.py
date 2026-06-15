@@ -110,7 +110,7 @@ with hc1:
                 f'<span class="dk-clock">{datetime.now().strftime("%I:%M %p")}</span>'
                 f'<span class="dk-dots"><i></i><i></i><i></i></span></div>', unsafe_allow_html=True)
 with hc2:
-    page = st.radio("nav", ["Terminal", "Performance", "Calibration"],
+    page = st.radio("nav", ["Terminal", "Performance", "Calibration", "About"],
                     horizontal=True, label_visibility="collapsed")
 with hc3:
     st.markdown('<div class="dk-status">engine&nbsp;<span class="on">●</span></div>',
@@ -126,14 +126,12 @@ if page == "Terminal" and not in_chat:
     # ===== LANDING (matches 19.11.20): header above, no rail, 3-wide cards ====
     he, fi = st.columns([0.74, 0.26])
     with he:
-        st.markdown('<div class="dk-hero">The <span class="g">Positive-EV</span> terminal. '
-                    'A real model hunts mispriced edges across live matches — and a deterministic '
-                    'risk gate decides which are actually worth a bet.</div>', unsafe_allow_html=True)
-        st.markdown('<p class="dk-sub">Pick a fixture and ask the model, or type a question below. '
-                    'The model advises; the code governs.</p>', unsafe_allow_html=True)
+        st.markdown('<div class="dk-hero">Find the <span class="g">+EV</span> on '
+                    '<span class="g">Polymarket</span> &amp; <span class="g">Kalshi</span>.</div>',
+                    unsafe_allow_html=True)
     with fi:
         st.markdown('<div class="dk-filter">⬡ All Leagues ▾</div>', unsafe_allow_html=True)
-    st.markdown(theme.thesis(), unsafe_allow_html=True)
+    st.markdown(theme.flow(), unsafe_allow_html=True)
     cards = FIX[:9]
     for rs in range(0, len(cards), 3):
         cols = st.columns(3, gap="small")
@@ -144,8 +142,7 @@ if page == "Terminal" and not in_chat:
                 if st.button("Ask the model", key=f'ask_{f["event"]}', use_container_width=True):
                     _ask(f["event"])
                     st.rerun()
-    st.markdown('<div class="dk-scrub">' + "".join("<i></i>" for _ in range(72)) + "</div>",
-                unsafe_allow_html=True)
+    st.markdown(theme.footer(), unsafe_allow_html=True)
 
 elif in_chat:
     # ===== CHAT (matches 19.11.51): rail | chat panel ========================
@@ -270,6 +267,49 @@ elif page == "Calibration":
                      f'<span style="width:88px;text-align:right">obs {acc*100:.0f}% · n={n}</span></div>')
         st.markdown(f'<div class="sq-card" style="margin-top:14px"><div class="cap">Reliability — '
                     f'predicted vs observed</div>{bars}</div>', unsafe_allow_html=True)
+
+elif page == "About":
+    st.markdown('<div class="sq-kick">about · how it works</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sq-h">Quant scoring for prediction markets</div>', unsafe_allow_html=True)
+    st.markdown('<p style="color:var(--muted);font-size:14px;margin:4px 0 18px;max-width:680px">'
+                'sport-quant scores live markets (built for Polymarket &amp; Kalshi), finds +EV '
+                'mispricings, and sizes bets with fractional Kelly — governed by a deterministic '
+                'gate. The pipeline:</p>', unsafe_allow_html=True)
+    st.markdown(theme.flow(), unsafe_allow_html=True)
+
+    def _stage(num, title, note):
+        st.markdown(f'<div class="sq-kick" style="margin-top:18px">{num} · {title}</div>'
+                    f'<p style="color:var(--muted);font-size:13px;margin:2px 0 6px">{note}</p>',
+                    unsafe_allow_html=True)
+
+    _stage("01", "SCORE — adapted from SIRE's quant core (Elo + Dixon-Coles ensemble)",
+           "Two base models produce a probability; a meta-ensemble blends them. No LLM here.")
+    st.latex(r"\textbf{Elo: } \quad P_{\text{elo}}(\text{home}) = \frac{1}{1 + 10^{(R_{away}-R_{home})/400}}")
+    st.latex(r"\textbf{Dixon-Coles: }\quad \lambda_{home}=\gamma\,\alpha_{home}\,\beta_{away},\;\; "
+             r"\mu_{away}=\alpha_{away}\,\beta_{home}")
+    st.latex(r"P(x,y)=\tau_{\lambda,\mu,\rho}(x,y)\,\frac{\lambda^{x}e^{-\lambda}}{x!}\,"
+             r"\frac{\mu^{y}e^{-\mu}}{y!}\;\Rightarrow\; P_{dc}(\text{home})=\!\!\sum_{x>y}P(x,y)")
+    st.latex(r"\textbf{Ensemble: }\quad p = w_{dc}\,P_{dc} + w_{elo}\,P_{elo}\quad(w_{dc}=0.6,\;w_{elo}=0.4)")
+
+    _stage("02", "EDGE — model probability vs the de-vigged market", "")
+    st.latex(r"\text{edge} = p - q,\qquad q = \tfrac{1}{\text{odds}}\;\;(\text{implied probability})")
+
+    _stage("03", "SIZE — fractional Kelly with hard caps (SIRE: 1%/position)", "")
+    st.latex(r"f^{*}=\frac{b\,p-(1-p)}{b},\quad b=\text{odds}-1;\qquad "
+             r"\text{stake}=\min\!\big(\tfrac14 f^{*}B,\;0.01\,B\big)")
+
+    _stage("04", "GATE — deterministic, code-enforced (the model cannot override)",
+           "edge ≥ 2.8% · confidence ≥ 52% · |p−q| ≥ 2.2% · CI width ≤ 0.19 · "
+           "≥ 2 sources · total deployed ≤ 12% · no event concentration.")
+
+    _stage("05", "PROVE — is the model actually accurate? (not just win rate)", "")
+    st.latex(r"\text{Brier}=\tfrac1n\!\sum (p_i-o_i)^2,\quad "
+             r"\text{ECE}=\sum_b \tfrac{n_b}{n}\,\lvert \text{acc}_b-\text{conf}_b\rvert,\quad "
+             r"\text{CLV}=\tfrac{O_{bet}}{O_{close}}-1")
+    st.markdown('<p style="color:var(--dim);font-size:12px;margin-top:14px">The LLM (deepseek-v3) '
+                'reads these numbers and writes the plain-language rationale. It is advisory — it '
+                'never sets the probability, the size, or the gate decision.</p>',
+                unsafe_allow_html=True)
 
 # ---- bottom-pinned chat input (Terminal only) -----------------------------
 if page == "Terminal":

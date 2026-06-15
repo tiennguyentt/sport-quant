@@ -56,6 +56,7 @@ body{ font-family:'ppNeueMontreal','kensmark',sans-serif; color:var(--ink); min-
 .hero .g{ color:var(--lime);text-shadow:0 0 22px rgba(146,206,83,.45); }
 .filter{ font-family:'IBM Plex Mono';font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:9px;padding:9px 14px;white-space:nowrap;flex:none; }
 .sub{ color:var(--muted);font-size:14px;margin-bottom:16px; }
+.dk-flow{ display:flex;align-items:stretch;gap:0;margin:8px 0 0; }.fl-node{ flex:1;min-width:0;background:rgba(17,21,15,.7);border:1px solid var(--line);border-radius:12px;padding:14px 8px 12px;text-align:center;opacity:0;animation:flin .55s ease forwards; }.fl-node.sc{ border-color:#3a521f;box-shadow:0 0 18px rgba(146,206,83,.14); }.fl-ic{ font-family:'kensmark';font-size:21px;color:var(--lime);line-height:1;text-shadow:0 0 12px rgba(146,206,83,.5); }.fl-t{ font-family:'kensmark';font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:.04em;margin-top:7px; }.fl-s{ font-family:'IBM Plex Mono';font-size:9px;color:var(--dim);margin-top:3px; }.fl-link{ flex:0 0 30px;align-self:center;height:2px;background:var(--line);position:relative; }.fl-link i{ position:absolute;top:-2px;width:6px;height:6px;border-radius:50%;background:var(--lime);box-shadow:0 0 9px var(--lime);animation:fldot 1.9s linear infinite; }@keyframes fldot{ 0%{left:-3px;opacity:0;} 12%{opacity:1;} 88%{opacity:1;} 100%{left:calc(100% - 3px);opacity:0;} }@keyframes flin{ from{opacity:0;transform:translateY(9px);} to{opacity:1;transform:none;} }.dk-flowllm{ display:flex;align-items:center;margin:0 0 20px;padding-left:calc(16.66% - 10px); }.fl-branch{ width:1px;height:18px;border-left:1px dashed #3a521f; }.fl-chip{ font-family:'IBM Plex Mono';font-size:10.5px;color:var(--muted);border:1px solid var(--line);border-left:none;border-radius:0 8px 8px 0;padding:5px 11px;margin-top:18px;background:rgba(13,16,11,.6); }
 .thesis{ display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:13px;overflow:hidden;margin:4px 0 20px; }
 .th{ background:rgba(17,21,15,.7);padding:15px 16px; }
 .th .k{ font-family:'IBM Plex Mono';font-size:10.5px;letter-spacing:.14em;color:var(--lime);margin-bottom:8px; }
@@ -84,6 +85,7 @@ img.ph{ padding:3px;background:#0e130b; }
 .scrub i{ width:2px;background:var(--dim);border-radius:1px; } .scrub i:nth-child(even){ height:13px } .scrub i:nth-child(odd){ height:8px } .scrub i:nth-child(7n){ height:20px;background:var(--lime);opacity:.7 }
 
 /* chat */
+.dk-footer{ display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;border-top:1px solid var(--line);margin:26px 0 4px;padding:14px 2px 2px; }.ft-brand{ display:flex;align-items:center;gap:10px;font-family:'IBM Plex Mono';font-size:12px;color:var(--muted); }.ft-brand b{ font-family:'kensmark';font-weight:800;font-size:13px;letter-spacing:.02em;color:var(--ink); }.ft-tag{ color:var(--dim);letter-spacing:.13em;text-transform:uppercase;font-size:10px; }.ft-dot{ width:7px;height:7px;border-radius:50%;background:var(--lime);box-shadow:0 0 9px var(--lime);animation:blink 1.7s infinite; }.ft-right{ display:flex;gap:7px;flex-wrap:wrap; }.ft-chip{ font-family:'IBM Plex Mono';font-size:10.5px;color:var(--muted);border:1px solid var(--line);border-radius:7px;padding:4px 9px; }.ft-chip b{ color:var(--lime);font-weight:500;letter-spacing:.04em; }
 .wrap{ display:flex;gap:18px;margin-top:16px; }
 .rail{ width:280px;flex:none; }
 .rail-in{ background:rgba(17,21,15,.85);border:1px solid var(--line);border-radius:20px;padding:18px 16px;display:flex;flex-direction:column;min-height:420px; }
@@ -129,14 +131,14 @@ img.ph{ padding:3px;background:#0e130b; }
   <section id="landing">
     <div class="toprow">
       <div>
-        <div class="hero">The <span class="g">Positive-EV</span> terminal. A real model hunts mispriced edges across live matches — and a deterministic risk gate decides which are actually worth a bet.</div>
+        <div class="hero">Find the <span class="g">+EV</span> on <span class="g">Polymarket</span> &amp; <span class="g">Kalshi</span>.</div>
       </div>
       <div class="filter">⬡ All Leagues ▾</div>
     </div>
-    <p class="sub">Pick a fixture and ask the model, or type a question below. The model advises; the code governs.</p>
-    <div class="thesis"><div class="th"><div class="k">THE PROBLEM</div><div class="b">Prediction markets are owned by sharp syndicates with better data and discipline. Most “AI tips” are ungrounded hype — no proof their probabilities are even accurate.</div></div><div class="th"><div class="k">THE METHOD</div><div class="b">Multi-source signals (vision · ELO · xG) become one probability. A <b>deterministic gate</b> — code, not the model — sizes the bet with fractional Kelly and hard caps (max 1%/position). No prompt-gaming.</div></div><div class="th"><div class="k">THE PROOF</div><div class="b">We measure whether the model is actually <b>right</b>: calibration (Brier · ECE), closing-line value, and significant ROI — not just win rate.</div></div></div>
+    
+    <div class="dk-flow"><div class="fl-node" style="animation-delay:0s"><div class="fl-ic">◈</div><div class="fl-t">signals</div><div class="fl-s">ratings·xG·form</div></div><div class="fl-link"><i></i></div><div class="fl-node sc" style="animation-delay:.18s"><div class="fl-ic">∿</div><div class="fl-t">score</div><div class="fl-s">win prob</div></div><div class="fl-link"><i></i></div><div class="fl-node" style="animation-delay:.36s"><div class="fl-ic">Δ</div><div class="fl-t">edge</div><div class="fl-s">vs market</div></div><div class="fl-link"><i></i></div><div class="fl-node" style="animation-delay:.54s"><div class="fl-ic">ƒ</div><div class="fl-t">kelly</div><div class="fl-s">size</div></div><div class="fl-link"><i></i></div><div class="fl-node" style="animation-delay:.72s"><div class="fl-ic">⛓</div><div class="fl-t">gate</div><div class="fl-s">code decides</div></div><div class="fl-link"><i></i></div><div class="fl-node" style="animation-delay:.9s"><div class="fl-ic">◎</div><div class="fl-t">bet</div><div class="fl-s">or skip</div></div></div><div class="dk-flowllm"><span class="fl-branch"></span><span class="fl-chip">✎ LLM · explains the numbers — it does not decide</span></div>
     <div class="cards" id="cards"></div>
-    <div class="scrub" id="scrub"></div>
+    <div class="dk-footer"><div class="ft-brand"><span class="ft-dot"></span><b>sport-quant</b><span class="ft-tag">governed decision engine</span></div><div class="ft-right"><span class="ft-chip"><b>data</b> TheSportsDB · World Cup 2026</span><span class="ft-chip"><b>model</b> deepseek-v3 · advisory</span><span class="ft-chip"><b>gate</b> deterministic · ¼-Kelly · 1%/pos</span><span class="ft-chip"><b>policy</b> v1.3</span></div></div>
   </section>
 
   <!-- CHAT -->
@@ -172,7 +174,6 @@ async function load(){
     `<span style="color:#5a6356">/</span><span class="sc">${s.as_}</span><span class="nm">${s.away}</span>`+
     `${tbadge(s.away,s.away_badge)}<span class="mn">${s.min}</span></span>`).join('');
   document.getElementById('cards').innerHTML = FIX.map(card).join('');
-  document.getElementById('scrub').innerHTML = Array(72).fill('<i></i>').join('');
   if(location.hash === '#chat' && FIX.length) ask(FIX[0].event);
 }
 function card(f){

@@ -90,6 +90,21 @@ html,body,[class*="css"]{ font-family:'ppNeueMontreal','kensmark',sans-serif; }
 .dk-hero{ font-family:'ppNeueMontreal',sans-serif;font-weight:700;font-size:30px;line-height:1.15;letter-spacing:-.02em;max-width:620px;margin:6px 0 4px; }
 .dk-hero .g{ color:var(--lime); }
 .dk-sub{ color:var(--muted);font-size:14px;margin:0 0 16px;max-width:660px; }
+/* animated pipeline diagram (explains the flow visually) */
+.dk-flow{ display:flex;align-items:stretch;gap:0;margin:8px 0 0;flex-wrap:nowrap; }
+.fl-node{ flex:1;min-width:0;background:rgba(17,21,15,.7);border:1px solid var(--line);border-radius:12px;
+          padding:14px 8px 12px;text-align:center;opacity:0;animation:flin .55s ease forwards; }
+.fl-node.sc{ border-color:#3a521f;box-shadow:0 0 18px rgba(146,206,83,.14); }
+.fl-ic{ font-family:'kensmark';font-size:21px;color:var(--lime);line-height:1;text-shadow:0 0 12px rgba(146,206,83,.5); }
+.fl-t{ font-family:'kensmark';font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:.04em;margin-top:7px; }
+.fl-s{ font-family:'IBM Plex Mono';font-size:9px;color:var(--dim);margin-top:3px;letter-spacing:.02em; }
+.fl-link{ flex:0 0 30px;align-self:center;height:2px;background:var(--line);position:relative; }
+.fl-link i{ position:absolute;top:-2px;width:6px;height:6px;border-radius:50%;background:var(--lime);box-shadow:0 0 9px var(--lime);animation:fldot 1.9s linear infinite; }
+@keyframes fldot{ 0%{left:-3px;opacity:0;} 12%{opacity:1;} 88%{opacity:1;} 100%{left:calc(100% - 3px);opacity:0;} }
+@keyframes flin{ from{opacity:0;transform:translateY(9px);} to{opacity:1;transform:none;} }
+.dk-flowllm{ display:flex;align-items:center;gap:0;margin:0 0 20px;padding-left:calc(16.66% - 10px); }
+.fl-branch{ width:1px;height:18px;border-left:1px dashed #3a521f; }
+.fl-chip{ font-family:'IBM Plex Mono';font-size:10.5px;color:var(--muted);border:1px solid var(--line);border-left:none;border-radius:0 8px 8px 0;padding:5px 11px;margin-top:18px;background:rgba(13,16,11,.6); }
 .dk-thesis{ display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:13px;overflow:hidden;margin:4px 0 20px; }
 .dk-th{ background:rgba(17,21,15,.7);padding:15px 16px; }
 .dk-th .k{ font-family:'IBM Plex Mono';font-size:10.5px;letter-spacing:.14em;color:var(--lime);margin-bottom:8px; }
@@ -179,9 +194,16 @@ img.dk-cir{ object-fit:contain; background:#0e130b; padding:1px; }
 .dk-status{ text-align:right;font-family:'IBM Plex Mono';font-size:12px;color:var(--muted);padding-top:7px; }
 .dk-status .on{ color:var(--lime); }
 .dk-filter{ font-family:'IBM Plex Mono';font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:9px;padding:8px 13px;float:right;margin-top:14px; }
-.dk-scrub{ display:flex;gap:3px;justify-content:center;align-items:center;height:24px;margin:16px 0 6px; }
-.dk-scrub i{ width:2px;background:var(--dim);border-radius:1px;display:inline-block; }
-.dk-scrub i:nth-child(odd){ height:8px; } .dk-scrub i:nth-child(even){ height:13px; } .dk-scrub i:nth-child(7n){ height:20px;background:var(--lime);opacity:.7; }
+/* terminal status footer (replaces the scrubber) */
+.dk-footer{ display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+            border-top:1px solid var(--line);margin:26px 0 4px;padding:14px 2px 2px; }
+.ft-brand{ display:flex;align-items:center;gap:10px;font-family:'IBM Plex Mono';font-size:12px;color:var(--muted); }
+.ft-brand b{ font-family:'kensmark';font-weight:800;font-size:13px;letter-spacing:.02em;color:var(--ink); }
+.ft-tag{ color:var(--dim);letter-spacing:.13em;text-transform:uppercase;font-size:10px; }
+.ft-dot{ width:7px;height:7px;border-radius:50%;background:var(--lime);box-shadow:0 0 9px var(--lime);animation:dkb 1.7s infinite; }
+.ft-right{ display:flex;gap:7px;flex-wrap:wrap; }
+.ft-chip{ font-family:'IBM Plex Mono';font-size:10.5px;color:var(--muted);border:1px solid var(--line);border-radius:7px;padding:4px 9px;transition:border-color .15s; }
+.ft-chip:hover{ border-color:#3a521f; } .ft-chip b{ color:var(--lime);font-weight:500;letter-spacing:.04em; }
 div[role="radiogroup"]{ gap:2px; justify-content:center; }
 div[role="radiogroup"] label{ padding:5px 14px;border-radius:8px;font-size:13px;color:var(--muted); }
 div[role="radiogroup"] label:hover{ background:#161b12;color:var(--ink); }
@@ -296,6 +318,45 @@ def engine_msg(body_html: str, ts: str = "") -> str:
 
 def chat_panel(bubbles: str) -> str:
     return f'<div class="dk-chat">{bubbles}</div>'
+
+
+def flow() -> str:
+    """Animated pipeline diagram — explains the system visually, not in prose.
+    signals → score → edge → kelly → gate → bet, with the LLM as a side branch."""
+    nodes = [
+        ("◈", "signals", "ratings·xG·form"),
+        ("∿", "score", "win prob"),
+        ("Δ", "edge", "vs market"),
+        ("ƒ", "kelly", "size"),
+        ("⛓", "gate", "code decides"),
+        ("◎", "bet", "or skip"),
+    ]
+    parts = ""
+    for i, (ic, t, s) in enumerate(nodes):
+        if i:
+            parts += '<div class="fl-link"><i></i></div>'
+        cls = "fl-node sc" if t == "score" else "fl-node"
+        parts += (f'<div class="{cls}" style="animation-delay:{i*0.18:.2f}s">'
+                  f'<div class="fl-ic">{ic}</div><div class="fl-t">{t}</div>'
+                  f'<div class="fl-s">{s}</div></div>')
+    return (f'<div class="dk-flow">{parts}</div>'
+            f'<div class="dk-flowllm"><span class="fl-branch"></span>'
+            f'<span class="fl-chip">✎ LLM · explains the numbers — it does not decide</span></div>')
+
+
+def footer() -> str:
+    """A clean terminal status bar — honest system facts, on-brand mono chips."""
+    chips = [
+        ("data", "TheSportsDB · World Cup 2026"),
+        ("model", "deepseek-v3 · advisory"),
+        ("gate", "deterministic · ¼-Kelly · 1%/pos"),
+        ("policy", "v1.3"),
+    ]
+    right = "".join(f'<span class="ft-chip"><b>{k}</b> {v}</span>' for k, v in chips)
+    return ('<div class="dk-footer">'
+            '<div class="ft-brand"><span class="ft-dot"></span><b>sport-quant</b>'
+            '<span class="ft-tag">governed decision engine</span></div>'
+            f'<div class="ft-right">{right}</div></div>')
 
 
 def thesis() -> str:

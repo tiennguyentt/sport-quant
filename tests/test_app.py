@@ -19,8 +19,8 @@ def at():
 def test_terminal_is_front_door(at):
     assert at.radio[0].value == "Terminal"
     body = " ".join(getattr(m, "value", "") or "" for m in at.markdown)
-    assert "positive-ev" in body.lower()
-    assert "THE PROBLEM" in body and "THE METHOD" in body  # thesis band present
+    assert "polymarket" in body.lower()  # hero targets Polymarket & Kalshi
+    assert "kelly" in body.lower() and "gate" in body.lower()  # the animated flow diagram
     assert "LIVE SCORE TRACKER" in body  # ticker present
 
 
