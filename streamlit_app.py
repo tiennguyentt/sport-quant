@@ -116,24 +116,37 @@ def _ask_box(key: str) -> None:
         st.rerun()
 
 
-MODEL_MAP = {"deepseek-chat": "deepseek/deepseek-chat", "deepseek-v4": "deepseek/deepseek-v4-pro"}
+# deepseek-v4 is the default engine; deepseek-chat is the optional lighter pick.
+MODEL_MAP = {"deepseek-v4": "deepseek/deepseek-v4-pro", "deepseek-chat": "deepseek/deepseek-chat"}
 
-# ---- top header strip (brand · nav · model · status) ----------------------
-hc1, hc2, hc3, hc4 = st.columns([0.26, 0.40, 0.20, 0.14], gap="small")
+
+def _go_home() -> None:
+    """Return to the default Terminal landing and start a fresh session.
+
+    Runs as a widget callback (before the next rerun), so it may safely reset the
+    nav radio's keyed state — the fix for 'can't get back to the default screen'.
+    """
+    st.session_state["nav_page"] = "Terminal"
+    st.session_state.pop("thread", None)
+    st.session_state.pop("pending", None)
+
+
+# ---- top header strip (brand · nav · model · home) ------------------------
+hc1, hc2, hc3, hc4 = st.columns([0.24, 0.40, 0.20, 0.16], gap="small")
 with hc1:
     st.markdown(f'<div class="dk-head"><span class="dk-hmark">◆</span><b>{BRAND}</b>'
                 f'<span class="dk-clock">{datetime.now().strftime("%I:%M %p")}</span>'
                 f'<span class="dk-dots"><i></i><i></i><i></i></span></div>', unsafe_allow_html=True)
 with hc2:
     page = st.radio("nav", ["Terminal", "Performance", "Calibration", "About"],
-                    horizontal=True, label_visibility="collapsed")
+                    key="nav_page", horizontal=True, label_visibility="collapsed")
 with hc3:
     st.selectbox("model", list(MODEL_MAP), key="model_choice", label_visibility="collapsed")
 with hc4:
-    st.markdown('<div class="dk-status">engine&nbsp;<span class="on">●</span></div>',
-                unsafe_allow_html=True)
+    st.button("⌂ Home", on_click=_go_home, use_container_width=True,
+              help="Back to the terminal home screen")
 
-SEL_MODEL = MODEL_MAP.get(st.session_state.get("model_choice", "deepseek-chat"))
+SEL_MODEL = MODEL_MAP.get(st.session_state.get("model_choice", "deepseek-v4"))
 
 st.markdown(theme.ticker(LIVE), unsafe_allow_html=True)
 
@@ -168,10 +181,7 @@ elif in_chat:
     rail_col, main = st.columns([0.23, 0.77], gap="medium")
     with rail_col:
         st.markdown(theme.rail(BRAND, "100,000.00"), unsafe_allow_html=True)
-        if st.button("← Home  ·  new session", use_container_width=True):
-            st.session_state.pop("thread", None)
-            st.session_state.pop("pending", None)
-            st.rerun()
+        st.button("← Home  ·  new session", on_click=_go_home, use_container_width=True)
         st.markdown('<div class="dk-foot">▢ Documentation<br>⚙ Settings<br>'
                     '<span class="on">● engine connected</span></div>', unsafe_allow_html=True)
     with main:
@@ -183,6 +193,11 @@ elif in_chat:
             st.markdown(theme.chat_panel(bubbles), unsafe_allow_html=True)
         if pending:
             f = next((x for x in FIX if x["event"] == pending["event"]), None)
+            if not f:
+                # the queued match is no longer in the fixture list (live data refreshed) —
+                # drop it instead of trapping the user in an empty chat view.
+                st.session_state.pop("pending", None)
+                st.rerun()
             if f:
                 d = _decide(f)
                 # echo the human's actual words; fall back to a default for card clicks

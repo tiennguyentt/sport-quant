@@ -15,7 +15,7 @@ gates every bet. **Models advise, code governs.**
 | **size** | **fractional Kelly** `f* = (b·p − (1−p))/b`, capped at 1% per position |
 | **gate** | a deterministic, code-enforced checklist (min edge, confidence, disagreement, exposure caps) the model cannot override |
 | **prove** | calibration that asks *is the model accurate?* — Brier, ECE, CLV, ROI (not just win rate) |
-| **explain** | an LLM (deepseek-v3) reads the numbers and writes the plain-language rationale — advisory only |
+| **explain** | an LLM (deepseek-v4 by default, deepseek-chat optional) reads the numbers and writes the plain-language rationale — advisory only |
 
 Live World Cup 2026 fixtures + scores come from TheSportsDB. The LLM streams from OpenRouter.
 
