@@ -10,6 +10,7 @@ import os
 from datetime import datetime
 
 import streamlit as st
+from PIL import Image, ImageDraw
 
 import theme
 from data import (LIVE_SCORES, REASONINGS, fixtures, recorded_run,
@@ -20,7 +21,30 @@ import llm
 
 BRAND = "Sport Quant"
 
-st.set_page_config(page_title="Sport Quant terminal", page_icon="📈", layout="wide",
+
+def _favicon() -> Image.Image:
+    """Branded favicon: dark panel + brand-green border + lime ◆ with soft glow.
+    Matches the dk-mark component in the design system exactly.
+    Passed as a PIL Image so Streamlit embeds it in <head> — overrides any body-level link."""
+    S = 64
+    img = Image.new("RGBA", (S, S), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    # outer dark background
+    d.rounded_rectangle([0, 0, S - 1, S - 1], radius=14, fill=(6, 6, 7, 255))
+    # inner panel with brand-green border (mirrors dk-mark: #0d120b bg, #2c3a22 border)
+    d.rounded_rectangle([3, 3, S - 4, S - 4], radius=10,
+                        fill=(13, 18, 11, 255), outline=(44, 58, 34, 255), width=2)
+    # lime ◆ diamond (#92CE53)
+    cx, pad = S // 2, 10
+    d.polygon([(cx, pad), (S - pad, cx), (cx, S - pad), (pad, cx)],
+              fill=(146, 206, 83, 255))
+    # inner highlight stroke for depth
+    d.polygon([(cx, pad + 6), (S - pad - 6, cx), (cx, S - pad - 6), (pad + 6, cx)],
+              outline=(184, 232, 122, 100), width=1)
+    return img
+
+
+st.set_page_config(page_title="Sport Quant terminal", page_icon=_favicon(), layout="wide",
                    initial_sidebar_state="collapsed")
 theme.inject_css()
 
@@ -347,6 +371,39 @@ elif page == "About":
         st.markdown(f'<div class="sq-kick" style="margin-top:18px">{num} · {title}</div>'
                     f'<p style="color:var(--muted);font-size:13px;margin:2px 0 6px">{note}</p>',
                     unsafe_allow_html=True)
+
+    _stage("00", "SIGNALS — Computer Vision Player Tracking",
+           "Raw video frames enter a YOLO detection pass that produces bounding boxes for every "
+           "player on the pitch. A Kalman-filter tracker (SORT / ByteTrack-style) assigns stable "
+           "IDs and estimates velocity across frames. The resulting position + velocity packets "
+           "feed the scoring ensemble as real-time signal inputs. "
+           "The same pipeline architecture (Score Vision, Bittensor SN44) processed "
+           "4 million packets in production — this is not a backtest toy.")
+    st.markdown('<p style="color:var(--dim);font-size:12px;margin:6px 0 2px">'
+                'Constant-velocity model (simplest baseline):</p>', unsafe_allow_html=True)
+    st.latex(
+        r"c_{x,\text{pred}} = c_x + v_x\,\Delta t \qquad c_{y,\text{pred}} = c_y + v_y\,\Delta t"
+        r"\qquad (\Delta t \approx 0.033\,\text{s at 30 fps})"
+    )
+    st.markdown('<p style="color:var(--dim);font-size:12px;margin:10px 0 2px">'
+                'Kalman Filter — prediction step (what production trackers actually run):</p>',
+                unsafe_allow_html=True)
+    st.latex(
+        r"\mathbf{x} = \begin{bmatrix} c_x \\ c_y \\ v_x \\ v_y \end{bmatrix}, \qquad"
+        r"\hat{\mathbf{x}}_{t+1} = F\,\hat{\mathbf{x}}_t, \qquad"
+        r"F = \begin{pmatrix} 1 & 0 & \Delta t & 0 \\ 0 & 1 & 0 & \Delta t \\"
+        r"0 & 0 & 1 & 0 \\ 0 & 0 & 0 & 1 \end{pmatrix}"
+    )
+    st.latex(r"P_{\text{pred}} = F\,P\,F^\top + Q")
+    st.markdown(
+        '<p style="color:var(--dim);font-size:12px;margin:4px 0 6px">'
+        r'\(P\) = current position/velocity uncertainty · '
+        r'\(Q\) = process noise (accounts for sudden acceleration) · '
+        r'\(F^\top\) = transpose of the state-transition matrix. '
+        'After prediction, detections are matched to tracks by IoU; '
+        'the Kalman update step corrects the state estimate.</p>',
+        unsafe_allow_html=True
+    )
 
     _stage("01", "SCORE — Elo + Dixon-Coles ensemble",
            "Two base models produce a probability; a meta-ensemble blends them. No LLM here.")
