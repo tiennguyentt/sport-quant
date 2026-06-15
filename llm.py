@@ -35,14 +35,14 @@ def _prompt(f: dict, edge_pct: float) -> str:
     )
 
 
-def stream_analysis(f: dict, edge_pct: float, fallback: str = ""):
+def stream_analysis(f: dict, edge_pct: float, fallback: str = "", model: str | None = None):
     """Yield analysis text chunk-by-chunk. Streams from OpenRouter when a key is set."""
     key = os.getenv("OPENROUTER_API_KEY")
     if os.getenv("SPORTQUANT_OFFLINE") or not key:
         yield fallback or "Live model not configured on this deployment; showing the gate verdict only."
         return
     body = {
-        "model": MODEL, "stream": True, "max_tokens": 240, "temperature": 0.4,
+        "model": model or MODEL, "stream": True, "max_tokens": 240, "temperature": 0.4,
         "messages": [{"role": "system", "content": _SYS},
                      {"role": "user", "content": _prompt(f, edge_pct)}],
     }

@@ -102,9 +102,24 @@ def _ask(event_name: str, user_text: str | None = None) -> None:
     st.session_state["pending"] = {"event": event_name, "text": user_text}
 
 
-# ---- full-width live ticker (top) -----------------------------------------
-# ---- top header strip (brand · clock · nav · status) ----------------------
-hc1, hc2, hc3 = st.columns([0.30, 0.46, 0.24], gap="small")
+def _ask_box(key: str) -> None:
+    """In-body chat input (a styled form) — fully customizable, no pinned footer bar."""
+    with st.form(key, clear_on_submit=True, border=False):
+        c1, c2 = st.columns([0.86, 0.14], gap="small")
+        q = c1.text_input("ask", placeholder="Ask about a match, or a team name",
+                          label_visibility="collapsed")
+        go = c2.form_submit_button("Ask  ➤", use_container_width=True)
+    if go and q.strip():
+        m = next((f for f in FIX if any(w in f["event"].lower() for w in q.lower().split())), None) \
+            or max(FIX, key=lambda f: edge(f["model_p"], f["odds"]))
+        _ask(m["event"], q.strip())
+        st.rerun()
+
+
+MODEL_MAP = {"deepseek-chat": "deepseek/deepseek-chat", "deepseek-v4": "deepseek/deepseek-v4-pro"}
+
+# ---- top header strip (brand · nav · model · status) ----------------------
+hc1, hc2, hc3, hc4 = st.columns([0.26, 0.40, 0.20, 0.14], gap="small")
 with hc1:
     st.markdown(f'<div class="dk-head"><span class="dk-hmark">◆</span><b>{BRAND}</b>'
                 f'<span class="dk-clock">{datetime.now().strftime("%I:%M %p")}</span>'
@@ -113,8 +128,12 @@ with hc2:
     page = st.radio("nav", ["Terminal", "Performance", "Calibration", "About"],
                     horizontal=True, label_visibility="collapsed")
 with hc3:
+    st.selectbox("model", list(MODEL_MAP), key="model_choice", label_visibility="collapsed")
+with hc4:
     st.markdown('<div class="dk-status">engine&nbsp;<span class="on">●</span></div>',
                 unsafe_allow_html=True)
+
+SEL_MODEL = MODEL_MAP.get(st.session_state.get("model_choice", "deepseek-chat"))
 
 st.markdown(theme.ticker(LIVE), unsafe_allow_html=True)
 
@@ -141,7 +160,8 @@ if page == "Terminal" and not in_chat:
                 if st.button("Ask the model", key=f'ask_{f["event"]}', use_container_width=True):
                     _ask(f["event"])
                     st.rerun()
-    # no status-bar footer — the bottom is just the chat input (like the reference)
+    st.markdown('<div style="height:8px"></div>', unsafe_allow_html=True)
+    _ask_box("ask_landing")
 
 elif in_chat:
     # ===== CHAT (matches 19.11.51): rail | chat panel ========================
@@ -171,13 +191,16 @@ elif in_chat:
                 st.markdown('<div class="dk-msg"><div class="dk-av a">◆</div>'
                             '<div class="dk-txt" style="padding-top:2px">', unsafe_allow_html=True)
                 streamed = st.write_stream(
-                    llm.stream_analysis(f, d["edge"] * 100, _fallback_reasoning(f)))
+                    llm.stream_analysis(f, d["edge"] * 100, _fallback_reasoning(f), model=SEL_MODEL))
                 st.markdown("</div></div>", unsafe_allow_html=True)
                 thread = st.session_state.setdefault("thread", [])
                 thread.append(("u", q))
                 thread.append(("a", f"{streamed}{_verdict_html(d)}"))
                 st.session_state.pop("pending", None)
                 st.rerun()
+        if not pending:
+            st.markdown('<div style="height:10px"></div>', unsafe_allow_html=True)
+            _ask_box("ask_chat")
 
 elif page == "Performance":
     if True:
@@ -305,18 +328,6 @@ elif page == "About":
     st.latex(r"\text{Brier}=\tfrac1n\!\sum (p_i-o_i)^2,\quad "
              r"\text{ECE}=\sum_b \tfrac{n_b}{n}\,\lvert \text{acc}_b-\text{conf}_b\rvert,\quad "
              r"\text{CLV}=\tfrac{O_{bet}}{O_{close}}-1")
-    st.markdown('<p style="color:var(--dim);font-size:12px;margin-top:14px">The LLM (deepseek-v3) '
+    st.markdown('<p style="color:var(--dim);font-size:12px;margin-top:14px">The LLM (selectable above) '
                 'reads these numbers and writes the plain-language rationale. It is advisory — it '
-                'never sets the probability, the size, or the gate decision.</p>',
-                unsafe_allow_html=True)
-
-# ---- bottom-pinned chat input (Terminal only) -----------------------------
-if page == "Terminal":
-    prompt = st.chat_input("Ask about a match, e.g. “best edge tonight?” or a team name")
-    if prompt:
-        match = next((f for f in FIX if any(w in f["event"].lower() for w in prompt.lower().split())
-                      or prompt.lower() in f["event"].lower()), None)
-        if match is None:
-            match = max(FIX, key=lambda f: edge(f["model_p"], f["odds"]))
-        _ask(match["event"], prompt)  # echo exactly what the user typed
-        st.rerun()
+                'never sets the probability, the size, or the gate decision.</p>', unsafe_allow_html=True)

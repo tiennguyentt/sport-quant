@@ -32,7 +32,8 @@ def test_about_has_the_math(at):
 
 
 def test_ask_routes_through_gate(at):
-    at.chat_input[0].set_value("Bayern vs Werder Bremen").run()
+    at.text_input[0].set_value("Bayern vs Werder Bremen")  # in-body chat form
+    next(b for b in at.button if "➤" in b.label).click().run()
     assert not at.exception, at.exception
     assert len(at.session_state["thread"]) == 2  # user + engine reply
 

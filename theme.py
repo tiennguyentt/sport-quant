@@ -185,6 +185,14 @@ img.dk-cir{ object-fit:contain; background:#0e130b; padding:1px; }
 [data-testid="stChatInput"] textarea{ font-family:'ppNeueMontreal',sans-serif; color:var(--ink); }
 [data-testid="stChatInput"] textarea::placeholder{ color:var(--dim); font-family:'ppNeueMontreal',sans-serif; }
 [data-testid="stChatInput"] button{ background:var(--lime)!important; color:#060607!important; border-radius:9px; box-shadow:0 0 14px rgba(146,206,83,.3); }
+/* in-body chat input (a styled form) — fully customizable, no pinned footer */
+[data-testid="stForm"]{ border:none!important; padding:0!important; background:transparent!important; }
+[data-testid="stTextInput"] input{ background:rgba(17,21,15,.92); border:1px solid var(--line); border-radius:12px; color:var(--ink); font-family:'ppNeueMontreal',sans-serif; font-size:14px; padding:13px 16px; }
+[data-testid="stTextInput"] input::placeholder{ color:var(--dim); }
+[data-testid="stTextInput"] input:focus{ border-color:#3a521f; box-shadow:none; }
+[data-testid="stForm"] .stButton>button{ padding:13px 0; border-radius:12px; box-shadow:0 0 14px rgba(146,206,83,.3); }
+/* model selectbox in the header */
+[data-testid="stSelectbox"] div[data-baseweb="select"]>div{ background:rgba(17,21,15,.9); border:1px solid var(--line); border-radius:9px; font-family:'IBM Plex Mono'; font-size:12px; color:var(--ink); min-height:34px; }
 [data-testid="stSidebar"] .stRadio label{ font-size:13px; }
 /* landing top header */
 .dk-head{ display:flex; align-items:center; gap:11px; padding:2px 0 2px; }
