@@ -119,7 +119,7 @@ def _ask_box(key: str) -> None:
 
 
 # deepseek-v4 is the default engine; deepseek-chat is the optional lighter pick.
-MODEL_MAP = {"deepseek-v4": "deepseek/deepseek-v4-pro", "deepseek-chat": "deepseek/deepseek-chat"}
+MODEL_MAP = {"deepseek-v3": "deepseek/deepseek-chat-v3-0324", "deepseek-chat": "deepseek/deepseek-chat"}
 
 
 def _go_home() -> None:

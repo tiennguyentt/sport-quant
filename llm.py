@@ -53,6 +53,7 @@ def stream_analysis(f: dict, edge_pct: float, fallback: str = "", model: str | N
     )
     try:
         with urllib.request.urlopen(req, timeout=45) as r:
+            yielded = False
             for raw in r:
                 line = raw.decode("utf-8", "ignore").strip()
                 if not line.startswith("data: "):
@@ -65,7 +66,11 @@ def stream_analysis(f: dict, edge_pct: float, fallback: str = "", model: str | N
                 except Exception:
                     continue
                 if delta:
+                    yielded = True
                     yield delta
+            if not yielded:
+                yield (fallback + "  \n\n_(model returned no content — check model name)_") if fallback else \
+                      "_(model returned no content — check model name or API key)_"
     except Exception as exc:
         yield (fallback + f"  \n\n_(live model unavailable: {exc})_") if fallback else \
               f"_(live model unavailable: {exc})_"

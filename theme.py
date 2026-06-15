@@ -287,8 +287,13 @@ div[role="radiogroup"]{ gap:2px; justify-content:center; }
 div[role="radiogroup"] label{ padding:5px 14px;border-radius:8px;font-size:13px;color:var(--muted); }
 div[role="radiogroup"] label:hover{ background:#161b12;color:var(--ink); }
 div[role="radiogroup"] label>div:first-child{ display:none; }
-/* landing: vertically center hero+cards+scrubber in the remaining viewport */
-.sq-landing{ display:flex; flex-direction:column; justify-content:center; min-height:calc(100vh - 145px); padding-bottom:100px; }
+/* landing: fill the remaining viewport, center content, no page scroll */
+.sq-landing{ display:flex; flex-direction:column; justify-content:center;
+  height:calc(100vh - 145px); max-height:calc(100vh - 145px);
+  overflow:hidden; padding-bottom:90px; box-sizing:border-box; }
+/* kill vertical scrollbar when the landing fills the whole screen */
+[data-testid="stMainBlockContainer"]:has(.sq-landing),
+.block-container:has(.sq-landing){ overflow:hidden !important; }
 /* thinking state — shown while waiting for the first LLM token */
 .sq-thinking{ display:flex;align-items:center;gap:12px;padding-top:6px; }
 .sq-thinking .sq-tl{ font-family:'IBM Plex Mono';font-size:11.5px;color:var(--muted);letter-spacing:.1em; }
