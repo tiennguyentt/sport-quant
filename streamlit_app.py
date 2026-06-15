@@ -142,7 +142,7 @@ if page == "Terminal" and not in_chat:
                 if st.button("Ask the model", key=f'ask_{f["event"]}', use_container_width=True):
                     _ask(f["event"])
                     st.rerun()
-    st.markdown(theme.footer(), unsafe_allow_html=True)
+    # no status-bar footer — the bottom is just the chat input (like the reference)
 
 elif in_chat:
     # ===== CHAT (matches 19.11.51): rail | chat panel ========================

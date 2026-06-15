@@ -178,8 +178,10 @@ img.dk-cir{ object-fit:contain; background:#0e130b; padding:1px; }
 .stButton>button{ background:var(--lime); color:#060607; border:none; border-radius:9px; font-family:'kensmark'; font-weight:700; font-size:12px; padding:8px 0; letter-spacing:.02em; transition:.15s; }
 .stButton>button:hover{ background:#B7F564; color:#060607; transform:translateY(-1px); }
 .stButton>button:focus{ box-shadow:none;color:#060607; }
-[data-testid="stChatInput"]{ background:rgba(17,21,15,.85); border:1px solid var(--line); border-radius:14px; }
-[data-testid="stChatInput"] textarea{ font-family:'kensmark'; color:var(--ink); }
+[data-testid="stChatInput"]{ background:rgba(17,21,15,.9); border:1px solid var(--line); border-radius:14px; position:relative; }
+[data-testid="stChatInput"]::before{ content:"📎     🎤"; position:absolute; left:17px; top:50%; transform:translateY(-50%); font-size:14px; opacity:.5; z-index:3; pointer-events:none; }
+[data-testid="stChatInput"] textarea{ font-family:'ppNeueMontreal',sans-serif; color:var(--ink); padding-left:74px!important; }
+[data-testid="stChatInput"] textarea::placeholder{ color:var(--dim); }
 [data-testid="stChatInput"] button{ background:var(--lime)!important; color:#060607!important; border-radius:9px; }
 [data-testid="stSidebar"] .stRadio label{ font-size:13px; }
 /* landing top header */
