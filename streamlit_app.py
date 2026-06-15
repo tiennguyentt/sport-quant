@@ -180,7 +180,7 @@ with hc1:
     st.button(f":green[◆]  {BRAND}", key="home_brand", on_click=_go_home,
               help="Back to the terminal home")
 with hc2:
-    with st.popover("☰", use_container_width=True):
+    with st.popover("☰", use_container_width=False):
         st.markdown('<div class="menu-sec">Navigate</div>', unsafe_allow_html=True)
         page = st.radio("nav", ["Terminal", "Performance", "Calibration", "About"],
                         key="nav_page", label_visibility="collapsed")

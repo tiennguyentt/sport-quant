@@ -79,6 +79,18 @@ html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
   color:var(--ink);
 }
 #MainMenu,header[data-testid="stHeader"],footer{ display:none!important; }
+/* hide Streamlit Cloud chrome that floats over the composer (status widget,
+   manage-app badge, deploy button, "hosted with Streamlit" viewer badge,
+   top decoration bar). Mostly owner-only, but cleared so nothing collides. */
+[data-testid="stStatusWidget"],
+[data-testid="stToolbar"],
+[data-testid="stDecoration"],
+[data-testid="stAppDeployButton"],
+.stAppDeployButton,
+[data-testid="stAppViewBlockContainer"]>[data-testid="stDecoration"],
+[class*="viewerBadge"],
+a[href*="streamlit.io/cloud"],
+a[href*="share.streamlit.io"]{ display:none!important; }
 [data-testid="stAppViewContainer"]>.main .block-container,
 [data-testid="stMainBlockContainer"], .block-container{ padding:.6rem 1.4rem 4.5rem!important; max-width:1240px; }
 .num{ font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums; }
@@ -343,8 +355,12 @@ section.main:has(.sq-landing),
 /* top bar stays ONE row: wordmark left, hamburger icon right (never wraps) */
 [data-testid="stHorizontalBlock"]:has(.st-key-home_brand){ flex-wrap:nowrap !important; align-items:center; }
 [data-testid="stHorizontalBlock"]:has(.st-key-home_brand) [data-testid="stColumn"]{ min-width:0 !important; }
-/* hamburger trigger = a compact square-ish icon, the ☰ centred and legible */
-[data-testid="stPopover"] button{ font-size:17px!important; padding:6px 0!important; }
+/* hamburger trigger = a centred SQUARE ☰ icon button, pinned to the right edge */
+[data-testid="stPopover"]{ display:flex!important; justify-content:flex-end!important; }
+[data-testid="stPopover"] button{ width:44px!important; min-width:44px!important;
+  height:44px!important; min-height:44px!important; padding:0!important;
+  display:flex!important; align-items:center!important; justify-content:center!important;
+  font-size:18px!important; line-height:1!important; }
 /* thinking state — shown while waiting for the first LLM token */
 .sq-thinking{ display:flex;align-items:center;gap:12px;padding-top:6px; }
 .sq-thinking .sq-tl{ font-family:'IBM Plex Mono';font-size:11.5px;color:var(--muted);letter-spacing:.1em; }
