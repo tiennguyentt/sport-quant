@@ -367,8 +367,8 @@ section.main:has(.sq-landing),
 /* top bar stays ONE row: wordmark left, hamburger icon right (never wraps) */
 [data-testid="stHorizontalBlock"]:has(.st-key-home_brand){ flex-wrap:nowrap !important; align-items:center; }
 [data-testid="stHorizontalBlock"]:has(.st-key-home_brand) [data-testid="stColumn"]{ min-width:0 !important; }
-/* pin the hamburger to the header's right edge */
-[data-testid="stPopover"]{ display:flex!important; justify-content:flex-end!important; }
+/* hamburger is MOBILE-ONLY — hidden on desktop, where inline nav tabs show */
+[data-testid="stPopover"]{ display:none!important; justify-content:flex-end!important; }
 /* thinking state — shown while waiting for the first LLM token */
 .sq-thinking{ display:flex;align-items:center;gap:12px;padding-top:6px; }
 .sq-thinking .sq-tl{ font-family:'IBM Plex Mono';font-size:11.5px;color:var(--muted);letter-spacing:.1em; }
@@ -458,6 +458,11 @@ hr{ border-color:var(--line); }
   [data-testid="stForm"] [data-testid="stHorizontalBlock"]{ flex-wrap:nowrap!important; }
   [data-testid="stForm"] [data-testid="stColumn"]{ min-width:0!important; }
   .dk-status, .dk-clock{ display:none; }       /* desktop-only chrome */
+  /* MOBILE header: show the hamburger, drop the inline nav + model columns so
+     the brand and ☰ redistribute to the two edges */
+  [data-testid="stPopover"]{ display:flex!important; }
+  [data-testid="stColumn"]:has(.st-key-nav_top),
+  [data-testid="stColumn"]:has(.st-key-mdl_top){ display:none!important; }
   /* LANDING — undo the viewport lock so the page scrolls naturally on a phone */
   /* landing locked to the dynamic viewport (dvh tracks mobile browser chrome) —
      watermark fills the void, slide pins above the composer, NO page scroll */

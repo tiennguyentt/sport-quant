@@ -167,7 +167,7 @@ def _go_home() -> None:
     Runs as a widget callback (before the next rerun), so it may safely reset the
     nav radio's keyed state — the fix for 'can't get back to the default screen'.
     """
-    st.session_state["nav_page"] = "Terminal"
+    st.session_state["_page"] = "Terminal"
     st.session_state.pop("thread", None)
     st.session_state.pop("pending", None)
 
@@ -175,21 +175,49 @@ def _go_home() -> None:
 # ---- top header strip (brand · hamburger menu) ----------------------------
 # The brand IS the home button; nav + model + status collapse into a single
 # hamburger popover — keeps the header to one compact row on every screen size.
-hc1, hc2 = st.columns([0.82, 0.18], gap="small", vertical_alignment="center")
+NAV = ["Terminal", "Performance", "Calibration", "About"]
+MODELS = list(MODEL_MAP)
+st.session_state.setdefault("_page", "Terminal")
+st.session_state.setdefault("_model", MODELS[0])
+
+
+def _sync(canon: str, widget: str) -> None:
+    """Push a widget copy's value into the canonical state (runs before rerun)."""
+    st.session_state[canon] = st.session_state[widget]
+
+
+# Mirror the canonical value into BOTH widget copies before they render, so the
+# desktop (inline) and mobile (drawer) controls always show the same selection.
+for _k in ("nav_top", "nav_drw"):
+    st.session_state[_k] = st.session_state["_page"]
+for _k in ("mdl_top", "mdl_drw"):
+    st.session_state[_k] = st.session_state["_model"]
+
+# Desktop: brand · inline nav tabs · model.  Mobile (CSS): brand ······ ☰ drawer.
+hc1, hc2, hc3, hc4 = st.columns([0.28, 0.44, 0.16, 0.12], gap="small",
+                                vertical_alignment="center")
 with hc1:
     st.button(f":green[◆]  {BRAND}", key="home_brand", on_click=_go_home,
               help="Back to the terminal home")
-with hc2:
+with hc2:  # inline nav tabs — desktop only (hidden on mobile via CSS)
+    st.radio("nav", NAV, key="nav_top", horizontal=True, label_visibility="collapsed",
+             on_change=_sync, args=("_page", "nav_top"))
+with hc3:  # inline model picker — desktop only
+    st.selectbox("model", MODELS, key="mdl_top", label_visibility="collapsed",
+                 on_change=_sync, args=("_model", "mdl_top"))
+with hc4:  # hamburger → side drawer — mobile only (hidden on desktop via CSS)
     with st.popover("☰", use_container_width=False):
         st.markdown('<div class="menu-sec">Navigate</div>', unsafe_allow_html=True)
-        page = st.radio("nav", ["Terminal", "Performance", "Calibration", "About"],
-                        key="nav_page", label_visibility="collapsed")
+        st.radio("navm", NAV, key="nav_drw", label_visibility="collapsed",
+                 on_change=_sync, args=("_page", "nav_drw"))
         st.markdown('<div class="menu-sec t">Engine model</div>', unsafe_allow_html=True)
-        st.selectbox("model", list(MODEL_MAP), key="model_choice", label_visibility="collapsed")
+        st.selectbox("modelm", MODELS, key="mdl_drw", label_visibility="collapsed",
+                     on_change=_sync, args=("_model", "mdl_drw"))
         st.markdown('<div class="menu-status">engine&nbsp;<span class="on">●</span>&nbsp;'
                     'online · gate governed</div>', unsafe_allow_html=True)
 
-SEL_MODEL = MODEL_MAP.get(st.session_state.get("model_choice", "deepseek-v3"))
+page = st.session_state["_page"]
+SEL_MODEL = MODEL_MAP.get(st.session_state["_model"])
 
 st.markdown(theme.ticker(LIVE), unsafe_allow_html=True)
 
