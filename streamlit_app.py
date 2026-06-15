@@ -131,7 +131,6 @@ if page == "Terminal" and not in_chat:
                     unsafe_allow_html=True)
     with fi:
         st.markdown('<div class="dk-filter">⬡ All Leagues ▾</div>', unsafe_allow_html=True)
-    st.markdown(theme.flow(), unsafe_allow_html=True)
     cards = FIX[:9]
     for rs in range(0, len(cards), 3):
         cols = st.columns(3, gap="small")

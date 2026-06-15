@@ -20,8 +20,15 @@ def test_terminal_is_front_door(at):
     assert at.radio[0].value == "Terminal"
     body = " ".join(getattr(m, "value", "") or "" for m in at.markdown)
     assert "polymarket" in body.lower()  # hero targets Polymarket & Kalshi
-    assert "kelly" in body.lower() and "gate" in body.lower()  # the animated flow diagram
+    assert "venue" in body.lower()       # fixture cards render
     assert "LIVE SCORE TRACKER" in body  # ticker present
+
+
+def test_about_has_the_math(at):
+    at.radio[0].set_value("About").run()
+    assert not at.exception, at.exception
+    body = " ".join(getattr(m, "value", "") or "" for m in at.markdown)
+    assert "dixon" in body.lower() and "kelly" in body.lower()  # the flow + math live here
 
 
 def test_ask_routes_through_gate(at):
