@@ -359,12 +359,8 @@ section.main:has(.sq-landing),
 /* top bar stays ONE row: wordmark left, hamburger icon right (never wraps) */
 [data-testid="stHorizontalBlock"]:has(.st-key-home_brand){ flex-wrap:nowrap !important; align-items:center; }
 [data-testid="stHorizontalBlock"]:has(.st-key-home_brand) [data-testid="stColumn"]{ min-width:0 !important; }
-/* hamburger trigger = a centred SQUARE ☰ icon button, pinned to the right edge */
+/* pin the hamburger to the header's right edge */
 [data-testid="stPopover"]{ display:flex!important; justify-content:flex-end!important; }
-[data-testid="stPopover"] button{ width:44px!important; min-width:44px!important;
-  height:44px!important; min-height:44px!important; padding:0!important;
-  display:flex!important; align-items:center!important; justify-content:center!important;
-  font-size:18px!important; line-height:1!important; }
 /* thinking state — shown while waiting for the first LLM token */
 .sq-thinking{ display:flex;align-items:center;gap:12px;padding-top:6px; }
 .sq-thinking .sq-tl{ font-family:'IBM Plex Mono';font-size:11.5px;color:var(--muted);letter-spacing:.1em; }
@@ -384,17 +380,23 @@ hr{ border-color:var(--line); }
 /* ---- hamburger menu: nav + model + status collapsed into a popover -------- */
 /* trigger = a quiet bordered terminal control (NOT the green CTA button) */
 [data-testid="stPopover"] button{
-  background:rgba(17,21,15,.9)!important; border:1px solid var(--line)!important;
-  color:var(--ink)!important; border-radius:10px!important; box-shadow:none!important;
-  font-family:'IBM Plex Mono'!important; font-weight:500!important; font-size:13px!important;
-  letter-spacing:.03em!important; min-height:38px; transform:none!important; }
+  background:transparent!important; border:none!important; box-shadow:none!important;
+  color:var(--ink)!important; border-radius:8px!important; padding:0!important;
+  width:40px!important; min-width:40px!important; height:40px!important; min-height:40px!important;
+  display:flex!important; align-items:center!important; justify-content:center!important;
+  font-size:0!important; letter-spacing:0!important; transform:none!important; position:relative; }
 [data-testid="stPopover"] button:hover{
-  border-color:var(--lime)!important; color:var(--lime)!important;
-  background:rgba(146,206,83,.06)!important; box-shadow:none!important; transform:none!important; }
+  background:transparent!important; color:var(--lime)!important; box-shadow:none!important; transform:none!important; }
+/* draw a crisp, perfectly-centred 3-bar hamburger — no reliance on the ☰ glyph */
+[data-testid="stPopover"] button::before{
+  content:""; width:19px; height:2px; border-radius:2px; background:currentColor;
+  box-shadow:0 -6px 0 currentColor, 0 6px 0 currentColor; }
 /* kill the default dropdown chevron — a clean ☰ icon only, Grok-style */
 [data-testid="stPopover"] button [data-testid="stIconMaterial"],
 [data-testid="stPopover"] button svg{ display:none!important; }
-[data-testid="stPopover"] button div[data-testid="stMarkdownContainer"]{ width:auto; }
+/* hide the ☰ text label entirely — the 3-bar icon is drawn via ::before */
+[data-testid="stPopover"] button div[data-testid="stMarkdownContainer"],
+[data-testid="stPopover"] button p{ display:none!important; }
 /* the floating menu surface */
 [data-testid="stPopoverBody"]{
   background:#0d120b!important; border:1px solid var(--line)!important;
@@ -492,7 +494,7 @@ hr{ border-color:var(--line); }
   [data-testid="stMainBlockContainer"], .block-container{
     padding-bottom:calc(7rem + env(safe-area-inset-bottom))!important; }
   /* comfortable native touch targets */
-  [data-testid="stPopover"] button{ min-height:44px!important; }
+  [data-testid="stPopover"] button{ width:44px!important; height:44px!important; min-height:44px!important; }
   [data-testid="stForm"] [data-testid="stFormSubmitButton"]>button{ min-height:46px!important; }
   .dk-askbtn{ min-height:42px; display:inline-flex; align-items:center; }
   [data-testid="stPopover"] div[role="radiogroup"] label{ min-height:44px; }
