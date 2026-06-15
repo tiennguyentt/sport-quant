@@ -167,16 +167,18 @@ if page == "Terminal" and not in_chat:
     _sp, fi = st.columns([0.78, 0.22])
     with fi:
         st.markdown('<div class="dk-filter">⬡ All Leagues ▾</div>', unsafe_allow_html=True)
-    st.markdown('<div class="dk-hero">Introducing the <span class="g">terminal</span>. '
-                'It&rsquo;s all about <span class="g">Positive EV</span> — LLM-powered edges for '
-                '<span class="g">Polymarket &amp; Kalshi</span>. Connect to the engine, then '
-                '<span class="g">ask for predictions</span>.</div>',
-                unsafe_allow_html=True)
-    # the cards live in a horizontally-scrolling strip in the middle band; each card's
-    # "Ask" button is a ?ask= link (works inside HTML), handled at the top of the script.
+    # hero + cards + scrubber in one block so the flex centering works across all three
+    _hero = (
+        '<div class="dk-hero">Introducing the <span class="g">terminal</span>. '
+        'It&rsquo;s all about <span class="g">Positive EV</span> — LLM-powered edges for '
+        '<span class="g">Polymarket &amp; Kalshi</span>. Connect to the engine, then '
+        '<span class="g">ask for predictions</span>.</div>'
+    )
     strip = "".join(theme.card(f, max(0.0, edge(f["model_p"], f["odds"])) * 100) for f in FIX[:12])
-    st.markdown(theme.card_strip(strip), unsafe_allow_html=True)
-    st.markdown(theme.scrubber(), unsafe_allow_html=True)
+    st.markdown(
+        f'<div class="sq-landing">{_hero}{theme.card_strip(strip)}{theme.scrubber()}</div>',
+        unsafe_allow_html=True,
+    )
     _ask_box("ask_landing")
 
 elif in_chat:
