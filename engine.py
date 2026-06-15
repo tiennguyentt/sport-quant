@@ -27,6 +27,7 @@ class PortfolioState:
             "vision": 1.0,
             "elo": 1.0,
             "xg": 1.0,
+            "form": 1.0,
             "market": 1.0,
         }
     )

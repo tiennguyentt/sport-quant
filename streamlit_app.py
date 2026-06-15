@@ -126,6 +126,10 @@ def _ask(event_name: str, user_text: str | None = None) -> None:
     st.session_state["pending"] = {"event": event_name, "text": user_text}
 
 
+_CHAT_ONLY = {"hi", "hello", "hey", "yo", "sup", "hola", "test", "ok", "okay",
+              "thanks", "thank", "thx", "bye", "good", "great", "nice", "cool"}
+
+
 def _ask_box(key: str) -> None:
     """Chat composer — one centered rounded box (styled in theme CSS): the input on top,
     decorative attach/mic icons + a green send pill on the bottom row. Matches the reference."""
@@ -136,6 +140,17 @@ def _ask_box(key: str) -> None:
         c1.markdown(":material/attach_file: :material/mic:")
         go = c2.form_submit_button("Ask  :material/send:", use_container_width=True)
     if go and q.strip():
+        words = set(q.lower().split())
+        # conversational / non-match input — reply directly, skip match analysis
+        if words <= _CHAT_ONLY or len(q.strip()) <= 4:
+            thread = st.session_state.setdefault("thread", [])
+            thread.append(("u", q.strip()))
+            thread.append(("a", "I'm the Sport Quant engine — ask me about a specific match "
+                           "or team name and I'll run the model, surface the edge, and let the "
+                           "gate decide. Try: <em>South Korea vs Czech Republic</em> or "
+                           "<em>USA</em>."))
+            st.rerun()
+            return
         m = next((f for f in FIX if any(w in f["event"].lower() for w in q.lower().split())), None) \
             or max(FIX, key=lambda f: edge(f["model_p"], f["odds"]))
         _ask(m["event"], q.strip())
