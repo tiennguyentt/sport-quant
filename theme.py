@@ -1,17 +1,17 @@
-"""Design system for sport-quant — a pixel-faithful rebuild of the SIRE / DKING terminal.
+"""Design system for sport-quant — a pixel-faithful rebuild of the reference terminal.
 
-Reference: the DKING terminal screenshots — near-black starfield canvas, lime-green accent,
+Reference: the reference terminal screenshots — near-black starfield canvas, lime-green accent,
 heavy Archivo display type, a live-score ticker, a left rail with a green folded-corner
-balance card, a chat panel with avatar bubbles, DKING-style match cards, and a green input.
+balance card, a chat panel with avatar bubbles, match cards, and a green input.
 De-crypto'd: wallet/staking labels become session/paper-bankroll, same exact visual slots.
 """
 from __future__ import annotations
 
 import streamlit as st
 
-import fonts_data  # SIRE fonts (Kensmark + PP Neue Montreal) embedded as data URIs
+import fonts_data  # Brand fonts (Kensmark + PP Neue Montreal) embedded as data URIs
 
-# ---- palette (DKING) -------------------------------------------------------
+# ---- palette (the reference) -------------------------------------------------------
 BG      = "#060607"
 PANEL   = "#11150F"
 PANEL2  = "#161B12"
@@ -19,7 +19,7 @@ LINE    = "#222A1C"
 INK     = "#F2F4EF"
 MUTED   = "#8A938A"
 DIM     = "#5A6356"
-LIME    = "#92CE53"   # the DKING green
+LIME    = "#92CE53"   # the brand green
 POS     = "#92CE53"
 NEG     = "#FF5B6B"
 ACCENT  = "#92CE53"
@@ -57,7 +57,7 @@ html,body,[class*="css"]{ font-family:'ppNeueMontreal','kensmark',sans-serif; }
 [data-testid="stAppViewContainer"]>.main .block-container{ padding:.35rem 1.4rem 5rem; max-width:1240px; }
 .num{ font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums; }
 .pos{ color:var(--pos); } .neg{ color:var(--neg); }
-/* sidebar = DKING left rail */
+/* sidebar = the reference left rail */
 [data-testid="stSidebar"]{ background:transparent; border-right:none; padding-top:6px; }
 [data-testid="stSidebar"]>div{ padding-top:10px; }
 [data-testid="stSidebar"] *{ color:var(--ink); }
@@ -110,7 +110,7 @@ html,body,[class*="css"]{ font-family:'ppNeueMontreal','kensmark',sans-serif; }
 .dk-th .k{ font-family:'IBM Plex Mono';font-size:10.5px;letter-spacing:.14em;color:var(--lime);margin-bottom:8px; }
 .dk-th .b{ font-family:'ppNeueMontreal',sans-serif;font-size:12.5px;line-height:1.55;color:var(--muted); }
 .dk-th .b b{ color:var(--ink);font-weight:600; }
-/* DKING match card */
+/* the reference match card */
 .dk-card{ position:relative; overflow:hidden; background:rgba(17,21,15,.7); border:1px solid var(--line); border-radius:15px; padding:16px 16px 14px; height:100%; backdrop-filter:blur(2px); }
 .dk-card::after{ content:""; position:absolute; top:0; right:0; border-width:0 30px 30px 0; border-style:solid; border-color:transparent var(--lime) transparent transparent; }
 .dk-card .lg{ font-family:'IBM Plex Mono';font-size:10px;color:var(--dim);letter-spacing:.12em;text-transform:uppercase; }
@@ -229,7 +229,7 @@ hr{ border-color:var(--line); }
     # Streamlit/markdown ends an HTML block at the first blank line — which would dump
     # the rest of the CSS as visible text. Strip blank lines so the <style> stays intact.
     html = "\n".join(line for line in html.splitlines() if line.strip())
-    # embed the real SIRE fonts (Kensmark + PP Neue Montreal) right after <style>
+    # embed the real Brand fonts (Kensmark + PP Neue Montreal) right after <style>
     html = html.replace("<style>", "<style>" + fonts_data.FONT_CSS, 1)
     st.markdown(html, unsafe_allow_html=True)
 
@@ -242,7 +242,7 @@ def cls(v: float) -> str:
     return "pos" if v > 0 else ("neg" if v < 0 else "")
 
 
-# ---- sidebar (DKING left rail) --------------------------------------------
+# ---- sidebar (the reference left rail) --------------------------------------------
 def rail(brand: str, bankroll: str) -> str:
     return (
         f'<div class="dk-rail">'

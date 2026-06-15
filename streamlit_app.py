@@ -1,4 +1,4 @@
-"""sport-quant — a governed sports-prediction terminal (de-crypto'd SIRE / DKING rebuild).
+"""sport-quant — a governed sports-prediction terminal (prediction-market terminal).
 
 The Terminal is the front door (the interaction layer): live scores, pick a match, ask, and
 the engine answers with a Kelly-sized recommendation — every answer routed through a
@@ -281,7 +281,7 @@ elif page == "About":
                     f'<p style="color:var(--muted);font-size:13px;margin:2px 0 6px">{note}</p>',
                     unsafe_allow_html=True)
 
-    _stage("01", "SCORE — adapted from SIRE's quant core (Elo + Dixon-Coles ensemble)",
+    _stage("01", "SCORE — Elo + Dixon-Coles ensemble",
            "Two base models produce a probability; a meta-ensemble blends them. No LLM here.")
     st.latex(r"\textbf{Elo: } \quad P_{\text{elo}}(\text{home}) = \frac{1}{1 + 10^{(R_{away}-R_{home})/400}}")
     st.latex(r"\textbf{Dixon-Coles: }\quad \lambda_{home}=\gamma\,\alpha_{home}\,\beta_{away},\;\; "
@@ -293,7 +293,7 @@ elif page == "About":
     _stage("02", "EDGE — model probability vs the de-vigged market", "")
     st.latex(r"\text{edge} = p - q,\qquad q = \tfrac{1}{\text{odds}}\;\;(\text{implied probability})")
 
-    _stage("03", "SIZE — fractional Kelly with hard caps (SIRE: 1%/position)", "")
+    _stage("03", "SIZE — fractional Kelly with hard caps (1% per position)", "")
     st.latex(r"f^{*}=\frac{b\,p-(1-p)}{b},\quad b=\text{odds}-1;\qquad "
              r"\text{stake}=\min\!\big(\tfrac14 f^{*}B,\;0.01\,B\big)")
 

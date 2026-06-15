@@ -1,4 +1,4 @@
-"""Quantitative scoring core — the base logic (SIRE-style), NOT an LLM.
+"""Quantitative scoring core — the base logic, NOT an LLM.
 
 Team strength ratings → Elo win probability. This is where the probability comes from:
 a deterministic rating model, computed in the backend. The LLM never produces the number —
@@ -37,7 +37,7 @@ def win_prob(home: str, away: str, neutral: bool = True) -> float:
 
 
 # ---------------------------------------------------------------------------
-# Dixon–Coles model (bivariate Poisson on goals) — the second SIRE base model.
+# Dixon–Coles model (bivariate Poisson on goals) — the second base model.
 # Expected goals come from each team's attack/defence strength; the joint score
 # distribution is corrected for low scores (the Dixon–Coles tau term, ρ).
 # ---------------------------------------------------------------------------
@@ -90,7 +90,7 @@ W_DC, W_ELO = 0.6, 0.4
 
 
 def ensemble_prob(home: str, away: str) -> float:
-    """SIRE-style meta-ensemble P(home wins): blend Dixon–Coles and Elo."""
+    """meta-ensemble P(home wins): blend Dixon–Coles and Elo."""
     p_dc = dixon_coles(home, away)[0]
     p_elo = win_prob(home, away)
     return W_DC * p_dc + W_ELO * p_elo

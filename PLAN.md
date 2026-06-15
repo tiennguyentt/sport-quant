@@ -1,7 +1,7 @@
 # sport-quant — Detailed Build Plan
 
 *A 3-model synthesis (Claude + Codex/GPT-5.5 product review + Grok reverse-engineering report).
-De-crypto'd, AIoT-framed rebuild of SIRE's intelligence layer as a public Streamlit demo for an
+De-crypto'd, AIoT-framed quantitative prediction-market terminal as a public Streamlit demo for an
 interview window (a few days, then taken down).*
 
 ---
@@ -57,7 +57,7 @@ audited and calibrated against outcomes.
   UI). A **Telegram-style "SIGNAL DETECTED" card** as a UI element only (no real integration).
 
 ### OUT — hard exclusions
-All crypto/token/vault economics ($SIRE, USDC, units, DAO, staking, buyback, fees flywheel,
+All crypto/token/vault economics ($the engine, USDC, units, DAO, staking, buyback, fees flywheel,
 wallets, on-chain). Real CV. Real odds APIs. Auth. Autonomous real execution. Multi-user.
 (Other sports appear only as recorded ledger history.)
 
